@@ -1,25 +1,26 @@
-import Sidebar from './components/Sidebar'
-import Header from './components/Header'
+
 import { BrowserRouter } from 'react-router'
 import { Toaster } from 'sonner'
-
-
-
+import { Routes, Route } from "react-router-dom";
+import SignUp from "./pages/SignUp";
+import SignIn from "./pages/SignIn";
 
 function App() {
-
   return (
-  
-    // <BrowserRouter>
-    //   <Routes>
-    //     <Route path="/" element={<HomePage />} />
-    //     <Route path="/games" element={<GamesPage />} />
-    //     <Route path="/posts" element={<PostPage />} />
-    //     <Route path="/upload-game" element={<UploadGamePage />} />
-    //     <Route path="*" element={<NotFound />} />
-    //   </Routes>
-    // </BrowserRouter>
-  )
+    <BrowserRouter><Routes>
+      <Route
+        path="/signup"
+        element={<SignUp />}
+      />
+      <Route
+        path="/signin"
+        element={<SignIn />}
+      />
+    </Routes>
+    
+    </BrowserRouter>
+  );
+
 }
 
-export default App
+export default App;
