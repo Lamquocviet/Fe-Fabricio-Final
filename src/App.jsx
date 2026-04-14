@@ -1,10 +1,13 @@
+
+import { BrowserRouter } from 'react-router'
+import { Toaster } from 'sonner'
 import { Routes, Route } from "react-router-dom";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 
 function App() {
   return (
-    <Routes>
+    <BrowserRouter><Routes>
       <Route
         path="/signup"
         element={<SignUp />}
@@ -14,7 +17,10 @@ function App() {
         element={<SignIn />}
       />
     </Routes>
+    
+    </BrowserRouter>
   );
+
 }
 
 export default App;
