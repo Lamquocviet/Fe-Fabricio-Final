@@ -99,7 +99,7 @@ const SignUp = () => {
       <div className="w-full max-w-7xl overflow-hidden rounded-[22px] md:rounded-[28px] border border-white/10 bg-[#141418]/70 backdrop-blur-md shadow-[0_20px_80px_rgba(0,0,0,0.45)] grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="border-b lg:border-b-0 lg:border-r border-white/10 px-5 py-8 sm:px-8 md:px-10 lg:px-12 lg:py-14 bg-[radial-gradient(circle_at_top_left,rgba(255,95,65,0.18),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))]">
           <span className="inline-block rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-sm font-semibold text-orange-300">
-            Join GameStore
+            Join Fabricio Community
           </span>
 
           <h1 className="mt-5 text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight text-zinc-100">
