@@ -1,13 +1,17 @@
-
-import { BrowserRouter } from 'react-router'
-import { Toaster } from 'sonner'
-import { Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import NotFound from "./pages/NotFound";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
+import Home from "./pages/Home";
 
 function App() {
   return (
-    <BrowserRouter><Routes>
+    <Routes>
+      <Route
+        path="/"
+        element={<Home />}
+      />
       <Route
         path="/signup"
         element={<SignUp />}
@@ -16,11 +20,12 @@ function App() {
         path="/signin"
         element={<SignIn />}
       />
+      <Route
+        path="*"
+        element={<NotFound />}
+      />
     </Routes>
-    
-    </BrowserRouter>
   );
-
 }
 
 export default App;
