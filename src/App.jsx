@@ -3,14 +3,34 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
-import Home from "./pages/Home";
+import HomePage from "./pages/HomePage";
+import GamePage from "./pages/GamesPage";
+import PostPage from "./pages/PostPage";
+import ProfilePage from "./pages/ProfilePage";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
   return (
     <Routes>
       <Route
         path="/"
-        element={<Home />}
+        element={<HomePage />}
+      />
+      <Route
+        path="/games"
+        element={<GamePage />}
+      />
+      <Route
+        path="/posts"
+        element={<PostPage />}
+      />
+      <Route
+        path="/profile"
+        element={<ProfilePage />}
+      />
+      <Route
+        path="/dashboard"
+        element={<DashboardPage />}
       />
       <Route
         path="/signup"
