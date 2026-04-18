@@ -4,7 +4,7 @@ import NotFound from "./pages/NotFound";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import HomePage from "./pages/HomePage";
-import GamePage from "./pages/GamesPage";
+import GamePage from "./pages/GamePage";
 import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
 import DashboardPage from "./pages/DashboardPage";
@@ -22,6 +22,8 @@ function App() {
         path="/games"
         element={<GamePage />}
       />
+      <Route path="/games/:id" element={<GameDeatailPage/>} />
+      
       <Route
         path="/posts"
         element={<PostPage />}
@@ -42,11 +44,7 @@ function App() {
         path="/signin"
         element={<SignIn />}
       />
-      <Route
-        path="/games"
-        element={<GamePage />}
-      />
-      <Route path="/games/:id" element={<GameDeatailPage/>} />
+      
       <Route
         path="*"
         element={<NotFound />}

@@ -47,7 +47,12 @@ export default function GameCard({ game }) {
 
         {/* Price */}
         <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-[#ffb14a]">{game.price}</span>
+          <span
+            className={`text-2xl font-bold ${
+              game.price === "Free" ? "text-[#1ee59b]" : "text-[#ffb14a]"
+            }`}>
+            {game.price}
+          </span>
 
           <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-zinc-200">
             ★ {game.rating}
