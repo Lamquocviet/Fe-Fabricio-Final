@@ -1,5 +1,5 @@
 import axiosInstance from "../utils/axiosInstance";
-import { mockFeaturedGames, trendingGames } from "../mocks/homeMock";
+import { gameLibrary, mockFeaturedGames, trendingGames } from "../mocks/homeMock";
 
 const USE_MOCK = true;
 
@@ -27,4 +27,12 @@ export const getTrendingGames = async () => {
 
   const res = await axiosInstance.get("/games/trending");
   return res.data;
+};
+export const gameLibraryService = {
+  async getGameLibrary() {
+    return gameLibrary;
+  },
+  async getGameById(id) {
+    return gameLibrary.find(game => game.id === id) || null;
+  }
 };

@@ -1,6 +1,12 @@
-import React from "react";
+import React, { use } from "react";
+import { useNavigate } from "react-router";
 
 export default function GameCard({ game }) {
+
+  const navigate = useNavigate();
+  const handleClickView = () => {
+    navigate(`/games/${game.id}`);
+  }
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-[22px] border border-white/10 bg-[#141517] shadow-[0_8px_24px_rgba(0,0,0,0.24)] transition hover:-translate-y-0.5 hover:border-white/15">
       {/* Image */}
@@ -50,7 +56,7 @@ export default function GameCard({ game }) {
 
         {/* Button luôn xuống đáy */}
         <div className="mt-auto grid grid-cols-2 gap-2 pt-2">
-          <button className="rounded-xl bg-linear-to-r from-[#ff6a4a] to-[#ff4d61] px-4 py-2 text-sm font-semibold text-white">
+          <button onClick={handleClickView} className="rounded-xl bg-linear-to-r from-[#ff6a4a] to-[#ff4d61] px-4 py-2 text-sm font-semibold text-white cursor-pointer">
             View
           </button>
 

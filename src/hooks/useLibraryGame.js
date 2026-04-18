@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { productService } from "../services/productService"; 
+import { gameLibraryService } from "@/services/gameService";
 import { filterProducts } from "../utils/filterProducts";
 
 export const useProducts = () => {
@@ -14,7 +14,7 @@ export const useProducts = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await productService.getProducts(); 
+      const data = await gameLibraryService.getGameLibrary(); 
       setProducts(data);
       setFilteredProducts(data);
     };

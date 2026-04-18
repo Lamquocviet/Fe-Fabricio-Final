@@ -5,6 +5,8 @@ import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Home from "./pages/Home";
 import GamePage from "./pages/GamePage";
+// import { R } from "node_modules/react-router/dist/development/browser-D-3-U2Jj.mjs";
+import GameDeatailPage from "./pages/GameDetailPage";
 
 function App() {
   return (
@@ -25,6 +27,7 @@ function App() {
         path="/games"
         element={<GamePage />}
       />
+      <Route path="/games/:id" element={<GameDeatailPage/>} />
       <Route
         path="*"
         element={<NotFound />}

@@ -3,11 +3,8 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import useHomeFeed from "../hooks/useHomeFeed";
 import FilterBar from "../components/FilterBar";
-import { useProducts } from "@/hooks/useProduct";
+import { useProducts } from "@/hooks/useLibraryGame";
 import TaskPagination from "@/components/TaskPagination";
-import TrendingGameCard from "@/components/TrendingGameCard";
-import GameCard from "@/components/GameCard";
-import TrendingNowSection from "@/sections/TrendingNowSection";
 import GameLibrarySection from "@/sections/GameLibrarySection";
 
 export default function Home() {
