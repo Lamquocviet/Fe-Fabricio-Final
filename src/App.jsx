@@ -1,5 +1,5 @@
 import { Toaster } from "sonner";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {Routes, Route } from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
@@ -8,6 +8,8 @@ import GamePage from "./pages/GamesPage";
 import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
 import DashboardPage from "./pages/DashboardPage";
+import GameDeatailPage from "./pages/GameDetailPage";
+
 
 function App() {
   return (
@@ -40,6 +42,11 @@ function App() {
         path="/signin"
         element={<SignIn />}
       />
+      <Route
+        path="/games"
+        element={<GamePage />}
+      />
+      <Route path="/games/:id" element={<GameDeatailPage/>} />
       <Route
         path="*"
         element={<NotFound />}
