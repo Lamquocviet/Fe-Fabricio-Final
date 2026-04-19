@@ -4,9 +4,13 @@ export const registerUser = async (data) => {
   try {
     const res = await axiosInstance.post("/Auth/register", data);
     return res.data;
-}
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || "Đăng ký thất bại");
+  }
+};
 
 export const loginUser = async (data) => {
+  try {
     const res = await axiosInstance.post("/auth/login", data);
 
     const responseData = res.data;
@@ -34,4 +38,14 @@ export const getMyProfile = async () => {
     }
 
     return res.data;
-}
+  } catch (error) {
+    throw new Error(
+      error?.response?.data?.message || "Không lấy được thông tin cá nhân",
+    );
+  }
+};
+
+export const logoutUser = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+};

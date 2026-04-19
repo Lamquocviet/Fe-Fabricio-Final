@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../services/authService";    
+import useAuth from "../hooks/useAuth";
 
 const FormField = ({
   label,
@@ -38,7 +38,6 @@ const Login = () => {
 
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (field) => (e) => {
@@ -60,7 +59,6 @@ const Login = () => {
       return "Username and password are required";
     }
 
-
     if (password.length < 6) {
       return "Password must be at least 6 characters";
     }
@@ -68,7 +66,7 @@ const Login = () => {
     return "";
   };
 
-  const handleSubmit = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
 
     const validationError = validateForm();
@@ -82,9 +80,7 @@ const Login = () => {
       console.log("Đăng nhập thành công");
       navigate("/")
     } catch (err) {
-      setError(err.message || "Login failed");
-    } finally {
-      setLoading(false);
+      console.error(err.message);
     }
   };
 
@@ -115,7 +111,7 @@ const Login = () => {
             )}
 
             <form
-              onSubmit={handleSubmit}
+              onSubmit={onSubmit}
               className="mt-6 space-y-4">
               <FormField
                 label="Username"
@@ -187,7 +183,9 @@ const Login = () => {
 
             <p className="mt-5 text-center text-sm text-zinc-400">
               Don&apos;t have an account?{" "}
-              <Link to="/signup" className="cursor-pointer font-bold text-[#ff7a59]">
+              <Link
+                to="/signup"
+                className="cursor-pointer font-bold text-[#ff7a59]">
                 Sign up
               </Link>
             </p>
