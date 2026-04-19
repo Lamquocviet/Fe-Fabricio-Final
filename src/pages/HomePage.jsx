@@ -41,7 +41,7 @@ export default function Home() {
           onClose={() => setIsSidebarOpen(false)}
         />
         <main className="flex-1">
-          <div className="space-y-8">
+          <div className="space-y-8 px-4 py-6 lg:p-0">
             <FeaturedDropSection featuredDrop={featuredDrop} />
             <FeaturedGamesSection games={featuredGames} />
             <TrendingNowSection games={trendingGames} />

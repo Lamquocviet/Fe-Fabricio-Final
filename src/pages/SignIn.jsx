@@ -28,7 +28,7 @@ const FormField = ({
 };
 
 const Login = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const { handleLogin, loading } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -54,9 +54,9 @@ const Login = () => {
 
   const validateForm = () => {
     const { username, password } = formData;
-
+    console.log(formData)
     if (!username || !password) {
-      return "Email and password are required";
+      return "Username and password are required";
     }
 
     if (password.length < 6) {
@@ -78,6 +78,7 @@ const Login = () => {
     try {
       await handleLogin(formData);
       console.log("Đăng nhập thành công");
+      navigate("/")
     } catch (err) {
       console.error(err.message);
     }

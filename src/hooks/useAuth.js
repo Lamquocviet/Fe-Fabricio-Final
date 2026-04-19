@@ -43,15 +43,15 @@ export default function useAuth() {
 
       const res = await loginUser(formData);
 
-      if (res?.user) {
-        setUser(res.user);
-      } else {
-        // Nếu backend chỉ trả token mà chưa trả user,
-        // gọi profile để lấy user thật
-        const profileRes = await getMyProfile();
-        const profileUser = profileRes?.user || profileRes?.data || profileRes;
-        setUser(profileUser);
-      }
+      // if (res?.user) {
+      //   setUser(res.user);
+      // } else {
+      //   // Nếu backend chỉ trả token mà chưa trả user,
+      //   // gọi profile để lấy user thật
+      //   const profileRes = await getMyProfile();
+      //   const profileUser = profileRes?.user || profileRes?.data || profileRes;
+      //   setUser(profileUser);
+      // }
 
       return res;
     } catch (err) {

@@ -2,7 +2,7 @@ import axiosInstance from "../utils/axiosInstance";
 
 export const registerUser = async (data) => {
   try {
-    const res = await axiosInstance.post("/auth/register", data);
+    const res = await axiosInstance.post("/Auth/register", data);
     return res.data;
   } catch (error) {
     throw new Error(error?.response?.data?.message || "Đăng ký thất bại");
@@ -15,8 +15,8 @@ export const loginUser = async (data) => {
 
     const responseData = res.data;
 
-    if (responseData?.token) {
-      localStorage.setItem("token", responseData.token);
+    if (responseData?.accessToken) {
+      localStorage.setItem("token", responseData.accessToken);
     }
 
     if (responseData?.user) {
@@ -31,7 +31,7 @@ export const loginUser = async (data) => {
 
 export const getMyProfile = async () => {
   try {
-    const res = await axiosInstance.get("/auth/profile");
+    const res = await axiosInstance.get("/User");
 
     if (res.data?.user) {
       localStorage.setItem("user", JSON.stringify(res.data.user));

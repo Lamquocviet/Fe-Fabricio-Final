@@ -87,7 +87,7 @@ const SignUp = () => {
         password: "",
         confirmPassword: "",
       });
-      navigate("/login");
+      navigate("/signin");
     } catch (error) {
       setLoading(false);
       setError(error.message);

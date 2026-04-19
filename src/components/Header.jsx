@@ -1,6 +1,7 @@
 import { Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, NavLink } from "react-router-dom";
+import useAuth from "@/hooks/useAuth";
 
 const pages = [
   { label: "Home", path: "/" },
@@ -10,12 +11,12 @@ const pages = [
 ];
 
 const Header = ({ onOpenSidebar }) => {
+  const { user, handleLogout } = useAuth();
+
   return (
     <header className="sticky top-0 z-50 mb-5 w-full border-b border-white/10 bg-black/80 backdrop-blur-xl">
       <div className="flex h-16 w-full items-center gap-4 px-4 lg:h-21.5 lg:px-8">
-        <Link
-          to="/"
-          className="flex shrink-0 items-center gap-3 min-w-0">
+        <Link to="/" className="flex shrink-0 items-center gap-3 min-w-0">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-linear-to-br from-[#ff6a5c] to-[#ff5a3d] text-lg font-bold text-white shadow-[0_0_30px_rgba(255,98,77,0.35)] lg:h-12 lg:w-12 lg:text-xl">
             G
           </div>
@@ -49,35 +50,55 @@ const Header = ({ onOpenSidebar }) => {
                       ? "bg-white/10 text-white shadow-[0_0_30px_rgba(255,98,77,0.12)]"
                       : "text-zinc-400 hover:bg-white/5 hover:text-white",
                   ].join(" ")
-                }>
+                }
+              >
                 {item.label}
               </NavLink>
             ))}
           </nav>
 
-          <Link
-            to="/login"
-            className="ml-2 px-3 text-[1.05rem] font-medium text-zinc-300 transition hover:text-white">
-            Login
-          </Link>
+          {!user ? (
+            <Link
+              to="/signin"
+              className="ml-2 px-3 text-[1.05rem] font-medium text-zinc-300 transition hover:text-white"
+            >
+              Sign In
+            </Link>
+          ) : (
+            <>
+              <button
+                onClick={handleLogout}
+                className="ml-2 px-3 text-[1.05rem] font-medium text-zinc-300 transition hover:text-white"
+              >
+                Sign Out
+              </button>
 
-          <Link
-            to="/profile"
-            className="ml-1 flex items-center gap-3 rounded-[20px] bg-linear-to-r from-[#ff6a5c] to-[#ff5a3d] px-4 py-3 text-white shadow-[0_0_30px_rgba(255,98,77,0.25)] transition hover:brightness-105">
-            <img
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80"
-              alt="nova"
-              className="h-10 w-10 rounded-full object-cover ring-2 ring-white/20"
-            />
-            <span className="text-[1.05rem] font-semibold">nova</span>
-          </Link>
+              <Link
+                to="/profile"
+                className="ml-1 flex items-center gap-3 rounded-[20px] bg-linear-to-r from-[#ff6a5c] to-[#ff5a3d] px-4 py-3 text-white shadow-[0_0_30px_rgba(255,98,77,0.25)] transition hover:brightness-105"
+              >
+                <img
+                  src={
+                    user?.avatarUrl ||
+                    "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png"
+                  }
+                  alt={user?.username || "user"}
+                  className="h-10 w-10 rounded-full object-cover ring-2 ring-white/20"
+                />
+                <span className="text-[1.05rem] font-semibold">
+                  {user?.username || "User"}
+                </span>
+              </Link>
+            </>
+          )}
         </div>
 
         <Button
           onClick={onOpenSidebar}
           variant="ghost"
           size="icon"
-          className="ml-auto text-white hover:bg-white/10 lg:hidden">
+          className="ml-auto text-white hover:bg-white/10 lg:hidden"
+        >
           <Menu className="h-6 w-6" />
         </Button>
       </div>
