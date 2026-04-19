@@ -28,7 +28,8 @@ const FormField = ({
 };
 
 const Login = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { handleLogin, loading } = useAuth();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -54,9 +55,9 @@ const Login = () => {
 
   const validateForm = () => {
     const { username, password } = formData;
-
+    console.log(formData)
     if (!username || !password) {
-      return "Email and password are required";
+      return "Username and password are required";
     }
 
 
@@ -77,30 +78,9 @@ const Login = () => {
     }
 
     try {
-      setLoading(true);
-      setError("");
-      setSuccessMessage("");
-
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-
-      const payload = {
-        username: formData.username,
-        password: formData.password
-      }
-
-    //   const result = await loginUser(payload);
-
-    //   if(result?.token) {
-    //     localStorage.setItem("token", result.token);
-    //   }
-
-    //   if(result?.user) {
-    //     localStorage.setItem("user", JSON.stringify(result.user));
-    //   }
-
-      setSuccessMessage("Login successful");
-
-      // navigate("/");
+      await handleLogin(formData);
+      console.log("Đăng nhập thành công");
+      navigate("/")
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {
