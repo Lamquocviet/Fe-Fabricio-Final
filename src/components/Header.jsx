@@ -1,7 +1,7 @@
 import { Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, NavLink } from "react-router-dom";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/contexts/AuthContext";
 
 const pages = [
   { label: "Home", path: "/" },

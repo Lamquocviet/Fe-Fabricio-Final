@@ -10,28 +10,10 @@ const getErrorMessage = (error, fallbackMessage) => {
 
 export const getPosts = async ({ page = 1, limit = 10 } = {}) => {
   try {
-    if (USE_MOCK) {
-      await wait();
-
-      const start = (page - 1) * limit;
-      const end = start + limit;
-      const posts = mockPosts.slice(start, end);
-
-      return {
-        data: posts,
-        pagination: {
-          page,
-          limit,
-          total: mockPosts.length,
-          hasNextPage: end < mockPosts.length,
-        },
-      };
-    }
-
-    const res = await axiosInstance.get("/posts", {
+    const res = await axiosInstance.get("/Post", {
       params: { page, limit },
     });
-
+    console.log("getPosts response:", res.data);
     return res.data;
   } catch (error) {
     throw new Error(
@@ -50,7 +32,7 @@ export const getLatestPosts = async () => {
       };
     }
 
-    const res = await axiosInstance.get("/posts/latest");
+    const res = await axiosInstance.get("/Post/latest");
     return res.data;
   } catch (error) {
     throw new Error(getErrorMessage(error, "Không lấy được bài viết mới nhất"));
@@ -82,7 +64,7 @@ export const getPostComments = async ({ postId, page = 1, limit = 5 }) => {
       };
     }
 
-    const res = await axiosInstance.get(`/posts/${postId}/comments`, {
+    const res = await axiosInstance.get(`/Post/${postId}/comments`, {
       params: { page, limit },
     });
 
@@ -100,61 +82,24 @@ export const createPost = async (payload) => {
       throw new Error("Dữ liệu bài viết không hợp lệ");
     }
 
-    if (USE_MOCK) {
-      await wait();
-
-      const newPost = {
-        id: Date.now(),
-        name: payload?.displayName || payload?.name || "John Doe",
-        username: payload?.username
-          ? payload.username.startsWith("@")
-            ? payload.username
-            : `@${payload.username}`
-          : "@johndoe",
-        avatar:
-          payload?.avatar ||
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80",
-        time: "Vừa xong",
-        role: payload?.role || "player",
-        content: payload?.content || "",
-        media:
-          payload?.images?.map((file) =>
-            typeof file === "string" ? file : URL.createObjectURL(file),
-          ) || [],
-        stats: {
-          likes: 0,
-          comments: 0,
-        },
-        editable: true,
-      };
-
-      return {
-        message: "Tạo bài viết thành công",
-        data: newPost,
-      };
-    }
-
     const formData = new FormData();
 
+    if (payload?.title) {
+      formData.append("Title", payload.title);
+    }
+
     if (payload?.content) {
-      formData.append("content", payload.content);
-    }
-
-    if (payload?.userId) {
-      formData.append("userId", payload.userId);
-    }
-
-    if (payload?.role) {
-      formData.append("role", payload.role);
+      formData.append("Content", payload.content);
     }
 
     if (payload?.images?.length) {
       payload.images.forEach((file) => {
-        formData.append("images", file);
+        console.log("Appending file to formData:", file.name);
+        formData.append("MediaFiles", file);
       });
     }
 
-    const res = await axiosInstance.post("/posts", formData, {
+    const res = await axiosInstance.post("/Post", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -197,7 +142,7 @@ export const createComment = async (payload) => {
       };
     }
 
-    const res = await axiosInstance.post(`/posts/${payload.postId}/comments`, {
+    const res = await axiosInstance.post(`/Post/${payload.postId}/comments`, {
       content: payload.content,
     });
 
@@ -209,7 +154,7 @@ export const createComment = async (payload) => {
 
 export const deletePost = async (postId) => {
   return axiosInstance
-    .delete(`/posts/${postId}`)
+    .delete(`/Post/${postId}`)
     .then((res) => {
       return res.data;
     })

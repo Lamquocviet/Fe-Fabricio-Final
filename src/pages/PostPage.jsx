@@ -1,16 +1,34 @@
-import React, { useState } from "react";
+/* eslint-disable no-unused-vars */
+import React from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import CreatePostBox from "@/components/CreatePostBox";
 import PostCard from "../components/PostCard";
-import { mockPosts } from "../mocks/postMock";
-import useAuth from "../hooks/useAuth";
+import useAuth from "@/contexts/AuthContext";
+import usePosts from "../hooks/usePost";
 
 const PostPage = () => {
+  const {
+    posts,
+    loading,
+    creating,
+    deleting,
+    error,
+    createPost,
+    deletePost,
+    refetch,
+  } = usePosts({ page: 1, limit: 10 });
+
   const { user } = useAuth();
-  const [posts, setPosts] = useState([]);
-  const handlePostCreated = (newPost) => {
-    setPosts((prev) => [newPost, ...prev]);
+
+  const handleCreatePost = async (payload) => {
+    await createPost({
+      ...payload,
+    });
+  };
+
+  const handleDeletePost = async (postId) => {
+    await deletePost(postId);
   };
 
   return (
@@ -20,7 +38,7 @@ const PostPage = () => {
       <div className="flex">
         <Sidebar />
 
-        <section className="flex-1 min-h-screen bg-[#050505] text-white">
+        <section className="min-h-screen flex-1 bg-[#050505] text-white">
           <div className="w-full px-5 py-8">
             <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#090909] p-6 md:p-10">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,90,90,0.2),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.03),transparent)]" />
@@ -46,18 +64,32 @@ const PostPage = () => {
             <div className="mt-6">
               <CreatePostBox
                 user={user}
-                onPostCreated={handlePostCreated}
+                onPostCreated={handleCreatePost}
+                loading={creating}
+                error={error}
               />
             </div>
 
-            <div className="mt-6 space-y-4">
-              {mockPosts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                />
-              ))}
-            </div>
+            {error && (
+              <p className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+                {error}
+              </p>
+            )}
+
+            {loading ? (
+              <p className="mt-6 text-white/60">Đang tải bài viết...</p>
+            ) : (
+              <div className="mt-6 space-y-4">
+                {posts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    onDelete={handleDeletePost}
+                    deleting={deleting}
+                  />
+                ))}
+              </div>
+            )}
 
             <div className="mt-6 h-px bg-white/10" />
           </div>

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import useAuth from "@/contexts/AuthContext";
 
 const FormField = ({
   label,
@@ -54,7 +54,7 @@ const Login = () => {
 
   const validateForm = () => {
     const { username, password } = formData;
-    console.log(formData)
+
     if (!username || !password) {
       return "Username and password are required";
     }
@@ -77,7 +77,6 @@ const Login = () => {
 
     try {
       await handleLogin(formData);
-      console.log("Đăng nhập thành công");
       navigate("/")
     } catch (err) {
       console.error(err.message);
