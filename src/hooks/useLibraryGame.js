@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
 import { gameLibraryService } from "@/services/gameService";
 import { filterProducts } from "../utils/filterProducts";

@@ -1,6 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 import { X } from "lucide-react";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/contexts/AuthContext";
 
 const mainNavItems = [
   { label: "Home", path: "/" },
@@ -36,6 +36,8 @@ const navClass = ({ isActive }) =>
 
 const SidebarContent = ({ onClose }) => {
   const { user, handleLogout } = useAuth();
+
+  console.log("Sidebar user:", user);
 
   const authNavItems = user
     ? [

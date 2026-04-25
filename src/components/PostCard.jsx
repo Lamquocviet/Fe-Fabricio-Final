@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import CommentSection from "./CommentSection";
 
 export default function PostCard({ post }) {
+  console.log("Rendering PostCard with post:", post);
   const [showComments, setShowComments] = useState(false);
-
   return (
     <article className="rounded-3xl border border-white/10 bg-[#121315] p-2 shadow-[0_8px_28px_rgba(0,0,0,0.28)] lg:p-4">
       <div className="flex items-start justify-between gap-3">
@@ -30,18 +30,22 @@ export default function PostCard({ post }) {
           {post.role}
         </span>
       </div>
-
+      <h2 className="mt-4 text-2xl font-bold leading-snug text-white">
+        {post.title}
+      </h2>
       <p className="mt-4 text-base leading-7 text-zinc-100">{post.content}</p>
 
       {!!post.media?.length && (
         <div
           className={`mt-4 grid gap-3 ${
             post.media.length > 1 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
-          }`}>
+          }`}
+        >
           {post.media.map((media, index) => (
             <div
               key={index}
-              className="overflow-hidden rounded-[18px] bg-[#0e0f11]">
+              className="overflow-hidden rounded-[18px] bg-[#0e0f11]"
+            >
               <img
                 src={media}
                 alt={`${post.name}-${index}`}
@@ -53,7 +57,6 @@ export default function PostCard({ post }) {
           ))}
         </div>
       )}
-
       <div className="mt-4 flex flex-wrap items-center gap-5 text-sm text-zinc-400">
         <button className="transition hover:text-white">
           ♥ {post.stats?.likes ?? 0}
@@ -63,7 +66,8 @@ export default function PostCard({ post }) {
 
         <button
           className="transition hover:text-white"
-          onClick={() => setShowComments((prev) => !prev)}>
+          onClick={() => setShowComments((prev) => !prev)}
+        >
           Comments {showComments ? "▲" : "▼"} {post.stats?.comments ?? 0}
         </button>
 
@@ -73,11 +77,7 @@ export default function PostCard({ post }) {
           </button>
         )}
       </div>
-
-      <CommentSection
-        postId={post.id}
-        isOpen={showComments}
-      />
+      <CommentSection postId={post.id} isOpen={showComments} />
     </article>
   );
 }
