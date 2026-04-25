@@ -7,7 +7,7 @@ const pages = [
   { label: "Home", path: "/" },
   { label: "Games", path: "/games" },
   { label: "Posts", path: "/posts" },
-  { label: "Submit Game", path: "/submit-game" },
+  { label: "Submit Game", path: "/uploadgame" },
 ];
 
 const Header = ({ onOpenSidebar }) => {

@@ -36,3 +36,27 @@ export const gameLibraryService = {
     return gameLibrary.find(game => game.id === id) || null;
   }
 };
+
+
+
+export const uploadGame = async (data) => {
+  const formData = new FormData();
+
+  Object.keys(data).forEach((key) => {
+    if (key === "images") {
+      data.images.forEach((img) => formData.append("images", img));
+    } else if (key === "tags") {
+      data.tags.forEach((tag) => formData.append("tags", tag));
+    } else if (data[key]) {
+      formData.append(key, data[key]);
+    }
+  });
+
+  // const res = await api.post("/games", formData, {
+  //   headers: {
+  //     "Content-Type": "multipart/form-data",
+  //   },
+  // });
+
+  return res.data;
+};
