@@ -1,5 +1,12 @@
+/* eslint-disable no-unused-vars */
 import { useCallback, useEffect, useState } from "react";
-import { getPosts, createPost, deletePost } from "../services/postService";
+import {
+  getPosts,
+  createPost,
+  updatePost,
+  deletePost,
+  createComment,
+} from "../services/postService";
 import { getUserById } from "../services/authService";
 
 export default function usePosts({ page = 1, limit = 10 } = {}) {
@@ -14,14 +21,16 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
   const mapPostWithAuthor = useCallback(async (post) => {
     try {
-      // const author = await getUserById(post.authorId);
+      const author = await getUserById(post.authorId);
 
       return {
         ...post,
 
-        name: author?.name || "Unknown User",
-        username: author?.username || "",
-        avatar: author?.avatarUrl || "/default-avatar.png",
+        name: author?.displayName || "Unknown User",
+        avatar:
+          author?.avatarUrl ||
+          "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png",
+        role: author?.role || "user",
         time: post.createdAt
           ? new Date(post.createdAt).toLocaleString("vi-VN")
           : "",
@@ -51,12 +60,12 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
         name: "Unknown User",
         username: "",
         avatar: "/default-avatar.png",
-        time: post.createdAt
+        time: post?.createdAt
           ? new Date(post.createdAt).toLocaleString("vi-VN")
           : "",
 
         media:
-          post.media?.map((item) => {
+          post?.media?.map((item) => {
             const url = item.mediaUrl;
 
             if (!url) return "";
@@ -69,8 +78,8 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
           }) || [],
 
         stats: {
-          likes: post.stats?.likes ?? 0,
-          comments: post.stats?.comments ?? 0,
+          likes: post?.stats?.likes ?? 0,
+          comments: post?.stats?.comments ?? 0,
         },
       };
     }
@@ -120,6 +129,20 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
     }
   };
 
+  const handleUpdatePost = async (postId, payload) => {
+    try {
+      setCreating(true);
+      setError("");
+
+      await updatePost(postId, payload);
+    } catch (err) {
+      setError(err.message || "Cập nhật bài viết thất bại");
+      throw err;
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const handleDeletePost = async (postId) => {
     try {
       setDeleting(true);
@@ -133,6 +156,20 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
       throw err;
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleCreateComment = async (postId, content) => {
+    try {
+      setCreating(true);
+      setError("");
+
+      await createComment(postId, { content });
+    } catch (err) {
+      setError(err.message || "Tạo bài viết thất bại");
+      throw err;
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -151,6 +188,8 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
     refetch: fetchPosts,
     createPost: handleCreatePost,
+    updatePost: handleUpdatePost,
     deletePost: handleDeletePost,
+    createComment: handleCreateComment,
   };
 }

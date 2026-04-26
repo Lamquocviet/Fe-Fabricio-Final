@@ -1,4 +1,5 @@
 import { useUploadGame } from "@/hooks/useUploadGame";
+import { useTag } from "@/hooks/useTag";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 
@@ -27,14 +28,14 @@ export default function UploadGamePage() {
     handleSubmit,
     errors,
     isSubmitting,
-    handleFile,
+    handleGameFile,
     handleThumbnail,
-    handleImages,
-    handleTags,
+    handleTagIds,
     watch,
   } = useUploadGame();
 
-  const selectedTags = watch("tags") || [];
+  const { tags } = useTag(); 
+
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -46,9 +47,12 @@ export default function UploadGamePage() {
             <div className="max-w-5xl mx-auto px-8">
               {/* HEADER */}
               <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2 mt-0 !text-white">🎮 Đăng game mới lên cửa hàng</h1>
+                <h1 className="text-3xl font-bold mb-2 mt-0 !text-white">
+                  🎮 Đăng game mới lên cửa hàng
+                </h1>
                 <p className="text-gray-400 text-sm">
-                  Tải build cho Windows, Android hoặc WebGL, thêm ảnh đại diện, ảnh show game, video YouTube, tag và giá bán.
+                  Tải build cho Windows, Android hoặc WebGL, thêm ảnh đại diện,
+                  ảnh show game, video YouTube, tag và giá bán.
                 </p>
               </div>
 
@@ -58,102 +62,81 @@ export default function UploadGamePage() {
               >
                 {/* BASIC INFO */}
                 <Section>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input label="Tên game" error={errors.name?.message}>
+                  <div className="grid grid-cols-3 gap-4">
+                    {/* Hàng 1 */}
+                    <Input label="Tên game" error={errors.Title?.message}>
                       <input
-                        {...register("name")}
+                        {...register("Title")}
                         placeholder="Cozy Circuit"
                         className={inputCls}
                       />
                     </Input>
 
-                    <Input label="Studio" error={errors.studio?.message}>
-                      <input {...register("studio")} className={inputCls} />
+                    <Input label="Giá ($)" error={errors.Price?.message}>
+                      <input
+                        type="number"
+                        step="0.01"
+                        {...register("Price")}
+                        className={inputCls}
+                      />
                     </Input>
 
-                    <Input label="Giá ($)" error={errors.price?.message}>
-                      <input {...register("price")} className={inputCls} />
-                    </Input>
-
-                    <Input label="Build type">
-                      <select {...register("buildType")} className={inputCls}>
-                        <option value="windows">Windows</option>
-                        <option value="android">Android</option>
-                        <option value="webgl">WebGL</option>
+                    <Input label="Game Type" error={errors.GameType?.message}>
+                      <select {...register("GameType")} className={inputCls}>
+                        <option value="Browser">Browser</option>
+                        <option value="Download">Download</option>
                       </select>
                     </Input>
+
+                    {/* Hàng 2 - span full */}
+                    <div className="col-span-3">
+                      <Input label="Mô tả" error={errors.Description?.message}>
+                        <textarea
+                          {...register("Description")}
+                          rows={4}
+                          className={textareaCls}
+                        />
+                      </Input>
+                    </div>
                   </div>
-                </Section>
-
-                {/* DESCRIPTION */}
-                <Section title="Mô tả">
-                  <Input label="Mô tả ngắn" error={errors.shortDesc?.message}>
-                    <textarea
-                      {...register("shortDesc")}
-                      className={textareaCls}
-                    />
-                  </Input>
-
-                  <Input
-                    label="Mô tả chi tiết"
-                    error={errors.description?.message}
-                  >
-                    <textarea
-                      {...register("description")}
-                      rows={4}
-                      className={textareaCls}
-                    />
-                  </Input>
                 </Section>
 
                 {/* FILE */}
                 <Section title="File game">
-                  <UploadBox onChange={handleFile} />
-                  {errors.file && <Error text={errors.file.message} />}
+                  <UploadBox onChange={handleGameFile} />
+                  {errors.GameFile && <Error text={errors.GameFile.message} />}
                 </Section>
 
                 {/* IMAGES */}
-                <Section title="Hình ảnh">
-                  <div className="grid grid-cols-2 gap-4">
-                    <UploadBox onChange={handleThumbnail} />
-                    <UploadBox onChange={handleImages} multiple />
-                  </div>
-                </Section>
-
-                {/* YOUTUBE */}
-                <Section title="Video">
-                  <input
-                    {...register("youtubeUrl")}
-                    placeholder="YouTube link"
-                    className={inputCls}
-                  />
+                <Section title="Thumbnail">
+                  <UploadBox onChange={handleThumbnail} />
+                  {errors.Thumbnail && (
+                    <Error text={errors.Thumbnail.message} />
+                  )}
                 </Section>
 
                 {/* TAGS */}
                 <Section title="Tags">
                   <div className="flex flex-wrap gap-2">
-                    {TAGS.map((tag) => {
-                      const active = selectedTags.includes(tag);
+                    {tags.map((tag) => {
+                      const active = watch("TagIds").includes(tag.id);
+
                       return (
                         <button
-                          key={tag}
+                          key={tag.id}
                           type="button"
-                          onClick={() => handleTags(tag)}
-                          className={`
-                      px-3 py-1.5 text-sm rounded-full border transition
-                      ${
-                        active
-  ? "bg-gradient-to-br from-[#ff6a5c] to-[#ff5a3d] text-white shadow-lg shadow-[#ff5a3d]/30"
-  : "bg-[#1a1c28] border border-[#2a2d3d] text-gray-400 hover:border-orange-400 hover:text-white"
-                      }
-                    `}
+                          onClick={() => handleTagIds(tag.id)}
+                          className={`px-3 py-1.5 text-sm rounded-full border transition ${
+                            active
+                              ? "bg-gradient-to-br from-[#ff6a5c] to-[#ff5a3d] text-white shadow-lg shadow-[#ff5a3d]/30"
+                              : "bg-[#1a1c28] border border-[#2a2d3d] text-gray-400 hover:border-orange-400 hover:text-white"
+                          }`}
                         >
-                          {tag}
+                          {tag.name}
                         </button>
                       );
                     })}
                   </div>
-                  {errors.tags && <Error text={errors.tags.message} />}
                 </Section>
 
                 {/* SUBMIT */}
