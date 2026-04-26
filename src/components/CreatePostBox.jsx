@@ -9,6 +9,7 @@ export default function CreatePostBox({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
+  const [formError, setFormError] = useState("");
 
   const previewImages = useMemo(() => {
     return images.map((file) => ({
@@ -37,7 +38,17 @@ export default function CreatePostBox({
   };
 
   const handleSubmit = async () => {
-    if (!title.trim() || !content.trim()) return;
+    if (!title.trim()) {
+      setFormError("Title is required");
+      return;
+    }
+
+    if (!content.trim()) {
+      setFormError("Content is required");
+      return;
+    }
+
+    setFormError("");
 
     await onPostCreated({
       title: title.trim(),
@@ -55,9 +66,8 @@ export default function CreatePostBox({
       <div className="flex items-center gap-3">
         <img
           src={
-            user?.avatar ||
-            user?.Avatar ||
-            "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80"
+            user?.avatarUrl ||
+            "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png"
           }
           alt="avatar"
           className="h-10 w-10 rounded-full object-cover"
@@ -89,6 +99,8 @@ export default function CreatePostBox({
         className="mt-4 w-full rounded-xl border border-white/10 bg-[#151515] p-4 text-sm outline-none placeholder:text-white/40 focus:border-white/20"
         rows={5}
       />
+
+      {formError && <p className="mt-3 text-sm text-red-400">{formError}</p>}
 
       <div className="mt-4 flex gap-3">
         <label className="cursor-pointer rounded-full border border-white/10 px-4 py-2 text-sm text-blue-300 hover:bg-white/5">

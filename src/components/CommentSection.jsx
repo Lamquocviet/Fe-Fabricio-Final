@@ -1,12 +1,23 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useInfiniteComments from "../hooks/useInfiniteComments";
 import CommentItem from "./CommentItem";
 
-export default function CommentSection({ postId, isOpen }) {
+export default function CommentSection({ postId, isOpen, onCreateComment }) {
   const containerRef = useRef(null);
+  const [content, setContent] = useState("");
 
   const { comments, loading, initialLoading, error, hasNextPage, loadMore } =
     useInfiniteComments(postId, isOpen);
+
+  const handleSubmitComment = async () => {
+    if (!content.trim()) return;
+
+    await onCreateComment(postId, {
+      content: content.trim(),
+    });
+
+    setContent("");
+  };
 
   useEffect(() => {
     const container = containerRef.current;
@@ -31,6 +42,28 @@ export default function CommentSection({ postId, isOpen }) {
 
   return (
     <div className="mt-4 rounded-[26px] border border-white/8 bg-[#0d0e10] p-3">
+      {/* FORM COMMENT */}
+      <div className="mb-4 rounded-2xl border border-white/8 bg-[#151515] p-3">
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Viết comment của bạn..."
+          rows={3}
+          className="w-full resize-none bg-transparent text-sm text-white outline-none placeholder:text-zinc-500"
+        />
+
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={handleSubmitComment}
+            disabled={!content.trim()}
+            className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Post Comment
+          </button>
+        </div>
+      </div>
+
       {initialLoading ? (
         <div className="space-y-3">
           <div className="h-16 animate-pulse rounded-2xl bg-white/5" />
@@ -44,17 +77,15 @@ export default function CommentSection({ postId, isOpen }) {
       ) : (
         <div
           ref={containerRef}
-          className="max-h-65 space-y-3 overflow-y-auto pr-1">
+          className="max-h-65 space-y-3 overflow-y-auto pr-1"
+        >
           {comments.length === 0 ? (
             <div className="rounded-2xl border border-white/8 bg-white/2 p-4 text-sm text-zinc-400">
               Chưa có comment nào.
             </div>
           ) : (
             comments.map((comment) => (
-              <CommentItem
-                key={comment.id}
-                comment={comment}
-              />
+              <CommentItem key={comment.id} comment={comment} />
             ))
           )}
 

@@ -5,18 +5,13 @@ import { uploadGame } from "@/services/gameService";
 
 export const useUploadGame = () => {
   const schema = yup.object({
-    name: yup.string().required("Tên game bắt buộc"),
-    studio: yup.string().required("Studio bắt buộc"),
-    price: yup.number().typeError("Phải là số").required(),
-    buildType: yup.string().required(),
-    shortDesc: yup.string().required(),
-    description: yup.string().required(),
-    youtubeUrl: yup.string().url().nullable(),
-
-    file: yup.mixed().required("Thiếu file game"),
-    thumbnail: yup.mixed().required("Thiếu thumbnail"),
-    images: yup.array().min(1, "Ít nhất 1 ảnh"),
-    tags: yup.array().min(1, "Chọn ít nhất 1 tag"),
+    Title: yup.string().required("Tên game bắt buộc"),
+    Description: yup.string().required("Mô tả bắt buộc"),
+    Price: yup.number().typeError("Giá phải là số").min(0).required(),
+    GameType: yup.string().required("Loại game bắt buộc"),
+    GameFile: yup.mixed().required("Thiếu file game"),
+    Thumbnail: yup.mixed().required("Thiếu thumbnail"),
+    TagIds: yup.array().default([]),
   });
 
   const {
@@ -24,46 +19,47 @@ export const useUploadGame = () => {
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      tags: [],
-      images: [],
+      Title: "",
+      Description: "",
+      Price: 0,
+      GameType: "Browser",
+      TagIds: [],
     },
   });
 
   const onSubmit = async (data) => {
     try {
+      console.log("Submitting game with data:", data);
       await uploadGame(data);
       alert("Upload thành công");
+      reset();
     } catch (err) {
       console.error(err);
-      alert("Lỗi upload");
+      alert(err?.response?.data?.message || "Lỗi upload");
     }
   };
 
-  const handleFile = (e) => {
-    setValue("file", e.target.files[0]);
+  const handleGameFile = (e) => {
+    setValue("GameFile", e.target.files?.[0], { shouldValidate: true });
   };
 
   const handleThumbnail = (e) => {
-    setValue("thumbnail", e.target.files[0]);
+    setValue("Thumbnail", e.target.files?.[0], { shouldValidate: true });
   };
 
-  const handleImages = (e) => {
-    setValue("images", Array.from(e.target.files));
-  };
-
-  const handleTags = (tag) => {
-    const current = watch("tags") || [];
-    const exists = current.includes(tag);
+  const handleTagIds = (tagId) => {
+    const current = watch("TagIds") || [];
+    const exists = current.includes(tagId);
 
     setValue(
-      "tags",
-      exists
-        ? current.filter((t) => t !== tag)
-        : [...current, tag]
+      "TagIds",
+      exists ? current.filter((id) => id !== tagId) : [...current, tagId],
+      { shouldValidate: true },
     );
   };
 
@@ -72,10 +68,9 @@ export const useUploadGame = () => {
     handleSubmit: handleSubmit(onSubmit),
     errors,
     isSubmitting,
-    handleFile,
+    handleGameFile,
     handleThumbnail,
-    handleImages,
-    handleTags,
+    handleTagIds,
     watch,
   };
 };

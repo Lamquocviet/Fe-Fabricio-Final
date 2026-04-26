@@ -15,7 +15,9 @@ const PostPage = () => {
     deleting,
     error,
     createPost,
+    updatePost,
     deletePost,
+    createComment,
     refetch,
   } = usePosts({ page: 1, limit: 10 });
 
@@ -25,11 +27,25 @@ const PostPage = () => {
     await createPost({
       ...payload,
     });
+
+    await refetch();
+  };
+
+  const handleUpdatePost = async (postId, payload) => {
+    await updatePost(postId, payload);
+
+    await refetch();
   };
 
   const handleDeletePost = async (postId) => {
     await deletePost(postId);
+    await refetch();
   };
+
+  const handleCreateComment = async (postId, payload) => {
+    await createComment(postId, payload);
+    // await refetch();
+  }
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -84,7 +100,10 @@ const PostPage = () => {
                   <PostCard
                     key={post.id}
                     post={post}
-                    onDelete={handleDeletePost}
+                    currentUser={user}
+                    onUpdatePost={handleUpdatePost}
+                    onDeletePost={handleDeletePost}
+                    onCreateComment={handleCreateComment}
                     deleting={deleting}
                   />
                 ))}
