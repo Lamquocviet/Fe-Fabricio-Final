@@ -7,7 +7,7 @@ import { useProducts } from "@/hooks/useLibraryGame";
 import TaskPagination from "@/components/TaskPagination";
 import GameLibrarySection from "@/sections/GameLibrarySection";
 
-export default function Home() {
+export default function GamePage() {
   const { loading, error } = useHomeFeed();
 
   const { filters, setFilters, filteredProducts } = useProducts();
@@ -22,9 +22,8 @@ export default function Home() {
 
   const currentProducts = filteredProducts.slice(start, end);
 
-
-  const handleNext = () => setPage(prev => prev + 1);
-  const handlePrev = () => setPage(prev => prev - 1);
+  const handleNext = () => setPage((prev) => prev + 1);
+  const handlePrev = () => setPage((prev) => prev - 1);
   const handlePageChange = (p) => setPage(p);
 
   if (loading) {
@@ -54,7 +53,6 @@ export default function Home() {
         <Sidebar />
         <main className="flex-1 px-4 py-6 lg:px-6">
           <div className="min-h-screen bg-[#050505] text-white p-6">
-            
             <FilterBar filters={filters} setFilters={setFilters} />
 
             <div className="mt-6 space-y-2">
@@ -79,3 +77,5 @@ export default function Home() {
     </div>
   );
 }
+
+

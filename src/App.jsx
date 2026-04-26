@@ -9,6 +9,7 @@ import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
 import DashboardPage from "./pages/DashboardPage";
 import GameDeatailPage from "./pages/GameDetailPage";
+import UploadGamePage from "./pages/UploadGamePage";
 
 
 function App() {
@@ -23,10 +24,14 @@ function App() {
         element={<GamePage />}
       />
       <Route path="/games/:id" element={<GameDeatailPage/>} />
-      
+
       <Route
         path="/posts"
         element={<PostPage />}
+      />
+      <Route
+        path="/uploadgame"
+        element={<UploadGamePage />}
       />
       <Route
         path="/profile"
