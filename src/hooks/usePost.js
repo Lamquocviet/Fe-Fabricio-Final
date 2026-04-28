@@ -5,12 +5,15 @@ import {
   createPost,
   updatePost,
   deletePost,
+  getPostComments,
   createComment,
+  createReaction,
+  removeReaction,
 } from "../services/postService";
-import { getUserById } from "../services/authService";
 
 export default function usePosts({ page = 1, limit = 10 } = {}) {
   const [posts, setPosts] = useState([]);
+  const [comments, setComments] = useState({});
   const [pagination, setPagination] = useState(null);
 
   const [loading, setLoading] = useState(false);
@@ -19,9 +22,9 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
   const [error, setError] = useState("");
 
-  const mapPostWithAuthor = useCallback(async (post) => {
+  const mapPostWithAuthor = useCallback((post) => {
     try {
-      const author = await getUserById(post.authorId);
+      const author = post.author;
 
       return {
         ...post,
@@ -31,26 +34,33 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
           author?.avatarUrl ||
           "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png",
         role: author?.role || "user",
+
         time: post.createdAt
           ? new Date(post.createdAt).toLocaleString("vi-VN")
           : "",
 
+        // ✅ FIX QUAN TRỌNG: giữ lại object { id, mediaUrl }
         media:
-          post.media?.map((item) => {
-            const url = item.mediaUrl;
+          post.media
+            ?.map((item) => {
+              if (!item?.mediaUrl) return null;
 
-            if (!url) return "";
+              let url = item.mediaUrl;
 
-            if (url.startsWith("http://") || url.startsWith("https://")) {
-              return url;
-            }
+              if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                url = `http://${url}`;
+              }
 
-            return `http://${url}`;
-          }) || [],
+              return {
+                id: item.id,
+                mediaUrl: url,
+              };
+            })
+            .filter(Boolean) || [],
 
         stats: {
-          likes: post.stats?.likes ?? 0,
-          comments: post.stats?.comments ?? 0,
+          likes: post.likeCount ?? 0,
+          comments: post.commentCount ?? 0,
         },
       };
     } catch (err) {
@@ -58,28 +68,33 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
         ...post,
 
         name: "Unknown User",
-        username: "",
         avatar: "/default-avatar.png",
+
         time: post?.createdAt
           ? new Date(post.createdAt).toLocaleString("vi-VN")
           : "",
 
         media:
-          post?.media?.map((item) => {
-            const url = item.mediaUrl;
+          post?.media
+            ?.map((item) => {
+              if (!item?.mediaUrl) return null;
 
-            if (!url) return "";
+              let url = item.mediaUrl;
 
-            if (url.startsWith("http://") || url.startsWith("https://")) {
-              return url;
-            }
+              if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                url = `http://${url}`;
+              }
 
-            return `http://${url}`;
-          }) || [],
+              return {
+                id: item.id,
+                mediaUrl: url,
+              };
+            })
+            .filter(Boolean) || [],
 
         stats: {
-          likes: post?.stats?.likes ?? 0,
-          comments: post?.stats?.comments ?? 0,
+          likes: post?.likeCount ?? 0,
+          comments: post?.commentCount ?? 0,
         },
       };
     }
@@ -92,14 +107,14 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
       const res = await getPosts({ page, limit });
 
-      const rawPosts = res?.posts || [];
+      const rawPosts = res?.items || [];
 
       const postsWithAuthor = await Promise.all(
         rawPosts.map((post) => mapPostWithAuthor(post)),
       );
 
       setPosts(postsWithAuthor);
-      setPagination(res?.pagination || null);
+      setPagination(res?.page || null);
     } catch (err) {
       setError(err.message || "Không lấy được danh sách bài viết");
     } finally {
@@ -159,6 +174,46 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
     }
   };
 
+  const handleCreateReaction = async (postId, type) => {
+    try {
+      await createReaction(postId, type);
+    } catch (err) {
+      setError(err.message || "Thêm phản ứng thất bại");
+      throw err;
+    }
+  };
+
+  const handleRemoveReaction = async (postId, type) => {
+    try {
+      await removeReaction(postId);
+    } catch (err) {
+      setError(err.message || "Xoá phản ứng thất bại");
+      throw err;
+    }
+  };
+
+  const handleGetPostComments = async (postId, page = 1, pageSize = 5) => {
+    try {
+      setError("");
+
+      const res = await getPostComments({
+        postId,
+        Page: page,
+        PageSize: pageSize,
+      });
+
+      setComments((prev) => ({
+        ...prev,
+        [postId]: res?.items || res || [],
+      }));
+
+      return res;
+    } catch (err) {
+      setError(err.message || "Lấy bình luận thất bại");
+      throw err;
+    }
+  };
+
   const handleCreateComment = async (postId, content) => {
     try {
       setCreating(true);
@@ -166,7 +221,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
       await createComment(postId, { content });
     } catch (err) {
-      setError(err.message || "Tạo bài viết thất bại");
+      setError(err.message || "Tạo bình luận thất bại");
       throw err;
     } finally {
       setCreating(false);
@@ -179,6 +234,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
   return {
     posts,
+    comments,
     pagination,
 
     loading,
@@ -190,6 +246,11 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
     createPost: handleCreatePost,
     updatePost: handleUpdatePost,
     deletePost: handleDeletePost,
+
+    createReaction: handleCreateReaction,
+    removeReaction: handleRemoveReaction,
+
+    getPostComments: handleGetPostComments,
     createComment: handleCreateComment,
   };
 }

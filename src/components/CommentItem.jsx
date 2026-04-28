@@ -16,23 +16,25 @@ function formatTimeAgo(input) {
   return `${diffDay}d ago`;
 }
 
-export default function CommentItem({ comment }) {
+export default function CommentItem({ comment, authorId }) {
+  const authorComment = comment.commentator || "Unknown";
+  const isAuthor = authorComment.id === authorId;
   return (
     <div className="rounded-[22px] border border-white/8 bg-[#111214] px-4 py-3">
       <div className="flex items-start gap-3">
         <img
-          src={comment.avatar}
-          alt={comment.username}
+          src={authorComment.avatarUrl || `https://ui-avatars.com/api/?name=${authorComment.username || "U"}&background=0D8ABC&color=fff&size=64`}
+          alt={authorComment.displayName || authorComment.username || "User Avatar"}
           className="h-9 w-9 rounded-full object-cover ring-1 ring-white/10"
         />
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold text-sky-200">
-              {comment.username}
+            <span className={`font-semibold ${isAuthor ? "text-red-400" : "text-sky-200"}`}>
+              {authorComment.id === authorId ? "You" : authorComment.displayName || authorComment.username || "Unknown"}
             </span>
             <span className="text-sm text-zinc-500">
-              {formatTimeAgo(comment.createdAt)}
+              {formatTimeAgo(comment.createdAt)} - {isAuthor ? "Author" : "User"}
             </span>
           </div>
 

@@ -9,15 +9,17 @@ export default function useInfiniteComments(postId, isOpen) {
   const [initialLoading, setInitialLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchedOnceRef = useRef(false);
+  const loadingRef = useRef(false);
+  const fetchedPostRef = useRef(null);
 
   const loadComments = useCallback(
     async (targetPage = 1, reset = false) => {
-      if (!postId || loading) return;
-      if(loading) return;
+      if (!postId) return;
+      if (loadingRef.current) return;
       if (!hasNextPage && !reset) return;
 
       try {
+        loadingRef.current = true;
         setError("");
 
         if (targetPage === 1) {
@@ -28,17 +30,22 @@ export default function useInfiniteComments(postId, isOpen) {
 
         const response = await getPostComments({
           postId,
-          page: targetPage,
-          limit: 5,
+          Page: targetPage,
+          PageSize: 5,
         });
 
-        const nextComments = response?.data || [];
+        const nextComments = response?.items || response?.data || [];
+        const nextPagination = response?.page || response?.pagination;
+
         const nextHasNextPage =
-          response?.pagination?.hasNextPage ?? nextComments.length > 0;
+          nextPagination?.hasNextPage ??
+          nextPagination?.hasNext ??
+          nextComments.length === 5;
 
         setComments((prev) =>
           reset ? nextComments : [...prev, ...nextComments],
         );
+
         setPage(targetPage);
         setHasNextPage(nextHasNextPage);
       } catch (err) {
@@ -46,30 +53,35 @@ export default function useInfiniteComments(postId, isOpen) {
           err?.response?.data?.message || err.message || "Load comments failed",
         );
       } finally {
+        loadingRef.current = false;
         setLoading(false);
         setInitialLoading(false);
       }
     },
-    [postId, loading, hasNextPage],
+    [postId, hasNextPage],
   );
 
   useEffect(() => {
     if (!isOpen || !postId) return;
 
-    if (!fetchedOnceRef.current) {
-      fetchedOnceRef.current = true;
+    if (fetchedPostRef.current !== postId) {
+      fetchedPostRef.current = postId;
+      setComments([]);
+      setPage(1);
+      setHasNextPage(true);
       loadComments(1, true);
     }
   }, [isOpen, postId, loadComments]);
 
   const loadMore = useCallback(() => {
-    if (loading || initialLoading || !hasNextPage) return;
+    if (loadingRef.current || initialLoading || !hasNextPage) return;
     loadComments(page + 1, false);
-  }, [loading, initialLoading, hasNextPage, loadComments, page]);
+  }, [initialLoading, hasNextPage, loadComments, page]);
 
-  const refresh = useCallback(() => {
+  const refetch = useCallback(async () => {
     setHasNextPage(true);
-    loadComments(1, true);
+    setPage(1);
+    await loadComments(1, true);
   }, [loadComments]);
 
   return {
@@ -79,6 +91,7 @@ export default function useInfiniteComments(postId, isOpen) {
     error,
     hasNextPage,
     loadMore,
-    refresh,
+    refetch,
+    refresh: refetch,
   };
 }
