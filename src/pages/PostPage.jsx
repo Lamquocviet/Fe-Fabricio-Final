@@ -10,6 +10,7 @@ import usePosts from "../hooks/usePost";
 const PostPage = () => {
   const {
     posts,
+    comments,
     loading,
     creating,
     deleting,
@@ -17,7 +18,11 @@ const PostPage = () => {
     createPost,
     updatePost,
     deletePost,
+
+    getPostComments,
     createComment,
+    createReaction,
+    removeReaction,
     refetch,
   } = usePosts({ page: 1, limit: 10 });
 
@@ -103,7 +108,11 @@ const PostPage = () => {
                     currentUser={user}
                     onUpdatePost={handleUpdatePost}
                     onDeletePost={handleDeletePost}
+                    onGetComments={getPostComments}
+                    comments={comments[post.id] || []}
                     onCreateComment={handleCreateComment}
+                    createReaction={createReaction}
+                    removeReaction={removeReaction}
                     deleting={deleting}
                   />
                 ))}

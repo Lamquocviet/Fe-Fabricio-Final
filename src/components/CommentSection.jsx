@@ -2,21 +2,38 @@ import React, { useEffect, useRef, useState } from "react";
 import useInfiniteComments from "../hooks/useInfiniteComments";
 import CommentItem from "./CommentItem";
 
-export default function CommentSection({ postId, isOpen, onCreateComment }) {
+export default function CommentSection({ postId, isOpen, authorId, onCreateComment }) {
   const containerRef = useRef(null);
   const [content, setContent] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const { comments, loading, initialLoading, error, hasNextPage, loadMore } =
-    useInfiniteComments(postId, isOpen);
+  const {
+    comments,
+    loading,
+    initialLoading,
+    error,
+    hasNextPage,
+    loadMore,
+    refetch,
+  } = useInfiniteComments(postId, isOpen);
 
   const handleSubmitComment = async () => {
-    if (!content.trim()) return;
+    const value = content.trim();
+    if (!value || submitting) return;
 
-    await onCreateComment(postId, {
-      content: content.trim(),
-    });
+    try {
+      setSubmitting(true);
 
-    setContent("");
+      await onCreateComment(postId, value);
+
+      setContent("");
+
+      if (refetch) {
+        await refetch();
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -25,6 +42,7 @@ export default function CommentSection({ postId, isOpen, onCreateComment }) {
 
     const handleScroll = () => {
       const threshold = 80;
+
       const reachedBottom =
         container.scrollTop + container.clientHeight >=
         container.scrollHeight - threshold;
@@ -35,6 +53,7 @@ export default function CommentSection({ postId, isOpen, onCreateComment }) {
     };
 
     container.addEventListener("scroll", handleScroll);
+
     return () => container.removeEventListener("scroll", handleScroll);
   }, [isOpen, hasNextPage, loading, loadMore]);
 
@@ -42,7 +61,6 @@ export default function CommentSection({ postId, isOpen, onCreateComment }) {
 
   return (
     <div className="mt-4 rounded-[26px] border border-white/8 bg-[#0d0e10] p-3">
-      {/* FORM COMMENT */}
       <div className="mb-4 rounded-2xl border border-white/8 bg-[#151515] p-3">
         <textarea
           value={content}
@@ -56,10 +74,10 @@ export default function CommentSection({ postId, isOpen, onCreateComment }) {
           <button
             type="button"
             onClick={handleSubmitComment}
-            disabled={!content.trim()}
+            disabled={!content.trim() || submitting}
             className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Post Comment
+            {submitting ? "Posting..." : "Post Comment"}
           </button>
         </div>
       </div>
@@ -85,7 +103,7 @@ export default function CommentSection({ postId, isOpen, onCreateComment }) {
             </div>
           ) : (
             comments.map((comment) => (
-              <CommentItem key={comment.id} comment={comment} />
+              <CommentItem key={comment.id} comment={comment} authorId={authorId} />
             ))
           )}
 

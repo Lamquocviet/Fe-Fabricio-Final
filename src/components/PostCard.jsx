@@ -1,13 +1,18 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CommentSection from "./CommentSection";
 
 export default function PostCard({
   post,
+  comments,
   currentUser,
   onUpdatePost,
   onDeletePost,
+
+  onGetComments,
   onCreateComment,
+  createReaction,
+  removeReaction,
   deleting,
 }) {
   const [showComments, setShowComments] = useState(false);
@@ -18,8 +23,153 @@ export default function PostCard({
 
   const [existingImages, setExistingImages] = useState(post.media || []);
   const [newImages, setNewImages] = useState([]);
+  const [deletedImageIds, setDeletedImageIds] = useState([]);
+
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [commentPage, setCommentPage] = useState(1);
+
+  const [commentCount, setCommentCount] = useState(post.commentCount ?? 0);
+
+  const handleToggleComments = async () => {
+    const nextOpen = !showComments;
+    setShowComments(nextOpen);
+
+    if (!nextOpen) return;
+
+    try {
+      setCommentLoading(true);
+      await onGetComments(post.id, 1, 5);
+      setCommentPage(1);
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
+  const handleCreateComment = async (postId, content) => {
+    const oldCommentCount = commentCount;
+
+    try {
+      setCommentCount((prev) => prev + 1);
+
+      await onCreateComment(postId, content);
+      await onGetComments(postId, 1, 5);
+      setCommentPage(1);
+    } catch (err) {
+      setCommentCount(oldCommentCount);
+    }
+  };
+
+  const normalizeReaction = (reaction) => {
+    if (!reaction) return null;
+
+    const value = reaction.toString().toUpperCase();
+
+    if (value === "LIKE") return "Like";
+    if (value === "DISLIKE") return "Dislike";
+
+    return null;
+  };
+
+  const [userReaction, setUserReaction] = useState(
+    normalizeReaction(post.myReaction),
+  );
+
+  const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);
+  const [dislikeCount, setDislikeCount] = useState(post.dislikeCount ?? 0);
+  const [reacting, setReacting] = useState(false);
 
   const isEditable = post?.authorId === currentUser?.id;
+
+  useEffect(() => {
+    setUserReaction(normalizeReaction(post.myReaction));
+    setLikeCount(post.likeCount ?? 0);
+    setDislikeCount(post.dislikeCount ?? 0);
+    setCommentCount(post.commentCount ?? 0);
+  }, [
+    post.dislikeCount,
+    post.id,
+    post.likeCount,
+    post.myReaction,
+    post.commentCount,
+  ]);
+
+  const handleLike = async () => {
+    if (reacting) return;
+
+    const oldReaction = userReaction;
+    const oldLikeCount = likeCount;
+    const oldDislikeCount = dislikeCount;
+
+    setReacting(true);
+
+    try {
+      if (oldReaction === "Like") {
+        setUserReaction(null);
+        setLikeCount((prev) => Math.max(prev - 1, 0));
+
+        await removeReaction(post.id);
+        return;
+      }
+
+      if (oldReaction === "Dislike") {
+        setDislikeCount((prev) => Math.max(prev - 1, 0));
+      }
+
+      setUserReaction("Like");
+      setLikeCount((prev) => prev + 1);
+
+      if (oldReaction === "Dislike") {
+        await removeReaction(post.id);
+      }
+
+      await createReaction(post.id, "Like");
+    } catch (err) {
+      setUserReaction(oldReaction);
+      setLikeCount(oldLikeCount);
+      setDislikeCount(oldDislikeCount);
+    } finally {
+      setReacting(false);
+    }
+  };
+
+  const handleDislike = async () => {
+    if (reacting) return;
+
+    const oldReaction = userReaction;
+    const oldLikeCount = likeCount;
+    const oldDislikeCount = dislikeCount;
+
+    setReacting(true);
+
+    try {
+      if (oldReaction === "Dislike") {
+        setUserReaction(null);
+        setDislikeCount((prev) => Math.max(prev - 1, 0));
+
+        await removeReaction(post.id);
+        return;
+      }
+
+      if (oldReaction === "Like") {
+        setLikeCount((prev) => Math.max(prev - 1, 0));
+      }
+
+      setUserReaction("Dislike");
+      setDislikeCount((prev) => prev + 1);
+
+      if (oldReaction === "Like") {
+        await removeReaction(post.id);
+      }
+
+      await createReaction(post.id, "Dislike");
+    } catch (err) {
+      setUserReaction(oldReaction);
+      setLikeCount(oldLikeCount);
+      setDislikeCount(oldDislikeCount);
+    } finally {
+      setReacting(false);
+    }
+  };
 
   const handleSelectEditImages = (e) => {
     const files = Array.from(e.target.files || []);
@@ -33,34 +183,45 @@ export default function PostCard({
     setEditContent(post.content || "");
     setExistingImages(post.media || []);
     setNewImages([]);
+    setDeletedImageIds([]);
   };
 
   const handleSaveEdit = async () => {
     if (!editTitle.trim() || !editContent.trim()) return;
 
-    const updatedImages = [...existingImages, ...newImages];
+    const formData = new FormData();
 
-    await onUpdatePost(post.id, {
-      Title: editTitle.trim(),
-      Content: editContent.trim(),
-      mediaFiles: updatedImages,
+    formData.append("Title", editTitle.trim());
+    formData.append("Content", editContent.trim());
+
+    deletedImageIds.forEach((id) => {
+      formData.append("DeletedImageIds", id);
     });
+
+    newImages.forEach((file) => {
+      formData.append("NewImages", file);
+    });
+
+    await onUpdatePost(post.id, formData);
 
     setIsEditing(false);
     setNewImages([]);
+    setDeletedImageIds([]);
   };
 
-  const handleRemoveExistingImage = (index) => {
-    setExistingImages((prev) => prev.filter((_, i) => i !== index));
+  const handleRemoveExistingImage = (imageId) => {
+    if (!imageId) return;
+
+    setExistingImages((prev) => prev.filter((image) => image.id !== imageId));
+
+    setDeletedImageIds((prev) =>
+      prev.includes(imageId) ? prev : [...prev, imageId],
+    );
   };
 
   const handleRemoveNewImage = (index) => {
     setNewImages((prev) => prev.filter((_, i) => i !== index));
   };
-
-  const handleCreateComment = async (postId, payload) => {
-    await onCreateComment(postId, payload);
-  }
 
   return (
     <article className="rounded-3xl border border-white/10 bg-[#121315] p-2 shadow-[0_8px_28px_rgba(0,0,0,0.28)] lg:p-4">
@@ -121,20 +282,20 @@ export default function PostCard({
 
           {(existingImages.length > 0 || newImages.length > 0) && (
             <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
-              {existingImages.map((image, index) => (
+              {existingImages.map((image) => (
                 <div
-                  key={`existing-${index}`}
+                  key={image.id}
                   className="relative overflow-hidden rounded-xl border border-white/10 bg-[#151515]"
                 >
                   <img
-                    src={image}
-                    alt={`existing-${index}`}
+                    src={image.mediaUrl}
+                    alt={image.id}
                     className="aspect-square w-full object-cover"
                   />
 
                   <button
                     type="button"
-                    onClick={() => handleRemoveExistingImage(index)}
+                    onClick={() => handleRemoveExistingImage(image.id)}
                     className="absolute right-2 top-2 rounded-full bg-black/70 px-2 text-xs text-white hover:bg-red-500"
                   >
                     ✕
@@ -144,7 +305,7 @@ export default function PostCard({
 
               {newImages.map((file, index) => (
                 <div
-                  key={`${file.name}-${index}`}
+                  key={`${file.name}-${file.lastModified}-${index}`}
                   className="relative overflow-hidden rounded-xl border border-white/10 bg-[#151515]"
                 >
                   <img
@@ -201,14 +362,14 @@ export default function PostCard({
                   : "grid-cols-1"
               }`}
             >
-              {post.media.map((media, index) => (
+              {post.media.map((media) => (
                 <div
-                  key={index}
+                  key={media.id}
                   className="overflow-hidden rounded-[18px] bg-[#0e0f11]"
                 >
                   <img
-                    src={media}
-                    alt={`${post.name}-${index}`}
+                    src={media.mediaUrl}
+                    alt={`${post.name}-${media.id}`}
                     className={`w-full object-cover ${
                       post.media.length > 1 ? "aspect-16/8" : "aspect-16/7"
                     }`}
@@ -221,23 +382,45 @@ export default function PostCard({
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-5 text-sm text-zinc-400">
-        <button className="transition hover:text-white">
-          ♥ {post.stats?.likes ?? 0}
+        <button
+          type="button"
+          disabled={reacting}
+          onClick={handleLike}
+          className={`transition hover:text-white disabled:opacity-60 ${
+            userReaction === "Like" ? "text-red-500" : ""
+          }`}
+        >
+          ♥ {likeCount}
         </button>
 
-        <button className="transition hover:text-white">Dislike</button>
+        <button
+          type="button"
+          disabled={reacting}
+          onClick={handleDislike}
+          className={`transition hover:text-white disabled:opacity-60 ${
+            userReaction === "Dislike" ? "text-yellow-400" : ""
+          }`}
+        >
+          👎 {dislikeCount}
+        </button>
 
         <button
+          type="button"
           className="transition hover:text-white"
-          onClick={() => setShowComments((prev) => !prev)}
+          onClick={handleToggleComments}
         >
-          Comments {showComments ? "▲" : "▼"} {post.stats?.comments ?? 0}
+          Comments {showComments ? "▲" : "▼"} {commentCount}
         </button>
 
         {isEditable && !isEditing && (
           <button
             type="button"
-            onClick={() => setIsEditing(true)}
+            onClick={() => {
+              setExistingImages(post.media || []);
+              setNewImages([]);
+              setDeletedImageIds([]);
+              setIsEditing(true);
+            }}
             className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-200 transition hover:bg-white/10"
           >
             Edit
@@ -245,7 +428,13 @@ export default function PostCard({
         )}
       </div>
 
-      <CommentSection postId={post.id} isOpen={showComments} onCreateComment={handleCreateComment} />
+      <CommentSection
+        postId={post.id}
+        isOpen={showComments}
+        authorId={post.authorId}
+        loading={commentLoading}
+        onCreateComment={handleCreateComment}
+      />
     </article>
   );
 }

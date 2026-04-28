@@ -1,5 +1,5 @@
 import axiosInstance from "../utils/axiosInstance";
-import { mockPosts, mockCommentsByPostId } from "../mocks/postMock";
+import { mockPosts } from "../mocks/postMock";
 
 const USE_MOCK = true;
 const wait = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -14,6 +14,7 @@ export const getPosts = async ({ page = 1, limit = 10 } = {}) => {
     const res = await axiosInstance.get("/Post", {
       params: { page, limit },
     });
+    console.log("Fetched posts response:", res.data);
     return res.data;
   } catch (error) {
     throw new Error(
@@ -141,33 +142,14 @@ export const deletePost = async (postId) => {
 };
 
 // Lấy bình luận của một bài viết với phân trang
-export const getPostComments = async ({ postId, page = 1, limit = 5 }) => {
+export const getPostComments = async ({ postId, Page = 1, PageSize = 5 }) => {
   try {
     if (!postId) {
       throw new Error("Thiếu postId để lấy bình luận");
     }
 
-    if (USE_MOCK) {
-      await wait();
-
-      const allComments = mockCommentsByPostId[postId] || [];
-      const start = (page - 1) * limit;
-      const end = start + limit;
-      const comments = allComments.slice(start, end);
-
-      return {
-        data: comments,
-        pagination: {
-          page,
-          limit,
-          total: allComments.length,
-          hasNextPage: end < allComments.length,
-        },
-      };
-    }
-
-    const res = await axiosInstance.get(`/Post/${postId}/comments`, {
-      params: { page, limit },
+    const res = await axiosInstance.get(`/post/${postId}/comment`, {
+      params: { Page, PageSize },
     });
 
     return res.data;
@@ -179,43 +161,54 @@ export const getPostComments = async ({ postId, page = 1, limit = 5 }) => {
 };
 
 // Tạo bình luận cho một bài viết
-export const createComment = async (payload) => {
+export const createComment = async (postId, payload) => {
   try {
-    if (!payload) {
-      throw new Error("Dữ liệu bình luận không hợp lệ");
+    if(!postId) {
+      throw new Error("Thiếu postId để tạo bình luận");
     }
-
-    if (USE_MOCK) {
-      await wait();
-
-      const newComment = {
-        id: Date.now(),
-        name: payload?.displayName || payload?.name || "John Doe",
-        username: payload?.username
-          ? payload.username.startsWith("@")
-            ? payload.username
-            : `@${payload.username}`
-          : "@johndoe",
-        avatar:
-          payload?.avatar ||
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80",
-        time: "Vừa xong",
-        content: payload?.content || "",
-        editable: true,
-      };
-
-      return {
-        message: "Tạo bình luận thành cong",
-        data: newComment,
-      };
+    if(!payload || !payload.content) {
+      throw new Error("Nội dung bình luận không được để trống");
     }
-
-    const res = await axiosInstance.post(`/Post/${payload.postId}/comments`, {
-      content: payload.content,
-    });
-
+    const res = await axiosInstance.post(`/post/${postId}/comment`, payload);
     return res.data;
   } catch (error) {
     throw new Error(getErrorMessage(error, "Tạo bình luận thất bại"));
   }
-};
+}
+
+// Tương tác like/dislike bài viết
+export const createReaction= async (postId, reactionType) => {
+  try {
+    if (!postId) {
+      throw new Error("Thiếu postId để tương tác");
+    }
+
+    if (!reactionType) {
+      throw new Error("Thiếu reactionType để tương tác");
+    }
+
+    const res = await axiosInstance.post(`/post/reaction`, {
+      postId,
+      reactionType,
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Tương tác thất bại"));
+  }
+}
+
+// Xoá tương tác like/dislike bài viết
+export const removeReaction = async (postId) => {
+  try {
+    if (!postId) {
+      throw new Error("Thiếu postId để xoá tương tác");
+    }
+
+    const res = await axiosInstance.delete(`/post/reaction/${postId}`);
+
+    return res.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Xoá tương tác thất bại"));
+  }
+}
