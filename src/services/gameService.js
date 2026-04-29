@@ -9,10 +9,6 @@ const USE_MOCK = true;
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const getErrorMessage = (error, fallbackMessage) => {
-  return error?.response?.data?.message || fallbackMessage;
-};
-
 export const getGameList = async () => {
   try {
     const res = await axiosInstance.get("/Games");
@@ -52,35 +48,35 @@ const getErrorMessage = (error, fallbackMessage) => {
 
 export const gameLibraryService = {
   async getGameLibrary({ page = 1, limit = 12, search = "" } = {}) {
-  // console.log("CALL getGameLibrary");
+    // console.log("CALL getGameLibrary");
 
-  try {
-    const params = { page, limit };
+    try {
+      const params = { page, limit };
 
-    if (search?.trim()) {
-      params.search = search;
+      if (search?.trim()) {
+        params.search = search;
+      }
+
+      const res = await axiosInstance.get("/Games", { params });
+
+      // console.log("API response:", res.data);
+
+      return res.data;
+
+    } catch (error) {
+      console.error("API ERROR:", error);
+
+      if (error.response) {
+        console.error("STATUS:", error.response.status);
+        console.error("DATA:", error.response.data);
+      }
+
+      throw error;
     }
-
-    const res = await axiosInstance.get("/Games", { params });
-
-    // console.log("API response:", res.data);
-
-    return res.data;
-
-  } catch (error) {
-    console.error("API ERROR:", error);
-
-    if (error.response) {
-      console.error("STATUS:", error.response.status);
-      console.error("DATA:", error.response.data);
-    }
-
-    throw error;
-  }
-},
+  },
   async getGameById(id) {
     try {
-      
+
       const res = await axiosInstance.get(`/Games/${id}`);
       return res.data;
     } catch (error) {
@@ -170,7 +166,7 @@ export const getGameComments = async (
   try {
     if (!gameId) throw new Error("gameId is required");
 
-    const res = await axiosInstance.get(`/GameComments/${gameId}`, {
+    const res = await axiosInstance.get(`/games/${gameId}/comment`, {
       params: { page, limit },
     });
 
@@ -187,8 +183,7 @@ export const createGameComment = async (gameId, content) => {
     if (!gameId) throw new Error("gameId is required");
     if (!content?.trim()) throw new Error("content is required");
 
-    const res = await axiosInstance.post("/GameComments", {
-      gameId,
+    const res = await axiosInstance.post(`/games/${gameId}/comment`, {
       content: content.trim(),
     });
 
@@ -206,7 +201,7 @@ export const getGameRatings = async (
   try {
     if (!gameId) throw new Error("gameId is required");
 
-    const res = await axiosInstance.get(`/GameRatings/${gameId}`, {
+    const res = await axiosInstance.get(`/games/${gameId}/ratings`, {
       params: { page, limit },
     });
 
@@ -225,9 +220,8 @@ export const rateGame = async (gameId, rating) => {
       throw new Error("rating must be between 1 and 5");
     }
 
-    const res = await axiosInstance.post("/GameRatings", {
-      gameId,
-      rating,
+    const res = await axiosInstance.put(`/games/${gameId}/ratings`, {
+      stars: rating,
     });
 
     return res.data;
@@ -238,12 +232,12 @@ export const rateGame = async (gameId, rating) => {
 
 
 // GAME PURCHASES
-export const purchaseGame = async (gameId) => {
+export const purchaseGame = async (gameId, amount = 0) => {
   try {
     if (!gameId) throw new Error("gameId is required");
 
-    const res = await axiosInstance.post("/GamePurchases", {
-      gameId,
+    const res = await axiosInstance.post(`/games/${gameId}/purchase`, {
+      amountPaid: amount
     });
 
     return res.data;

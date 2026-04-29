@@ -46,5 +46,17 @@ export const userService = {
         getErrorMessage(error, "Tải avatar thất bại")
       );
     }
+  },
+
+  // Get my games
+  async getMyGames() {
+    try {
+      const res = await axiosInstance.get("/Users/mygame");
+      return res.data;
+    } catch (error) {
+      throw new Error(
+        getErrorMessage(error, "Không lấy được danh sách game")
+      );
+    }
   }
 };
