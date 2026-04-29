@@ -45,15 +45,92 @@ export const getTrendingGames = async () => {
   const res = await axiosInstance.get("/games/trending");
   return res.data;
 };
-export const gameLibraryService = {
-  async getGameLibrary() {
-    return gameLibrary;
-  },
-  async getGameById(id) {
-    return gameLibrary.find((game) => game.id === id) || null;
-  },
+
+const getErrorMessage = (error, fallbackMessage) => {
+  return error?.response?.data?.message || fallbackMessage;
 };
 
+export const gameLibraryService = {
+  async getGameLibrary({ page = 1, limit = 12, search = "" } = {}) {
+  // console.log("CALL getGameLibrary");
+
+  try {
+    const params = { page, limit };
+
+    if (search?.trim()) {
+      params.search = search;
+    }
+
+    const res = await axiosInstance.get("/Games", { params });
+
+    // console.log("API response:", res.data);
+
+    return res.data;
+
+  } catch (error) {
+    console.error("API ERROR:", error);
+
+    if (error.response) {
+      console.error("STATUS:", error.response.status);
+      console.error("DATA:", error.response.data);
+    }
+
+    throw error;
+  }
+},
+  async getGameById(id) {
+    try {
+      
+      const res = await axiosInstance.get(`/Games/${id}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(
+        getErrorMessage(error, "Không lấy được thông tin game")
+      );
+    }
+  },
+  async getGameDetails(id) {
+    try {
+      const res = await axiosInstance.get(`/Games/${id}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(
+        getErrorMessage(error, "Không lấy được chi tiết game")
+      );
+    }
+  },
+  async getGameFavorites(userId) {
+    try {
+      const res = await axiosInstance.get(`/GameFavorites/user/${userId}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(
+        getErrorMessage(error, "Không lấy được danh sách yêu thích")
+      );
+    }
+  },
+  async addGameFavorite(gameId) {
+    try {
+      const res = await axiosInstance.post("/GameFavorites", { gameId });
+      return res.data;
+    } catch (error) {
+      throw new Error(
+        getErrorMessage(error, "Thêm vào yêu thích thất bại")
+      );
+    }
+  },
+  async removeGameFavorite(gameId) {
+    try {
+      const res = await axiosInstance.delete(`/GameFavorites/${gameId}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(
+        getErrorMessage(error, "Xóa khỏi yêu thích thất bại")
+      );
+    }
+  }
+
+};
 export const uploadGame = async (payload) => {
   try {
 
@@ -81,5 +158,110 @@ export const uploadGame = async (payload) => {
 
   } catch (error) {
     throw new Error(getErrorMessage(error, "Failed to upload game"));
+  }
+};
+
+// GAME COMMENTS
+
+export const getGameComments = async (
+  gameId,
+  { page = 1, limit = 10 } = {}
+) => {
+  try {
+    if (!gameId) throw new Error("gameId is required");
+
+    const res = await axiosInstance.get(`/GameComments/${gameId}`, {
+      params: { page, limit },
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "Không lấy được danh sách bình luận")
+    );
+  }
+};
+
+export const createGameComment = async (gameId, content) => {
+  try {
+    if (!gameId) throw new Error("gameId is required");
+    if (!content?.trim()) throw new Error("content is required");
+
+    const res = await axiosInstance.post("/GameComments", {
+      gameId,
+      content: content.trim(),
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Tạo bình luận thất bại"));
+  }
+};
+
+// GAME RATINGS
+export const getGameRatings = async (
+  gameId,
+  { page = 1, limit = 10 } = {}
+) => {
+  try {
+    if (!gameId) throw new Error("gameId is required");
+
+    const res = await axiosInstance.get(`/GameRatings/${gameId}`, {
+      params: { page, limit },
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "Không lấy được danh sách đánh giá")
+    );
+  }
+};
+
+export const rateGame = async (gameId, rating) => {
+  try {
+    if (!gameId) throw new Error("gameId is required");
+    if (rating < 1 || rating > 5) {
+      throw new Error("rating must be between 1 and 5");
+    }
+
+    const res = await axiosInstance.post("/GameRatings", {
+      gameId,
+      rating,
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Đánh giá game thất bại"));
+  }
+};
+
+
+// GAME PURCHASES
+export const purchaseGame = async (gameId) => {
+  try {
+    if (!gameId) throw new Error("gameId is required");
+
+    const res = await axiosInstance.post("/GamePurchases", {
+      gameId,
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Mua game thất bại"));
+  }
+};
+
+export const getUserGamePurchases = async (userId) => {
+  try {
+    if (!userId) throw new Error("userId is required");
+
+    const res = await axiosInstance.get(`/GamePurchases/user/${userId}`);
+
+    return res.data;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "Không lấy được lịch sử mua game")
+    );
   }
 };
