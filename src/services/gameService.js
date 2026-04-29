@@ -77,26 +77,16 @@ export const gameLibraryService = {
   }
 },
   async getGameById(id) {
-    try {
-      
-      const res = await axiosInstance.get(`/Games/${id}`);
-      return res.data;
-    } catch (error) {
-      throw new Error(
-        getErrorMessage(error, "Không lấy được thông tin game")
-      );
-    }
-  },
-  async getGameDetails(id) {
-    try {
-      const res = await axiosInstance.get(`/Games/${id}`);
-      return res.data;
-    } catch (error) {
-      throw new Error(
-        getErrorMessage(error, "Không lấy được chi tiết game")
-      );
-    }
-  },
+  try {
+    const res = await axiosInstance.get(`/Games/${id}`);
+    return res.data.game; 
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "Không lấy được thông tin game")
+    );
+  }
+},
+ 
   async getGameFavorites(userId) {
     try {
       const res = await axiosInstance.get(`/GameFavorites/user/${userId}`);
@@ -131,8 +121,11 @@ export const gameLibraryService = {
 };
 export const uploadGame = async (payload) => {
   try {
-
-    console.log("Uploading game with payload:", payload);
+    console.log("=== UPLOADING GAME ===");
+    console.log("Payload:", payload);
+    console.log("TagIds:", payload.TagIds);
+    console.log("TagIds length:", payload.TagIds?.length);
+    
     const formData = new FormData();
 
     formData.append("Title", payload.Title);
@@ -142,7 +135,9 @@ export const uploadGame = async (payload) => {
     formData.append("GameFile", payload.GameFile);
     formData.append("Price", payload.Price);
 
-    payload.TagIds.forEach((tagId) => {
+    console.log("Adding TagIds to FormData:");
+    payload.TagIds?.forEach((tagId, index) => {
+      console.log(`  TagIds[${index}]:`, tagId);
       formData.append("TagIds", tagId);
     });
 
@@ -152,9 +147,13 @@ export const uploadGame = async (payload) => {
       },
     });
 
+    console.log("API Response:", res.data);
+    console.log("Response gameTags:", res.data?.gameTags);
+    
     return res.data;
 
   } catch (error) {
+    console.error("Upload error:", error);
     throw new Error(getErrorMessage(error, "Failed to upload game"));
   }
 };
@@ -197,24 +196,39 @@ export const createGameComment = async (gameId, content) => {
 };
 
 // GAME RATINGS
-export const getGameRatings = async (
-  gameId,
-  { page = 1, limit = 10 } = {}
-) => {
+export const getGameRatings = async (gameId) => {
   try {
     if (!gameId) throw new Error("gameId is required");
 
-    const res = await axiosInstance.get(`/GameRatings/${gameId}`, {
-      params: { page, limit },
-    });
+    const res = await axiosInstance.get(
+      `/games/${gameId}/ratings`
+    );
 
-    return res.data;
+    return res.data; // { total, average }
   } catch (error) {
     throw new Error(
-      getErrorMessage(error, "Không lấy được danh sách đánh giá")
+      getErrorMessage(error, "Không lấy được rating")
     );
   }
 };
+// export const getGameRatings = async (
+//   gameId,
+//   { page = 1, limit = 10 } = {}
+// ) => {
+//   try {
+//     if (!gameId) throw new Error("gameId is required");
+
+//     const res = await axiosInstance.get(`/GameRatings/${gameId}`, {
+//       params: { page, limit },
+//     });
+
+//     return res.data;
+//   } catch (error) {
+//     throw new Error(
+//       getErrorMessage(error, "Không lấy được danh sách đánh giá")
+//     );
+//   }
+// };
 
 export const rateGame = async (gameId, rating) => {
   try {

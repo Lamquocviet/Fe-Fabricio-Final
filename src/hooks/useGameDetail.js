@@ -1,16 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { gameLibraryService } from '@/services/gameService';
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { gameLibraryService } from "@/services/gameService";
+import { getGameRatings } from "@/services/gameService";
 
 export const useGameDetail = () => {
   const { id } = useParams();
-  
+
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchGame = async () => {
+      console.log("Fetching game with id:", id);
+
       if (!id) {
         setLoading(false);
         return;
@@ -20,13 +23,47 @@ export const useGameDetail = () => {
       setError(null);
 
       try {
-        const foundGame = await gameLibraryService.getGameById(id);
+        // 🔥 gọi song song
+        const [gameRes, ratingRes] = await Promise.all([
+          gameLibraryService.getGameById(id),
+          getGameRatings(id),
+        ]);
 
-        if (foundGame) {
-          setGame(foundGame);
-        } else {
+        // console.log("Game API:", gameRes);
+        // console.log("Rating API:", ratingRes);
+
+        if (!gameRes) {
           setError("Game not found");
+          return;
         }
+
+        //transform data 
+        const transformed = {
+          id: gameRes.id,
+          title: gameRes.title,
+          description: gameRes.description,
+          image: gameRes.thumbnailUrl,
+            // ? gameRes.thumbnailUrl.replace(
+            //     "http://localhost",
+            //     "http://localhost:5000"
+            //   )
+            // : "https://via.placeholder.com/400x300",
+
+          price:
+            gameRes.price === 0
+              ? "Free"
+              : `$${Number(gameRes.price).toFixed(2)}`,
+
+          rating: ratingRes?.average ?? 0,
+          totalRatings: ratingRes?.total ?? 0,
+
+          tags:
+            gameRes.gameTags?.map(
+              (t) => t.name || t.tag?.name
+            ) || [],
+        };
+
+        setGame(transformed);
       } catch (err) {
         console.error(err);
         setError("Failed to load game");

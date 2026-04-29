@@ -34,8 +34,11 @@ export default function UploadGamePage() {
     watch,
   } = useUploadGame();
 
-  const { tags } = useTag(); 
-
+  const { tags } = useTag();
+  
+  console.log("=== UPLOAD PAGE ===");
+  console.log("Available tags:", tags);
+  console.log("Selected TagIds:", watch("TagIds"));
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">

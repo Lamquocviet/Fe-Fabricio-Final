@@ -59,10 +59,13 @@ export const useUploadGame = () => {
   const handleTagIds = (tagId) => {
     const current = watch("TagIds") || [];
     const exists = current.includes(tagId);
+    
+    const newTagIds = exists ? current.filter((id) => id !== tagId) : [...current, tagId];
+    console.log("Toggle tag:", tagId, "- New TagIds:", newTagIds);
 
     setValue(
       "TagIds",
-      exists ? current.filter((id) => id !== tagId) : [...current, tagId],
+      newTagIds,
       { shouldValidate: true },
     );
   };

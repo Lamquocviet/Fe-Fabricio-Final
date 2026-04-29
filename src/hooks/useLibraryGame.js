@@ -36,7 +36,7 @@ const transformGameData = (apiGames) => {
   });
 };
 
-// Format price: decimal to "$X.XX" or "Free"
+
 const formatPrice = (price) => {
   const numPrice = typeof price === "string" ? parseFloat(price) : price;
   if (numPrice === 0 || numPrice === null || numPrice === undefined) {
