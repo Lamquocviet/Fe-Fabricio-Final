@@ -14,7 +14,6 @@ export const getPosts = async ({ page = 1, limit = 10 } = {}) => {
     const res = await axiosInstance.get("/Post", {
       params: { page, limit },
     });
-    console.log("Fetched posts response:", res.data);
     return res.data;
   } catch (error) {
     throw new Error(
@@ -22,6 +21,19 @@ export const getPosts = async ({ page = 1, limit = 10 } = {}) => {
     );
   }
 };
+
+export const getTrendingPosts = async ({ page = 1, limit = 10 } = {}) => {
+  try {
+    const res = await axiosInstance.get("/Post/trending", {
+      params: { page, limit },
+    });
+    return res.data;    
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "Không lấy được danh sách bài viết"),
+    );
+  }
+}
 
 export const getLatestPosts = async () => {
   try {

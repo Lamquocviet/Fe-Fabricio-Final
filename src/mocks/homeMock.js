@@ -5,7 +5,7 @@ export const mockFeaturedDrop = {
   description:
     "GameStore blends dense storefront discovery with a social feed designed for player reactions, creator updates, and community storytelling.",
   image:
-    "https://images.unsplash.com/photo-1605899435973-ca2d1a56b0cf?auto=format&fit=crop&w=1400&q=80",
+    "https://clan.akamai.steamstatic.com/images/42956655/0b863b1bcc86d0912ad53437b2481cb3595991e5.png",
   gameTitle: "Ashfall Keep",
   price: "$14.99",
   genre: "RPG",
@@ -93,7 +93,8 @@ export const gameLibrary = [
     tags: ["RPG", "Adventure", "Story"],
     price: "$14.99",
     rating: 4.9,
-    description: "Explore ancient ruins, forge alliances, and defend the kingdom from a rising darkness.",
+    description:
+      "Explore ancient ruins, forge alliances, and defend the kingdom from a rising darkness.",
   },
   {
     id: "trend-2",
@@ -104,7 +105,8 @@ export const gameLibrary = [
     tags: ["Horror", "Sci-Fi", "Story"],
     price: "Free",
     rating: 4.5,
-    description: "Investigate a drifting spaceship where every signal hides a terrifying secret.",
+    description:
+      "Investigate a drifting spaceship where every signal hides a terrifying secret.",
   },
   {
     id: "trend-3",
@@ -115,7 +117,8 @@ export const gameLibrary = [
     tags: ["Racing", "Arcade", "Cyberpunk"],
     price: "$9.99",
     rating: 4.7,
-    description: "Race through futuristic city streets filled with neon lights and turbo chaos.",
+    description:
+      "Race through futuristic city streets filled with neon lights and turbo chaos.",
   },
   {
     id: "trend-4",
@@ -126,7 +129,8 @@ export const gameLibrary = [
     tags: ["Strategy", "Fantasy", "Turn-Based"],
     price: "$19.99",
     rating: 4.8,
-    description: "Lead airborne armies across floating islands in tactical fantasy battles.",
+    description:
+      "Lead airborne armies across floating islands in tactical fantasy battles.",
   },
   {
     id: "trend-5",
@@ -137,7 +141,8 @@ export const gameLibrary = [
     tags: ["Adventure", "Fantasy", "Open World"],
     price: "$24.99",
     rating: 4.6,
-    description: "Survive blizzards and uncover forgotten legends in a frozen open world.",
+    description:
+      "Survive blizzards and uncover forgotten legends in a frozen open world.",
   },
   {
     id: "trend-6",
@@ -148,7 +153,8 @@ export const gameLibrary = [
     tags: ["Action", "Shooter", "Multiplayer"],
     price: "$12.99",
     rating: 4.4,
-    description: "Pilot customizable battle mechs in explosive online arena combat.",
+    description:
+      "Pilot customizable battle mechs in explosive online arena combat.",
   },
   {
     id: "trend-7",
@@ -159,7 +165,8 @@ export const gameLibrary = [
     tags: ["Puzzle", "Horror", "Story"],
     price: "$7.99",
     rating: 4.3,
-    description: "Solve cursed temple puzzles while escaping creatures in the dark.",
+    description:
+      "Solve cursed temple puzzles while escaping creatures in the dark.",
   },
   {
     id: "trend-8",
@@ -170,7 +177,8 @@ export const gameLibrary = [
     tags: ["Simulation", "Adventure", "Survival"],
     price: "$15.99",
     rating: 4.8,
-    description: "Build your sea colony and survive storms on the endless ocean.",
+    description:
+      "Build your sea colony and survive storms on the endless ocean.",
   },
   {
     id: "trend-9",
@@ -181,7 +189,8 @@ export const gameLibrary = [
     tags: ["Strategy", "PvP", "Sci-Fi"],
     price: "Free",
     rating: 4.7,
-    description: "Compete in fast-paced tactical battles across futuristic digital arenas.",
+    description:
+      "Compete in fast-paced tactical battles across futuristic digital arenas.",
   },
   {
     id: "trend-10",
@@ -192,7 +201,8 @@ export const gameLibrary = [
     tags: ["Racing", "Arcade", "Action"],
     price: "$9.99",
     rating: 4.5,
-    description: "Burn rubber across dangerous highways packed with rivals and traps.",
+    description:
+      "Burn rubber across dangerous highways packed with rivals and traps.",
   },
   {
     id: "trend-11",
@@ -203,7 +213,8 @@ export const gameLibrary = [
     tags: ["Cozy", "Simulation", "Fantasy"],
     price: "$11.99",
     rating: 4.6,
-    description: "Grow magical crops and build a peaceful life in a charming valley.",
+    description:
+      "Grow magical crops and build a peaceful life in a charming valley.",
   },
   {
     id: "trend-12",
@@ -214,7 +225,8 @@ export const gameLibrary = [
     tags: ["Cyberpunk", "Shooter", "Sci-Fi"],
     price: "$18.99",
     rating: 4.4,
-    description: "Hack mega-corporations and fight through neon-lit districts at night.",
+    description:
+      "Hack mega-corporations and fight through neon-lit districts at night.",
   },
   {
     id: "trend-13",
@@ -236,7 +248,8 @@ export const gameLibrary = [
     tags: ["RPG", "Adventure", "Story"],
     price: "$19.99",
     rating: 4.8,
-    description: "Descend into dangerous dungeons where every step awakens old echoes.",
+    description:
+      "Descend into dangerous dungeons where every step awakens old echoes.",
   },
   {
     id: "trend-15",
@@ -258,7 +271,8 @@ export const gameLibrary = [
     tags: ["Horror", "Puzzle", "Story"],
     price: "$8.99",
     rating: 4.3,
-    description: "Tune abandoned radios to reveal spirits trapped in static waves.",
+    description:
+      "Tune abandoned radios to reveal spirits trapped in static waves.",
   },
   {
     id: "trend-17",
@@ -269,7 +283,8 @@ export const gameLibrary = [
     tags: ["Strategy", "Turn-Based", "Fantasy"],
     price: "$21.99",
     rating: 4.7,
-    description: "Expand your empire through diplomacy, conquest, and master planning.",
+    description:
+      "Expand your empire through diplomacy, conquest, and master planning.",
   },
   {
     id: "trend-18",
@@ -280,7 +295,8 @@ export const gameLibrary = [
     tags: ["Arcade", "Casual", "Indie"],
     price: "$4.99",
     rating: 4.5,
-    description: "Jump, dash, and speedrun colorful retro-inspired pixel worlds.",
+    description:
+      "Jump, dash, and speedrun colorful retro-inspired pixel worlds.",
   },
   {
     id: "trend-19",
@@ -291,6 +307,7 @@ export const gameLibrary = [
     tags: ["Sci-Fi", "Racing", "Adventure"],
     price: "$13.99",
     rating: 4.6,
-    description: "Race through asteroid belts and distant planets at light speed.",
+    description:
+      "Race through asteroid belts and distant planets at light speed.",
   },
 ];

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/authService";
+import { toast } from "sonner";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -53,6 +54,7 @@ const SignUp = () => {
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
+      toast.error(validationError);
       return;
     }
 
@@ -78,8 +80,6 @@ const SignUp = () => {
         localStorage.setItem("user", JSON.stringify(result.user));
       }
 
-      setLoading(false);
-      setSuccessMessage("Registration successful");
       setFormData({
         username: "",
         displayName: "",
@@ -87,10 +87,24 @@ const SignUp = () => {
         password: "",
         confirmPassword: "",
       });
-      navigate("/signin");
+
+      toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
+
+      setTimeout(() => {
+        navigate("/signin");
+      }, 1200);
     } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.title ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Đăng ký thất bại";
+
+      setError(message);
+      toast.error(message);
+    } finally {
       setLoading(false);
-      setError(error.message);
     }
   };
 
@@ -120,7 +134,8 @@ const SignUp = () => {
             ].map((item) => (
               <span
                 key={item}
-                className="rounded-full border border-white/10 bg-white/3 px-4 py-2 text-xs sm:text-sm text-zinc-300">
+                className="rounded-full border border-white/10 bg-white/3 px-4 py-2 text-xs sm:text-sm text-zinc-300"
+              >
                 {item}
               </span>
             ))}
@@ -149,9 +164,7 @@ const SignUp = () => {
               </div>
             )}
 
-            <form
-              onSubmit={handleSubmit}
-              className="mt-6 space-y-4">
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <div className="flex flex-col gap-2 text-left">
                 <label className="mb-2 block text-sm font-medium text-zinc-300">
                   Username
@@ -224,8 +237,10 @@ const SignUp = () => {
 
               <button
                 type="submit"
-                className="w-full rounded-2xl bg-linear-to-r from-[#ff6a4a] to-[#ff5a3b] px-4 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(255,90,59,0.22)] transition hover:from-[#ff7a59] hover:to-[#ff4d4d]">
-                Create Account
+                disabled={loading}
+                className="w-full rounded-2xl bg-linear-to-r from-[#ff6a4a] to-[#ff5a3b] px-4 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(255,90,59,0.22)] transition hover:from-[#ff7a59] hover:to-[#ff4d4d] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? "Creating account..." : "Create Account"}
               </button>
             </form>
 
@@ -243,7 +258,8 @@ const SignUp = () => {
               Already have an account?{" "}
               <Link
                 to="/signin"
-                className="font-bold text-[#ff7a59] cursor-pointer">
+                className="font-bold text-[#ff7a59] cursor-pointer"
+              >
                 Sign in
               </Link>
             </p>

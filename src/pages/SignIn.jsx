@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const FormField = ({
   label,
@@ -72,14 +73,37 @@ const Login = () => {
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
+      toast.error(validationError);
       return;
     }
 
     try {
+      setError("");
+      setSuccessMessage("");
+
       await handleLogin(formData);
-      navigate("/")
+
+      const successText = "Đăng nhập thành công!";
+
+      setSuccessMessage(successText);
+      toast.success(successText);
+
+      setTimeout(() => {
+        navigate("/");
+      }, 800);
     } catch (err) {
-      console.error(err.message);
+      const data = err?.response?.data;
+
+      const message =
+        data?.message ||
+        data?.title ||
+        data?.error ||
+        (typeof data === "string" ? data : "") ||
+        err?.message ||
+        "Đăng nhập thất bại";
+
+      setError(message);
+      toast.error(message);
     }
   };
 
@@ -109,9 +133,7 @@ const Login = () => {
               </div>
             )}
 
-            <form
-              onSubmit={onSubmit}
-              className="mt-6 space-y-4">
+            <form onSubmit={onSubmit} className="mt-6 space-y-4">
               <FormField
                 label="Username"
                 type="text"
@@ -138,7 +160,8 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 transition hover:text-zinc-200">
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 transition hover:text-zinc-200"
+                  >
                     {showPassword ? "Hide" : "Show"}
                   </button>
                 </div>
@@ -163,7 +186,8 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-2xl bg-linear-to-r from-[#ff6a4a] to-[#ff5a3b] px-4 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(255,90,59,0.22)] transition hover:from-[#ff7a59] hover:to-[#ff4d4d] disabled:cursor-not-allowed disabled:opacity-60">
+                className="w-full rounded-2xl bg-linear-to-r from-[#ff6a4a] to-[#ff5a3b] px-4 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(255,90,59,0.22)] transition hover:from-[#ff7a59] hover:to-[#ff4d4d] disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 {loading ? "Signing in..." : "Sign In"}
               </button>
             </form>
@@ -176,7 +200,8 @@ const Login = () => {
 
             <button
               type="button"
-              className="w-full rounded-2xl border border-white/10 bg-white/3 px-4 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5">
+              className="w-full rounded-2xl border border-white/10 bg-white/3 px-4 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5"
+            >
               Continue with Google
             </button>
 
@@ -184,7 +209,8 @@ const Login = () => {
               Don&apos;t have an account?{" "}
               <Link
                 to="/signup"
-                className="cursor-pointer font-bold text-[#ff7a59]">
+                className="cursor-pointer font-bold text-[#ff7a59]"
+              >
                 Sign up
               </Link>
             </p>
@@ -214,7 +240,8 @@ const Login = () => {
             ].map((item) => (
               <div
                 key={item}
-                className="rounded-2xl border border-white/10 bg-white/3 px-4 py-4 text-sm text-zinc-300">
+                className="rounded-2xl border border-white/10 bg-white/3 px-4 py-4 text-sm text-zinc-300"
+              >
                 {item}
               </div>
             ))}

@@ -362,9 +362,9 @@ export default function PostCard({
                   : "grid-cols-1"
               }`}
             >
-              {post.media.map((media) => (
+              {post.media.map((media, index) => (
                 <div
-                  key={media.id}
+                  key={media.id || index}
                   className="overflow-hidden rounded-[18px] bg-[#0e0f11]"
                 >
                   <img
