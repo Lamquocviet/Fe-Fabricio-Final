@@ -2,8 +2,10 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { uploadGame } from "@/services/gameService";
+import { useNavigate } from "react-router";
 
 export const useUploadGame = () => {
+  const navigate = useNavigate();
   const schema = yup.object({
     Title: yup.string().required("Tên game bắt buộc"),
     Description: yup.string().required("Mô tả bắt buộc"),
@@ -38,6 +40,8 @@ export const useUploadGame = () => {
       await uploadGame(data);
       alert("Upload thành công");
       reset();
+      // Navigate to game library after successful upload
+      navigate("/games");
     } catch (err) {
       console.error(err);
       alert(err?.response?.data?.message || "Lỗi upload");

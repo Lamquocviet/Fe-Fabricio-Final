@@ -16,10 +16,14 @@ export const filterProducts = (products, filters) => {
   }
 
   // filter tag
-  if (filters.tag) {
-    result = result.filter((p) =>
-      p.tags.includes(filters.tag)
-    );
+  if (filters.tag && filters.tag !== "") {
+    result = result.filter((p) => {
+      // Ensure tags is an array
+      const tagsArray = Array.isArray(p.tags) ? p.tags : [];
+      return tagsArray.some(tag => 
+        typeof tag === 'string' && tag.toLowerCase() === filters.tag.toLowerCase()
+      );
+    });
   }
 
   // sort
