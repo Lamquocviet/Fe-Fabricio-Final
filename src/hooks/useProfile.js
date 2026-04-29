@@ -30,7 +30,7 @@ export const useProfile = () => {
       const updatedUser = await userService.updateProfile(newData);
       setUser(updatedUser);
       setMessage({ type: 'success', text: 'Cập nhật thành công!' });
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Cập nhật thất bại!' });
     } finally {
       setSaving(false);
