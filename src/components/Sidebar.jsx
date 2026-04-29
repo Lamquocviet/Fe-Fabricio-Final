@@ -15,7 +15,7 @@ const mainNavItems = [
 const discoverItems = [
   { label: "Dashboard", path: "/dashboard" },
   { label: "Spotlight", path: "/spotlight" },
-  { label: "Upload Game", path: "/submit-game" },
+  { label: "Upload Game", path: "/uploadgame" },
 ];
 
 const navClass = ({ isActive }) =>

@@ -1,12 +1,20 @@
-import { Star, Eye, Download } from "lucide-react";
+import { Star, Eye, Download } from 'lucide-react';
+
 
 export default function GameInfo({ game }) {
-  console.log("Render GameInfo", game);
+  if (!game) {
+    return (
+      <div className="text-center text-zinc-400">
+        <p>Không thể tải thông tin game</p>
+      </div>
+    );
+  }
+
+
   return (
     <div>
-      <h1 className="text-5xl font-bold leading-tight mb-2 !text-white">
-        {game.title}
-      </h1>
+      <h1 className="text-5xl font-bold leading-tight mb-2 !text-white">{game.title}</h1>
+
 
       <div className="flex items-center gap-8 mt-8">
         <div>
@@ -16,7 +24,9 @@ export default function GameInfo({ game }) {
           <p className="text-sm text-zinc-500">One-time purchase</p>
         </div>
 
+
         <div className="h-12 w-px bg-zinc-800" />
+
 
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
@@ -26,6 +36,7 @@ export default function GameInfo({ game }) {
               <p className="text-xs text-zinc-500">views</p>
             </div>
           </div>
+
 
           <div className="flex items-center gap-2">
             <Download className="w-5 h-5 text-zinc-400" />
@@ -37,6 +48,7 @@ export default function GameInfo({ game }) {
         </div>
       </div>
 
+
       {/* Rating */}
       <div className="flex items-center gap-3 mt-10">
         <div className="flex text-amber-400 text-2xl">
@@ -45,19 +57,26 @@ export default function GameInfo({ game }) {
           ))}
         </div>
         <span className="text-3xl font-semibold">{game.rating}</span>
+       
       </div>
+
 
       {/* Tags */}
       <div className="flex flex-wrap gap-3 mt-10">
-        {game.gameTags?.map((tag, index) => (
-          <span
-            key={index}
-            className="bg-zinc-900 hover:bg-zinc-800 transition px-6 py-2.5 rounded-full text-sm border border-zinc-700"
-          >
-            {tag}
-          </span>
-        ))}
+        {game?.tags?.length > 0 ? (
+          game.tags.map((tag, index) => (
+            <span
+              key={index}
+              className="bg-zinc-900 hover:bg-zinc-800 transition px-6 py-2.5 rounded-full text-sm border border-zinc-700"
+            >
+              {tag}
+            </span>
+          ))
+        ) : (
+          <p className="text-sm text-zinc-500">Không có tags</p>
+        )}
       </div>
     </div>
   );
 }
+
