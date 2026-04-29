@@ -6,11 +6,42 @@ import FeaturedGamesSection from "../sections/FeaturedGamesSection";
 import TrendingNowSection from "../sections/TrendingNowSection";
 import LatestPostsSection from "../sections/LatestPostsSection";
 import useHomeFeed from "../hooks/useHomeFeed";
+import usePosts from "../hooks/usePost";
+import useAuth from "@/contexts/AuthContext";
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { featuredDrop, featuredGames, trendingGames, posts, loading, error } =
+
+  const { featuredGames, topRatedGames, posts, loading, error, refetch } =
     useHomeFeed();
+
+  const {
+    comments,
+    deleting,
+    updatePost,
+    deletePost,
+    getPostComments,
+    createComment,
+    createReaction,
+    removeReaction,
+  } = usePosts({ page: 1, limit: 10 });
+
+  const { user } = useAuth();
+
+  const handleUpdatePost = async (postId, payload) => {
+    await updatePost(postId, payload);
+    await refetch({ silent: true });
+  };
+
+  const handleDeletePost = async (postId) => {
+    await deletePost(postId);
+    await refetch({ silent: true });
+  };
+
+  const handleCreateComment = async (postId, payload) => {
+    await createComment(postId, payload);
+    await getPostComments(postId, 1, 5);
+  };
 
   if (loading) {
     return (
@@ -35,17 +66,33 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#050505] text-white">
       <Header onOpenSidebar={() => setIsSidebarOpen(true)} />
+
       <div className="flex me-4">
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
+
         <main className="flex-1">
           <div className="space-y-8 px-4 py-6 lg:p-0">
-            <FeaturedDropSection featuredDrop={featuredDrop} />
-            <FeaturedGamesSection games={featuredGames} />
-            <TrendingNowSection games={trendingGames} />
-            <LatestPostsSection posts={posts} />
+            <FeaturedDropSection featuredDrop={featuredGames} />
+
+            <FeaturedGamesSection games={topRatedGames} />
+
+            <TrendingNowSection games={topRatedGames} />
+
+            <LatestPostsSection
+              posts={posts}
+              currentUser={user}
+              comments={comments}
+              onUpdatePost={handleUpdatePost}
+              onDeletePost={handleDeletePost}
+              onGetComments={getPostComments}
+              onCreateComment={handleCreateComment}
+              createReaction={createReaction}
+              removeReaction={removeReaction}
+              deleting={deleting}
+            />
           </div>
         </main>
       </div>

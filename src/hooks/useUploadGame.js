@@ -34,7 +34,6 @@ export const useUploadGame = () => {
 
   const onSubmit = async (data) => {
     try {
-      console.log("Submitting game with data:", data);
       await uploadGame(data);
       alert("Upload thành công");
       reset();

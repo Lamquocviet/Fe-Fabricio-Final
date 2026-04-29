@@ -1,63 +1,115 @@
-import { useEffect, useState } from "react";
-import { getFeaturedDrop } from "../services/homeService";
-import { getFeaturedGames, getTrendingGames } from "../services/gameService";
-import { getLatestPosts } from "../services/postService";
+import { useCallback, useEffect, useState } from "react";
+import { getFeaturedGames, getTopRatedGames } from "../services/gameService";
+import { getTrendingPosts } from "../services/postService";
+
+const DEFAULT_AVATAR =
+  "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png";
 
 export default function useHomeFeed() {
-  const [featuredDrop, setFeaturedDrop] = useState(null);
   const [featuredGames, setFeaturedGames] = useState([]);
-  const [trendingGames, setTrendingGames] = useState([]);
+  const [topRatedGames, setTopRatedGames] = useState([]);
   const [posts, setPosts] = useState([]);
+
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(""); 
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    let ignore = false;
+  const normalizeMediaUrl = useCallback((url) => {
+    if (!url) return "";
 
-    const fetchHomeFeed = async () => {
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+
+    return `http://${url}`;
+  }, []);
+
+  const mapPostWithAuthor = useCallback(
+    (post) => {
+      const author = post?.author;
+
+      return {
+        ...post,
+
+        name: author?.displayName || "Unknown User",
+        username: author?.email ? `@${author.email.split("@")[0]}` : "",
+        avatar: author?.avatarUrl || DEFAULT_AVATAR,
+        role: author?.role || "user",
+
+        authorId: post?.authorId || author?.id,
+
+        time: post?.createdAt
+          ? new Date(post.createdAt).toLocaleString("vi-VN")
+          : "",
+
+        media:
+          post?.media
+            ?.map((item) => {
+              if (!item?.mediaUrl) return null;
+
+              return {
+                id: item.id,
+                mediaUrl: normalizeMediaUrl(item.mediaUrl),
+              };
+            })
+            .filter(Boolean) || [],
+
+        likeCount: post?.likeCount ?? 0,
+        dislikeCount: post?.dislikeCount ?? 0,
+        commentCount: post?.commentCount ?? 0,
+        myReaction: post?.myReaction ?? null,
+
+        stats: {
+          likes: post?.likeCount ?? 0,
+          comments: post?.commentCount ?? 0,
+        },
+      };
+    },
+    [normalizeMediaUrl],
+  );
+
+  const fetchHomeFeed = useCallback(
+    async ({ silent = false } = {}) => {
       try {
-        setLoading(true);
+        if (!silent) {
+          setLoading(true);
+        }
+
         setError("");
 
-        const [dropData, gamesData, trendingGames, postsData] = await Promise.all([
-          getFeaturedDrop(),
+        const [gamesData, topRatedGamesData, postsData] = await Promise.all([
           getFeaturedGames(),
-          getTrendingGames(),
-          getLatestPosts(),
+          getTopRatedGames(),
+          getTrendingPosts(),
         ]);
 
-        if (!ignore) {
-          setFeaturedDrop(dropData?.data || dropData || null);
-          setFeaturedGames(gamesData?.data || gamesData || []);
-          setTrendingGames(trendingGames?.data || trendingGames || []);
-          setPosts(postsData?.data || postsData || []);
-        }
+        const rawPosts = postsData?.items || postsData?.data || postsData || [];
+
+        const mappedPosts = rawPosts.map((post) => mapPostWithAuthor(post));
+
+        setFeaturedGames(gamesData?.data || gamesData || []);
+        setTopRatedGames(topRatedGamesData?.data || topRatedGamesData || []);
+        setPosts(mappedPosts);
       } catch (err) {
-        if (!ignore) {
-          setError(
-            err?.response?.data?.message || err.message || "Load failed",
-          );
-        }
+        setError(err?.response?.data?.message || err.message || "Load failed");
       } finally {
-        if (!ignore) {
+        if (!silent) {
           setLoading(false);
         }
       }
-    };
+    },
+    [mapPostWithAuthor],
+  );
 
+  useEffect(() => {
     fetchHomeFeed();
-
-    return () => {
-      ignore = true;
-    };
-  }, []);
+  }, [fetchHomeFeed]);
 
   return {
-    featuredDrop,
     featuredGames,
-    trendingGames,
+    topRatedGames,
     posts,
     loading,
     error,
+    refetch: fetchHomeFeed,
   };
 }

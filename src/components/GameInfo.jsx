@@ -1,9 +1,12 @@
-import { Star, Eye, Download } from 'lucide-react';
+import { Star, Eye, Download } from "lucide-react";
 
 export default function GameInfo({ game }) {
+  console.log("Render GameInfo", game);
   return (
     <div>
-      <h1 className="text-5xl font-bold leading-tight mb-2 !text-white">{game.title}</h1>
+      <h1 className="text-5xl font-bold leading-tight mb-2 !text-white">
+        {game.title}
+      </h1>
 
       <div className="flex items-center gap-8 mt-8">
         <div>
@@ -42,12 +45,11 @@ export default function GameInfo({ game }) {
           ))}
         </div>
         <span className="text-3xl font-semibold">{game.rating}</span>
-        
       </div>
 
       {/* Tags */}
       <div className="flex flex-wrap gap-3 mt-10">
-        {game.tags.map((tag, index) => (
+        {game.gameTags?.map((tag, index) => (
           <span
             key={index}
             className="bg-zinc-900 hover:bg-zinc-800 transition px-6 py-2.5 rounded-full text-sm border border-zinc-700"
