@@ -1,6 +1,9 @@
 import { Link, NavLink } from "react-router-dom";
 import { X } from "lucide-react";
 import useAuth from "@/contexts/AuthContext";
+import { getTags } from "@/services/tagService";
+import { useEffect, useState } from "react";
+import usePosts from "@/hooks/usePost";
 
 const mainNavItems = [
   { label: "Home", path: "/" },
@@ -15,17 +18,6 @@ const discoverItems = [
   { label: "Upload Game", path: "/submit-game" },
 ];
 
-const tags = [
-  "Racing",
-  "Arcade",
-  "Cyberpunk",
-  "RPG",
-  "Adventure",
-  "Story",
-  "Puzzle",
-  "Cozy",
-];
-
 const navClass = ({ isActive }) =>
   [
     "flex w-full items-center rounded-full px-4 py-3 text-left text-[15px] transition",
@@ -37,7 +29,24 @@ const navClass = ({ isActive }) =>
 const SidebarContent = ({ onClose }) => {
   const { user, handleLogout } = useAuth();
 
-  console.log("Sidebar user:", user);
+  const [tags, setTags] = useState([]);
+
+  const { posts } = usePosts({ page: 1, limit: 5 });
+
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const res = await getTags();
+
+        setTags(res?.data || res || []);
+      } catch (error) {
+        console.error("Get tags failed:", error);
+        setTags([]);
+      }
+    };
+
+    fetchTags();
+  }, []);
 
   const authNavItems = user
     ? [
@@ -163,12 +172,12 @@ const SidebarContent = ({ onClose }) => {
         <div className="flex flex-wrap gap-3">
           {tags.map((tag) => (
             <Link
-              key={tag}
-              to={`/games?tag=${encodeURIComponent(tag)}`}
+              key={tag.id}
+              to={`/games?tag=${encodeURIComponent(tag.name)}`}
               onClick={onClose}
               className="rounded-full border border-white/10 bg-white/3 px-4 py-2 text-[14px] text-zinc-300 transition hover:border-white/20 hover:bg-white/6 hover:text-white"
             >
-              {tag}
+              {tag.name}
             </Link>
           ))}
         </div>
@@ -186,8 +195,8 @@ const SidebarContent = ({ onClose }) => {
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/3 px-7 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-            <p className="text-[15px] text-zinc-400">New posts today</p>
-            <p className="mt-5 text-[20px] font-bold text-white">36</p>
+            <p className="text-[15px] text-zinc-400"> Total posts </p>
+            <p className="mt-5 text-[20px] font-bold text-white">{posts.length}</p>
           </div>
         </div>
       </section>

@@ -14,7 +14,6 @@ export const getPosts = async ({ page = 1, limit = 10 } = {}) => {
     const res = await axiosInstance.get("/Post", {
       params: { page, limit },
     });
-    console.log("Fetched posts response:", res.data);
     return res.data;
   } catch (error) {
     throw new Error(
