@@ -46,9 +46,7 @@ export const getTrendingGames = async () => {
   return res.data;
 };
 
-const getErrorMessage = (error, fallbackMessage) => {
-  return error?.response?.data?.message || fallbackMessage;
-};
+
 
 export const gameLibraryService = {
   async getGameLibrary({ page = 1, limit = 12, search = "" } = {}) {
