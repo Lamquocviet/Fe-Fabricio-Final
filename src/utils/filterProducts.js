@@ -3,8 +3,9 @@ export const filterProducts = (products, filters) => {
 
   //  convert price string → number
   const parsePrice = (price) => {
-    if (price === "Free") return 0;
-    return Number(price.replace("$", ""));
+    if (price === "Free" || price === 0) return 0;
+    if (typeof price === "number") return price;
+    return Number(String(price).replace("$", ""));
   };
 
   // filter price

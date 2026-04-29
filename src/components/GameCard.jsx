@@ -30,7 +30,7 @@ export default function GameCard({ game }) {
             {game.title}
           </h3>
 
-          <p className="truncate text-sm text-sky-200/70">{game.studio}</p>
+          {/* <p className="truncate text-sm text-sky-200/70">{game.studio}</p> */}
         </div>
 
         {/* Tags */}
