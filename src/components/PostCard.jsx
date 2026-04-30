@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import CommentSection from "./CommentSection";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 export default function PostCard({
   post,
@@ -15,6 +16,8 @@ export default function PostCard({
   removeReaction,
   deleting,
 }) {
+  const { requireAuth } = useRequireAuth();
+
   const [showComments, setShowComments] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -46,6 +49,8 @@ export default function PostCard({
   };
 
   const handleCreateComment = async (postId, content) => {
+    if (!requireAuth()) return;
+
     const oldCommentCount = commentCount;
 
     try {
@@ -95,6 +100,7 @@ export default function PostCard({
 
   const handleLike = async () => {
     if (reacting) return;
+    if (!requireAuth()) return;
 
     const oldReaction = userReaction;
     const oldLikeCount = likeCount;
@@ -134,6 +140,7 @@ export default function PostCard({
 
   const handleDislike = async () => {
     if (reacting) return;
+    if (!requireAuth()) return;
 
     const oldReaction = userReaction;
     const oldLikeCount = likeCount;
@@ -187,6 +194,7 @@ export default function PostCard({
   };
 
   const handleSaveEdit = async () => {
+    if (!requireAuth()) return;
     if (!editTitle.trim() || !editContent.trim()) return;
 
     const formData = new FormData();

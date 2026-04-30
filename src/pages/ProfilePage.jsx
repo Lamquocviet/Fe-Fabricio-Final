@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 
 import { useProfile } from "@/hooks/useProfile";
+import useRequireAuth from "@/hooks/useRequireAuth";
 import { changePassword } from "@/services/userService";
 import { Edit2, Camera, Save, X, KeyRound } from "lucide-react";
 import ProfileTab from "@/components/ProfileTab";
@@ -28,6 +30,9 @@ const getAvatarInitials = (name) => {
 };
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
+  const { requireAuth } = useRequireAuth();
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const { user, loading, saving, message, updateProfile } = useProfile();
@@ -52,7 +57,8 @@ const ProfilePage = () => {
 
   // Bắt đầu chỉnh sửa
   const startEditing = () => {
-    if (!user) return;
+    if (!requireAuth() || !user) return;
+
     setFormData({
       avatar: user.avatarUrl || user.avatar || "",
       avatarFile: null,
@@ -64,6 +70,8 @@ const ProfilePage = () => {
 
   // Lưu thay đổi
   const handleSave = async () => {
+    if (!requireAuth()) return;
+
     await updateProfile({
       bio: formData.bio || "",
       avatarFile: formData.avatarFile,
@@ -78,6 +86,11 @@ const ProfilePage = () => {
 
   // Thay đổi avatar
   const handleAvatarChange = (e) => {
+    if (!requireAuth()) {
+      e.target.value = "";
+      return;
+    }
+
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -100,6 +113,8 @@ const ProfilePage = () => {
   };
 
   const openPasswordModal = () => {
+    if (!requireAuth()) return;
+
     setPasswordForm(INITIAL_PASSWORD_FORM);
     setPasswordFeedback({ type: "", text: "" });
     setIsPasswordModalOpen(true);
@@ -155,6 +170,8 @@ const ProfilePage = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
+    if (!requireAuth()) return;
+
     const validationError = validatePasswordForm();
 
     if (validationError) {
@@ -186,6 +203,12 @@ const ProfilePage = () => {
     } finally {
       setPasswordSaving(false);
     }
+  };
+
+  const handleUploadGameClick = () => {
+    if (!requireAuth()) return;
+
+    navigate("/uploadgame");
   };
 
   if (loading) {
@@ -291,7 +314,11 @@ const ProfilePage = () => {
 
                 {/* Nút Đăng game */}
                 <div className="flex flex-col gap-4 flex-shrink-0 self-start sm:self-center mt-2 sm:mt-0 justify-between">
-                  <button className="bg-gradient-to-r from-red-500 to-rose-600 hover:brightness-110 px-8 py-3 rounded-2xl font-semibold text-sm whitespace-nowrap transition">
+                  <button
+                    type="button"
+                    onClick={handleUploadGameClick}
+                    className="bg-gradient-to-r from-red-500 to-rose-600 hover:brightness-110 px-8 py-3 rounded-2xl font-semibold text-sm whitespace-nowrap transition"
+                  >
                     Đăng game
                   </button>
                   {isEditing ? (

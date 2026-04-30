@@ -3,17 +3,25 @@ import { Button } from "@/components/ui/button";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import useAuth from "@/contexts/AuthContext";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 const pages = [
   { label: "Home", path: "/" },
   { label: "Games", path: "/games" },
   { label: "Posts", path: "/posts" },
-  { label: "Submit Game", path: "/uploadgame" },
+  { label: "Submit Game", path: "/uploadgame", requiresAuth: true },
 ];
 
 const Header = ({ onOpenSidebar }) => {
   const navigate = useNavigate();
   const { user, handleLogout } = useAuth();
+  const { requireAuth } = useRequireAuth();
+
+  const handleNavClick = (event, item) => {
+    if (item.requiresAuth && !requireAuth()) {
+      event.preventDefault();
+    }
+  };
 
   const handleSignOut = async () => {
     await handleLogout();
@@ -55,6 +63,7 @@ const Header = ({ onOpenSidebar }) => {
                 key={item.path}
                 to={item.path}
                 end={item.path === "/"}
+                onClick={(event) => handleNavClick(event, item)}
                 className={({ isActive }) =>
                   [
                     "rounded-full px-5 py-3 text-[1.05rem] font-medium transition",

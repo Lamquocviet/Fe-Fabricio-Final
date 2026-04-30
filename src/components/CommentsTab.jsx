@@ -1,4 +1,8 @@
+import useRequireAuth from "@/hooks/useRequireAuth";
+
 export default function CommentsTab() {
+  const { requireAuth } = useRequireAuth();
+
   return (
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 md:p-10">
       {/* <h2 className="text-3xl font-bold mb-6">Comments</h2> */}
@@ -10,7 +14,11 @@ export default function CommentsTab() {
         />
       </div>
 
-      <button className="bg-red-600 hover:bg-red-700 transition px-10 py-4 rounded-2xl font-semibold text-lg">
+      <button
+        type="button"
+        onClick={() => requireAuth()}
+        className="bg-red-600 hover:bg-red-700 transition px-10 py-4 rounded-2xl font-semibold text-lg"
+      >
         Post Comment
       </button>
 

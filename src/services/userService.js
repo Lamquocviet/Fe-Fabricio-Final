@@ -1,4 +1,5 @@
 import axiosInstance from "../utils/axiosInstance";
+import { assertAuthenticated } from "@/utils/authGuard";
 
 const getErrorMessage = (error, fallbackMessage) => {
   return error?.response?.data?.message || error?.message || fallbackMessage;
@@ -22,6 +23,8 @@ const normalizeUser = (payload) => {
 };
 
 const uploadAvatarRequest = async (file) => {
+  assertAuthenticated();
+
   const formData = new FormData();
   formData.append("file", file);
 
@@ -35,6 +38,8 @@ const uploadAvatarRequest = async (file) => {
 };
 
 const getCurrentUserRequest = async () => {
+  assertAuthenticated();
+
   const res = await axiosInstance.get("/Users/me");
   return normalizeUser(res.data);
 };
@@ -70,6 +75,8 @@ export const userService = {
   // Cập nhật thông tin profile. Backend hiện hỗ trợ bio và avatar.
   async updateProfile(data = {}) {
     try {
+      assertAuthenticated();
+
       const hasBio =
         Object.prototype.hasOwnProperty.call(data, "bio") ||
         Object.prototype.hasOwnProperty.call(data, "description");
@@ -98,6 +105,8 @@ export const userService = {
   // Upload avatar
   async uploadAvatar(file) {
     try {
+      assertAuthenticated();
+
       if (!file) {
         throw new Error("Thiếu file avatar");
       }
@@ -111,6 +120,10 @@ export const userService = {
   // Lấy danh sách bài viết của user. Nếu không có userId thì lấy user hiện tại.
   async getUserPosts(userId, { page = 1, limit = 10 } = {}) {
     try {
+      if (!userId) {
+        assertAuthenticated();
+      }
+
       const endpoint = userId ? `/Post/user/${userId}` : "/Post/user/me";
 
       const res = await axiosInstance.get(endpoint, {
@@ -136,6 +149,8 @@ export const changePassword = async (
   nextConfirmPassword,
 ) => {
   try {
+    assertAuthenticated();
+
     const payload =
       typeof payloadOrOldPassword === "object"
         ? payloadOrOldPassword
