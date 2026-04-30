@@ -46,7 +46,21 @@ export const getTrendingGames = async () => {
   return res.data;
 };
 
+export const userService = {
+  async getMe() {
+    try {
+    const res = await axiosInstance.get("/Users/me");
+    return res.data;
+  
+    } catch (error) {
+      console.error("getMe error:", error);
+      throw error;
+    }
+  },
+};
+
 export const gameLibraryService = {
+
   async getGameLibrary({ page = 1, limit = 12, search = "" } = {}) {
     // console.log("CALL getGameLibrary");
 
@@ -91,24 +105,10 @@ export const gameLibraryService = {
         getErrorMessage(error, "Không lấy được danh sách yêu thích"),
       );
     }
-  },
-  async addGameFavorite(gameId) {
-    try {
-      const res = await axiosInstance.post("/GameFavorites", { gameId });
-      return res.data;
-    } catch (error) {
-      throw new Error(getErrorMessage(error, "Thêm vào yêu thích thất bại"));
-    }
-  },
-  async removeGameFavorite(gameId) {
-    try {
-      const res = await axiosInstance.delete(`/GameFavorites/${gameId}`);
-      return res.data;
-    } catch (error) {
-      throw new Error(getErrorMessage(error, "Xóa khỏi yêu thích thất bại"));
-    }
-  },
+  }
+  
 };
+
 
 
 export const uploadGame = async (payload) => {

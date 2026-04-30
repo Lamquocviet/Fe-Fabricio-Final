@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 
 export default function GameCard({ game }) {
 
-  console.log("Rendering GameCard for:", game);
+  
   const navigate = useNavigate();
   const handleClickView = () => {
     navigate(`/games/${game.id}`);
@@ -13,10 +13,10 @@ export default function GameCard({ game }) {
       {/* Image */}
       <div className="relative overflow-hidden">
         <img
-          src={game.image}
-          alt={game.title}
-          className="h-44 w-full object-cover"
-        />
+  src={game.image || game.thumbnailUrl}
+  alt={game.title}
+  className="h-44 w-full object-cover"
+/>
 
         <button className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-[14px] border border-red-500/25 bg-red-500/10 text-sm text-white">
           ♡

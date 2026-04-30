@@ -1,14 +1,35 @@
-import { useState } from 'react';
+import { useEffect, useState } from "react";
+import MyGameTab from "./MyGameTab";
+import { userService } from "@/services/userService";
 
-
-export default function ProfileTab({ game }) {
-  const [activeTab, setActiveTab] = useState('Games');
+export default function ProfileTab() {
+  const [activeTab, setActiveTab] = useState("Games");
+  const [user, setUser] = useState(null);
 
   const tabs = [
-    { id: 'Games', label: 'Games' },
-    { id: 'Posts', label: 'Posts' },
-    { id: 'My games', label: 'My games' },
+    { id: "Games", label: "Games" },
+    { id: "Posts", label: "Posts" },
+    { id: "My games", label: "My games" },
   ];
+
+  // 🔥 fetch user
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await userService.getCurrentUser();
+        setUser(data);
+      } catch (err) {
+        console.error("GetMe error:", err);
+      }
+    };
+
+    fetchUser();
+  }, []);
+  
+  
+  if (!user) {
+    return <p className="text-white">Loading profile...</p>;
+  }
 
   return (
     <div className="mt-16 max-w-7xl mx-auto px-6">
@@ -31,12 +52,23 @@ export default function ProfileTab({ game }) {
           </button>
         ))}
       </div>
+      
 
       {/* Tab Content */}
-      <div className="mt-8">
-        {activeTab === 'Games' && <h1>Games</h1>}
-        {activeTab === 'Posts' && <h1>Posts</h1>}
-        {activeTab === 'My games' && <h1>My games</h1>}
+       <div className="mt-8">
+
+        {activeTab === "Games" && (
+          <h1 className="text-white">All Games</h1>
+        )}
+
+        {activeTab === "Posts" && (
+          <h1 className="text-white">Posts</h1>
+        )}
+
+        {activeTab === "My games" && (
+          <MyGameTab userId={user.id} />
+        )}
+
       </div>
     </div>
   );
