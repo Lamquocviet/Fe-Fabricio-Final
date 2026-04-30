@@ -1,67 +1,101 @@
 import { useState } from "react";
-import { purchaseGame } from "@/services/gameService";
+import PaymentModal from "./PaymentModal";
+import {
+  getPlayUrl,
+  getDownloadUrl,
+} from "@/services/gameService";
 
 export default function ActionButtons({ game }) {
+  const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [purchased, setPurchased] = useState(false);
 
-  const handleBuy = async () => {
+  const isFree = game?.rawPrice === 0;
+  const isBrowser = game?.type?.toLowerCase() === "browser";
+
+  const isPurchased = (() => {
+  const data = localStorage.getItem("purchasedGames");
+  const list = data ? JSON.parse(data) : [];
+  return list.includes(game?.id);
+})();
+
+  const handlePlay = async () => {
     try {
-      if (!game) return;
-
-      if (game.rawPrice === 0) {
-        alert("Game miễn phí, không cần mua!");
-        return;
-      }
-
       setLoading(true);
 
-      const res = await purchaseGame(game.id, game.rawPrice);
-
-      console.log("✅ Purchase success:", res);
-
-      setPurchased(true);
-      alert("🎉 Mua game thành công!");
+      const res = await getPlayUrl(game.id);
+      window.open(res.data.gameUrl, "_blank");
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      alert("Không thể mở game!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      setLoading(true);
+
+      const res = await getDownloadUrl(game.id);
+
+      const link = document.createElement("a");
+      link.href = res.data.downloadUrl;
+      link.setAttribute("download", "");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error(err);
+      alert("Download thất bại!");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="space-y-4 mt-12">
-      <button
-        onClick={handleBuy}
-        disabled={loading || game?.rawPrice === 0 || purchased}
-        className={`w-full py-5 rounded-2xl font-bold text-xl flex items-center justify-center gap-3
-        ${
-          loading
-            ? "bg-yellow-600"
-            : purchased
-            ? "bg-green-600"
-            : game?.rawPrice === 0
-            ? "bg-zinc-600 cursor-not-allowed"
-            : "bg-red-600 hover:bg-red-700"
-        }`}
-      >
-        {loading
-          ? "Processing..."
-          : purchased
-          ? "Purchased ✅"
-          : game?.rawPrice === 0
-          ? "Free Game"
-          : "Buy Now"}
-      </button>
+  <div className="space-y-4 mt-12">
 
-      <button className="w-full border border-zinc-700 hover:bg-zinc-900 py-5 rounded-2xl font-medium text-lg">
-        Add to favorites
-      </button>
+    {/* FREE OR OWNED */}
+    {(isFree || isPurchased) ? (
+      isBrowser ? (
+        <button
+          onClick={handlePlay}
+          disabled={loading}
+          className="w-full py-5 rounded-2xl bg-green-600 hover:bg-green-700"
+        >
+          {loading ? "Loading..." : "🎮 Play"}
+        </button>
+      ) : (
+        <button
+          onClick={handleDownload}
+          disabled={loading}
+          className="w-full py-5 rounded-2xl bg-blue-600 hover:bg-blue-700"
+        >
+          {loading ? "Downloading..." : "⬇ Download"}
+        </button>
+      )
+    ) : (
+      /*  NOT OWNED */
+      <>
+        <button
+          onClick={() => setShowModal(true)}
+          className="w-full py-5 rounded-2xl bg-red-600 hover:bg-red-700"
+        >
+          Buy Now
+        </button>
 
-      <button className="w-full border border-zinc-700 hover:bg-zinc-900 py-5 rounded-2xl font-medium text-lg">
-        Play Demo
-      </button>
-    </div>
-  );
+        {showModal && (
+          <PaymentModal
+            game={game}
+            onClose={() => setShowModal(false)}
+            onSuccess={() => {
+              //  trigger re-render
+              window.location.reload();
+            }}
+          />
+        )}
+      </>
+    )}
+  </div>
+);
 }

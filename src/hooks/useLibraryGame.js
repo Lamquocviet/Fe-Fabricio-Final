@@ -3,47 +3,76 @@ import { useEffect, useState } from "react";
 import { gameLibraryService } from "@/services/gameService";
 import { filterProducts } from "../utils/filterProducts";
 
-// Transform API response to frontend format
+
+// PRICE (QUAN TRỌNG)
+
+const normalizePrice = (price) => {
+  if (price === null || price === undefined) return 0;
+
+  const num =
+    typeof price === "string" ? parseFloat(price) : price;
+
+  return isNaN(num) ? 0 : num;
+};
+
+const formatPrice = (price) => {
+  if (price === 0) return "Free";
+  return `$${price.toFixed(2)}`;
+};
+
+
+// TRANSFORM DATA
+
 const transformGameData = (apiGames) => {
   if (!Array.isArray(apiGames)) return [];
-  
+
   return apiGames.map((game) => {
-    // Check both camelCase (gameTags) and PascalCase (GameTags)
-    const tagsArray = game.gameTags || game.GameTags || game.tags || [];
-    
-    let tags = [];
-    if (Array.isArray(tagsArray) && tagsArray.length > 0) {
-      tags = tagsArray.map(t => {
-        // Handle both {id, Name} and {id, name} formats
-        if (typeof t === 'string') return t;
-        return t.Name || t.name || '';
-      }).filter(Boolean);
-    }
-    
-    console.log("Game:", game.title || game.Title, "Tags from API:", tagsArray, "Transformed tags:", tags);
-    
+    // TAGS
+    const tagsRaw =
+      game.gameTags || game.GameTags || game.tags || [];
+
+    const tags = Array.isArray(tagsRaw)
+      ? tagsRaw
+          .map((t) =>
+            typeof t === "string"
+              ? t
+              : t?.name || t?.Name || t?.tag?.name
+          )
+          .filter(Boolean)
+      : [];
+
+    //  PRICE
+    const rawPrice = normalizePrice(
+      game.price ?? game.Price
+    );
+
     return {
       id: game.id || game.Id,
-      title: game.title || game.Title,
-      studio: game.studio || "Unknown Studio", 
-      image: game.image || game.thumbnailUrl || game.ThumbnailUrl || "https://via.placeholder.com/400x300",
-      tags: tags,
-      price: formatPrice(game.price ?? game.Price),
+      title: game.title || game.Title || "Unknown",
+      studio: game.studio || "Unknown Studio",
+      type: game.gameType || "Unknown",
+
+      image:
+        game.image ||
+        game.thumbnailUrl ||
+        game.ThumbnailUrl ||
+        "https://via.placeholder.com/400x300",
+
+      tags,
+
+      rawPrice,                     
+      price: formatPrice(rawPrice),
+      isFree: rawPrice === 0,      
+
       rating: game.rating || game.Rating || 0,
-      description: game.description || game.Description || "",
-      ...game, 
+      description:
+        game.description || game.Description || "",
     };
   });
 };
 
 
-const formatPrice = (price) => {
-  const numPrice = typeof price === "string" ? parseFloat(price) : price;
-  if (numPrice === 0 || numPrice === null || numPrice === undefined) {
-    return "Free";
-  }
-  return `$${numPrice.toFixed(2)}`;
-};
+//HOOK
 
 export const useProducts = () => {
   const [products, setProducts] = useState([]);
@@ -53,29 +82,25 @@ export const useProducts = () => {
     sort: "Newest",
   });
 
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] =
+    useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // Fetch games from API
   const fetchData = async () => {
     try {
       setLoading(true);
-      const data = await gameLibraryService.getGameLibrary();
-      
-      // Extract games array from API response { GameTotal, games }
-      const gamesArray = Array.isArray(data) ? data : (data?.games || []);
-      
-      console.log("Raw API games:", gamesArray);
-      
-      // Transform API data to frontend format
-      const transformedGames = transformGameData(gamesArray);
-      
-      console.log("Transformed games:", transformedGames);
-      
-      setProducts(transformedGames);
-      setFilteredProducts(transformedGames);
-      setTotal(data?.GameTotal || transformedGames.length);
+
+      const data =
+        await gameLibraryService.getGameLibrary();
+
+      const gamesArray = data?.games || [];
+
+      const transformed = transformGameData(gamesArray);
+
+      setProducts(transformed);
+      setFilteredProducts(transformed);
+      setTotal(data?.GameTotal || transformed.length);
     } catch (error) {
       console.error("Error fetching games:", error);
       setProducts([]);
@@ -93,7 +118,6 @@ export const useProducts = () => {
     const result = filterProducts(products, filters);
     setFilteredProducts(result);
   }, [filters, products]);
-  
 
   return {
     filters,
@@ -101,6 +125,6 @@ export const useProducts = () => {
     filteredProducts,
     total,
     loading,
-    refetch: fetchData, // Expose refetch function
+    refetch: fetchData,
   };
 };

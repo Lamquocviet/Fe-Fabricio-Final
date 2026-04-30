@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 
 export default function GameCard({ game }) {
 
+  console.log("Rendering GameCard for:", game);
   const navigate = useNavigate();
   const handleClickView = () => {
     navigate(`/games/${game.id}`);
@@ -28,6 +29,11 @@ export default function GameCard({ game }) {
         <div>
           <h3 className="truncate text-lg font-bold text-white">
             {game.title}
+            {game.type && (
+              <span className="ml-2 text-sm text-white">
+                ({game.type})
+              </span>
+            )}
           </h3>
 
           {/* <p className="truncate text-sm text-sky-200/70">{game.studio}</p> */}

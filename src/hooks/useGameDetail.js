@@ -23,7 +23,7 @@ export const useGameDetail = () => {
       setError(null);
 
       try {
-        // 🔥 gọi song song
+        // gọi song song
         const [gameRes, ratingRes] = await Promise.all([
           gameLibraryService.getGameById(id),
           getGameRatings(id),
@@ -37,30 +37,28 @@ export const useGameDetail = () => {
           return;
         }
 
-        //transform data 
+        //transform data
         const transformed = {
-  id: gameRes.id,
-  title: gameRes.title,
-  description: gameRes.description,
+          id: gameRes.id,
+          title: gameRes.title,
+          description: gameRes.description,
+          type: gameRes.gameType || "Unknown",
 
-  image: gameRes.thumbnailUrl,
+          image: gameRes.thumbnailUrl,
 
-  
-  rawPrice: gameRes.price,
+          rawPrice: gameRes.price,
 
-  // UI display
-  price:
-    gameRes.price === 0
-      ? "Free"
-      : `$${Number(gameRes.price).toFixed(2)}`,
+          // UI display
+          price:
+            gameRes.price === 0
+              ? "Free"
+              : `$${Number(gameRes.price).toFixed(2)}`,
 
-  rating: ratingRes?.average ?? 0,
-  totalRatings: ratingRes?.total ?? 0,
+          rating: ratingRes?.average ?? 0,
+          totalRatings: ratingRes?.total ?? 0,
 
-  tags: gameRes.gameTags?.map(
-    (t) => t.name || t.tag?.name
-  ) || [],
-};
+          tags: gameRes.gameTags?.map((t) => t.name || t.tag?.name) || [],
+        };
 
         setGame(transformed);
       } catch (err) {

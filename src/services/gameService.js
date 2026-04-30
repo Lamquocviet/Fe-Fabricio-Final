@@ -212,34 +212,19 @@ export const putGameRatings = async (gameId, value) => {
 };
 
 // GAME PURCHASES
-export const purchaseGame = async (gameId, amount) => {
-  try {
-    if (!gameId) throw new Error("gameId is required");
-
-    const payload = {
-      amount: Number(amount),
-    };
-    
-    console.log("🚀 CALL PURCHASE:", {
-      url: `/games/${gameId}/purchase`,
-      payload,
-    });
-
-    const res = await axiosInstance.post(
-      `/games/${gameId}/purchase`,
-      payload
-    );
-
-
-    return res.data;
-  } catch (error) {
-    console.error("Purchase error:", error);
-    throw new Error(
-      error.response?.data?.message || "Mua game thất bại"
-    );
-  }
+export const purchaseGame = (gameId, amount) => {
+  return axiosInstance.post(`/games/${gameId}/purchase`, {
+    amound: amount, // backend đang typo "amound"
+  });
 };
 
+export const getPlayUrl = (gameId) => {
+  return axiosInstance.get(`/Games/${gameId}/play`);
+};
+
+export const getDownloadUrl = (gameId) => {
+  return axiosInstance.get(`/Games/${gameId}/download`);
+};
 export const getUserGamePurchases = async (userId) => {
   try {
     if (!userId) throw new Error("userId is required");

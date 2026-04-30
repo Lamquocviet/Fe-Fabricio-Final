@@ -15,6 +15,11 @@ export default function GameInfo({ game }) {
     <div>
       <h1 className="text-5xl font-bold mb-2 !text-white">
         {game.title}
+        {game.type && (
+          <span className="ml-4 text-sm text-zinc-400">
+            ({game.type})
+          </span>
+        )}
       </h1>
 
       {/* Price */}
@@ -26,16 +31,9 @@ export default function GameInfo({ game }) {
           <p className="text-sm text-zinc-500">One-time purchase</p>
         </div>
 
-        <div className="h-12 w-px bg-zinc-800" />
 
-        {/* <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Eye className="w-5 h-5 text-zinc-400" />
-            <p className="text-xs text-zinc-500">views</p>
-          </div>
 
-          
-        </div> */}
+       
       </div>
 
       {/* Rating */}
