@@ -59,7 +59,6 @@ export default function GameCard({ game }) {
           </span>
         </div>
 
-        {/* Button luôn xuống đáy */}
         <div className="mt-auto grid grid-cols-2 gap-2 pt-2">
           <button onClick={handleClickView} className="rounded-xl bg-linear-to-r from-[#ff6a4a] to-[#ff4d61] px-4 py-2 text-sm font-semibold text-white cursor-pointer">
             View

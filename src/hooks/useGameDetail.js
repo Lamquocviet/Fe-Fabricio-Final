@@ -39,29 +39,28 @@ export const useGameDetail = () => {
 
         //transform data 
         const transformed = {
-          id: gameRes.id,
-          title: gameRes.title,
-          description: gameRes.description,
-          image: gameRes.thumbnailUrl,
-            // ? gameRes.thumbnailUrl.replace(
-            //     "http://localhost",
-            //     "http://localhost:5000"
-            //   )
-            // : "https://via.placeholder.com/400x300",
+  id: gameRes.id,
+  title: gameRes.title,
+  description: gameRes.description,
 
-          price:
-            gameRes.price === 0
-              ? "Free"
-              : `$${Number(gameRes.price).toFixed(2)}`,
+  image: gameRes.thumbnailUrl,
 
-          rating: ratingRes?.average ?? 0,
-          totalRatings: ratingRes?.total ?? 0,
+  
+  rawPrice: gameRes.price,
 
-          tags:
-            gameRes.gameTags?.map(
-              (t) => t.name || t.tag?.name
-            ) || [],
-        };
+  // UI display
+  price:
+    gameRes.price === 0
+      ? "Free"
+      : `$${Number(gameRes.price).toFixed(2)}`,
+
+  rating: ratingRes?.average ?? 0,
+  totalRatings: ratingRes?.total ?? 0,
+
+  tags: gameRes.gameTags?.map(
+    (t) => t.name || t.tag?.name
+  ) || [],
+};
 
         setGame(transformed);
       } catch (err) {
