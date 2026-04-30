@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getTags, createTag } from '@/services/tagService';
+import useRequireAuth from '@/hooks/useRequireAuth';
 
 export const useTag = () => {
+    const { ensureAuth } = useRequireAuth();
+
     const [tags, setTags] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -27,6 +30,7 @@ export const useTag = () => {
 
     const handleCreateTag = async (tagData) => {
         try {
+            ensureAuth();
             setLoading(true);
             setError(null);
 

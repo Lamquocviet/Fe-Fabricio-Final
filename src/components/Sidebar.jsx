@@ -4,18 +4,19 @@ import useAuth from "@/contexts/AuthContext";
 import { getTags } from "@/services/tagService";
 import { useEffect, useState } from "react";
 import usePosts from "@/hooks/usePost";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 const mainNavItems = [
   { label: "Home", path: "/" },
   { label: "Games", path: "/games" },
   { label: "Posts", path: "/posts" },
-  { label: "Submit Game", path: "/submit-game" },
+  { label: "Submit Game", path: "/uploadgame", requiresAuth: true },
 ];
 
 const discoverItems = [
-  { label: "Dashboard", path: "/dashboard" },
+  { label: "Dashboard", path: "/dashboard", requiresAuth: true },
   { label: "Spotlight", path: "/spotlight" },
-  { label: "Upload Game", path: "/uploadgame" },
+  { label: "Upload Game", path: "/uploadgame", requiresAuth: true },
 ];
 
 const navClass = ({ isActive }) =>
@@ -28,6 +29,7 @@ const navClass = ({ isActive }) =>
 
 const SidebarContent = ({ onClose }) => {
   const { user, handleLogout } = useAuth();
+  const { requireAuth } = useRequireAuth();
 
   const [tags, setTags] = useState([]);
 
@@ -53,7 +55,16 @@ const SidebarContent = ({ onClose }) => {
         { label: "Profile", path: "/profile" },
         { label: "Admin", path: "/admin" },
       ]
-    : [{ label: "Login", path: "/login" }];
+    : [{ label: "Login", path: "/signin" }];
+
+  const handleNavClick = (event, item) => {
+    if (item.requiresAuth && !requireAuth()) {
+      event.preventDefault();
+      return;
+    }
+
+    onClose?.();
+  };
 
   const handleSignOut = () => {
     handleLogout();
@@ -112,7 +123,7 @@ const SidebarContent = ({ onClose }) => {
               key={item.path}
               to={item.path}
               end={item.path === "/"}
-              onClick={onClose}
+              onClick={(event) => handleNavClick(event, item)}
               className={navClass}
             >
               {item.label}
@@ -120,7 +131,7 @@ const SidebarContent = ({ onClose }) => {
           ))}
 
           {!user ? (
-            <NavLink to="/login" onClick={onClose} className={navClass}>
+            <NavLink to="/signin" onClick={onClose} className={navClass}>
               Login
             </NavLink>
           ) : (
@@ -144,7 +155,7 @@ const SidebarContent = ({ onClose }) => {
             <NavLink
               key={item.path}
               to={item.path}
-              onClick={onClose}
+              onClick={(event) => handleNavClick(event, item)}
               className={navClass}
             >
               {item.label}

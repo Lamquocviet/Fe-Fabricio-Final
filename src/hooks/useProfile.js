@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { userService } from '../services/userService';
+import useRequireAuth from '@/hooks/useRequireAuth';
 
 export const useProfile = () => {
+  const { ensureAuth, isAuthenticated, requireAuth } = useRequireAuth();
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -10,7 +13,14 @@ export const useProfile = () => {
   // Load user data
   useEffect(() => {
     const loadUser = async () => {
+      if (!isAuthenticated) {
+        requireAuth();
+        setLoading(false);
+        return;
+      }
+
       try {
+        ensureAuth();
         const data = await userService.getCurrentUser();
         setUser(data);
       } catch (error) {
@@ -21,12 +31,13 @@ export const useProfile = () => {
     };
 
     loadUser();
-  }, []);
+  }, [ensureAuth, isAuthenticated, requireAuth]);
 
   // Cập nhật profile
   const updateProfile = async (newData) => {
     setSaving(true);
     try {
+      ensureAuth();
       const updatedUser = await userService.updateProfile(newData);
       setUser(updatedUser);
       setMessage({ type: 'success', text: 'Cập nhật thành công!' });

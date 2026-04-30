@@ -1,6 +1,9 @@
 import { Star } from 'lucide-react';
+import useRequireAuth from '@/hooks/useRequireAuth';
 
 export default function RatingsTab() {
+  const { requireAuth } = useRequireAuth();
+
   return (
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 md:p-10">
 
@@ -8,7 +11,11 @@ export default function RatingsTab() {
 
       <div className="flex items-center gap-3 text-4xl text-amber-400">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Star key={i} className="fill-current cursor-pointer hover:scale-110 transition" />
+          <Star
+            key={i}
+            onClick={() => requireAuth()}
+            className="fill-current cursor-pointer hover:scale-110 transition"
+          />
         ))}
       </div>
       <p className="mt-4 text-2xl font-semibold">5/5</p>

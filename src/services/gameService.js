@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import axiosInstance from "../utils/axiosInstance";
+import { assertAuthenticated } from "@/utils/authGuard";
 import {
   gameLibrary,
   mockFeaturedDrop,
@@ -12,7 +13,7 @@ const USE_MOCK = true;
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getErrorMessage = (error, fallbackMessage) => {
-  return error?.response?.data?.message || fallbackMessage;
+  return error?.response?.data?.message || error?.message || fallbackMessage;
 };
 
 export const getGameList = async () => {
@@ -98,6 +99,8 @@ export const gameLibraryService = {
   },
   async getGameFavorites(userId) {
     try {
+      assertAuthenticated();
+
       const res = await axiosInstance.get(`/GameFavorites/user/${userId}`);
       return res.data;
     } catch (error) {
@@ -108,6 +111,8 @@ export const gameLibraryService = {
   },
   async addGameFavorite(gameId) {
     try {
+      assertAuthenticated();
+
       const res = await axiosInstance.post("/GameFavorites", { gameId });
       return res.data;
     } catch (error) {
@@ -116,6 +121,8 @@ export const gameLibraryService = {
   },
   async removeGameFavorite(gameId) {
     try {
+      assertAuthenticated();
+
       const res = await axiosInstance.delete(`/GameFavorites/${gameId}`);
       return res.data;
     } catch (error) {
@@ -125,6 +132,8 @@ export const gameLibraryService = {
 };
 export const uploadGame = async (payload) => {
   try {
+    assertAuthenticated();
+
     console.log("Uploading game with payload:", payload);
 
     const formData = new FormData();
@@ -182,6 +191,8 @@ export const getGameComments = async (
 
 export const createGameComment = async (gameId, content) => {
   try {
+    assertAuthenticated();
+
     if (!gameId) throw new Error("gameId is required");
     if (!content?.trim()) throw new Error("content is required");
 
@@ -215,6 +226,8 @@ export const getGameRatings = async (gameId, { page = 1, limit = 10 } = {}) => {
 
 export const rateGame = async (gameId, rating) => {
   try {
+    assertAuthenticated();
+
     if (!gameId) throw new Error("gameId is required");
     if (rating < 1 || rating > 5) {
       throw new Error("rating must be between 1 and 5");
@@ -234,6 +247,8 @@ export const rateGame = async (gameId, rating) => {
 // GAME PURCHASES
 export const purchaseGame = async (gameId) => {
   try {
+    assertAuthenticated();
+
     if (!gameId) throw new Error("gameId is required");
 
     const res = await axiosInstance.post("/GamePurchases", {
@@ -248,6 +263,8 @@ export const purchaseGame = async (gameId) => {
 
 export const getUserGamePurchases = async (userId) => {
   try {
+    assertAuthenticated();
+
     if (!userId) throw new Error("userId is required");
 
     const res = await axiosInstance.get(`/GamePurchases/user/${userId}`);

@@ -9,6 +9,7 @@ import {
   removeReaction,
   updatePost,
 } from "@/services/postService";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 const DEFAULT_AVATAR =
   "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png";
@@ -35,6 +36,8 @@ const getItemsFromResponse = (response) => {
 };
 
 export default function ProfileTab({ user }) {
+  const { ensureAuth } = useRequireAuth();
+
   const [activeTab, setActiveTab] = useState("Games");
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState({});
@@ -150,6 +153,7 @@ export default function ProfileTab({ user }) {
   const handleUpdatePost = async (postId, payload) => {
     try {
       setPostsError("");
+      ensureAuth();
       await updatePost(postId, payload);
       await fetchUserPosts({ silent: true });
     } catch (error) {
@@ -160,6 +164,7 @@ export default function ProfileTab({ user }) {
 
   const handleDeletePost = async (postId) => {
     try {
+      ensureAuth();
       setDeleting(true);
       setPostsError("");
 
@@ -198,6 +203,7 @@ export default function ProfileTab({ user }) {
   const handleCreateComment = async (postId, content) => {
     try {
       setPostsError("");
+      ensureAuth();
       await createComment(postId, { content });
     } catch (error) {
       setPostsError(error.message || "Tạo bình luận thất bại");
@@ -208,6 +214,7 @@ export default function ProfileTab({ user }) {
   const handleCreateReaction = async (postId, reactionType) => {
     try {
       setPostsError("");
+      ensureAuth();
       await createReaction(postId, reactionType);
     } catch (error) {
       setPostsError(error.message || "Tương tác thất bại");
@@ -218,6 +225,7 @@ export default function ProfileTab({ user }) {
   const handleRemoveReaction = async (postId) => {
     try {
       setPostsError("");
+      ensureAuth();
       await removeReaction(postId);
     } catch (error) {
       setPostsError(error.message || "Xóa tương tác thất bại");
