@@ -81,55 +81,53 @@ export default function CommentsTab({ game }) {
         {loading ? "Posting..." : "Post Comment"}
       </button>
 
-      {/* COMMENTS LIST */}
-      <div className="mt-12 space-y-6">
-        {comments.length > 0 ? (
-          comments.map((c) => (
-            <div
-              key={c.id}
-              className="flex gap-4 p-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900 transition-all duration-300"
-            >
-              {/* Avatar */}
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
-                {c.userName?.charAt(0).toUpperCase()}
-              </div>
+  
+     {/* COMMENTS LIST */}
+<div className="mt-12 max-h-[500px] overflow-y-auto pr-2 space-y-6 custom-scrollbar">
+  {comments.length > 0 ? (
+    comments.map((c) => (
+      <div
+        key={c.id}
+        className="flex gap-4 p-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900 transition-all duration-300"
+      >
+        {/* Avatar */}
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
+          {c.userName?.charAt(0).toUpperCase()}
+        </div>
 
-              {/* Content */}
-              <div className="flex-1">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-white">
-                    {c.userName}
-                  </p>
+        {/* Content */}
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold text-white">
+              {c.userName}
+            </p>
 
-                  <p className="text-xs text-zinc-500">
-                    {new Date(c.createdAt).toLocaleString()}
-                  </p>
-                </div>
-
-                {/* Comment */}
-                <p className="text-zinc-300 mt-2 leading-relaxed">
-                  {c.content || "No content"}
-                </p>
-
-                {/* Actions */}
-                <div className="flex gap-4 mt-3 text-xs text-zinc-500">
-                  <button className="hover:text-red-400 transition">
-                    Like
-                  </button>
-                  <button className="hover:text-blue-400 transition">
-                    Reply
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="text-zinc-400 text-sm text-center py-10">
-            No comments yet. Be the first to share your thoughts!
+            <p className="text-xs text-zinc-500">
+              {new Date(c.createdAt).toLocaleString()}
+            </p>
           </div>
-        )}
+
+          <p className="text-zinc-300 mt-2 leading-relaxed">
+            {c.content || "No content"}
+          </p>
+
+          <div className="flex gap-4 mt-3 text-xs text-zinc-500">
+            <button className="hover:text-red-400 transition">
+              Like
+            </button>
+            <button className="hover:text-blue-400 transition">
+              Reply
+            </button>
+          </div>
+        </div>
       </div>
+    ))
+  ) : (
+    <div className="text-zinc-400 text-sm text-center py-10">
+      No comments yet. Be the first to share your thoughts!
+    </div>
+  )}
+</div>
     </div>
   );
 }
