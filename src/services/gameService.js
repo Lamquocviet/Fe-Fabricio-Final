@@ -43,7 +43,7 @@ export const getFeaturedGames = async () => {
 export const getTopRatedGames = async () => {
   try {
     const res = await axiosInstance.get("/Games/topRatingGames");
-    if(res.data?.length === 0 && USE_MOCK) {
+    if (res.data?.length === 0 && USE_MOCK) {
       await wait(500);
       return {
         data: mockFeaturedGames,
@@ -177,7 +177,7 @@ export const getGameComments = async (
   try {
     if (!gameId) throw new Error("gameId is required");
 
-    const res = await axiosInstance.get(`/GameComments/${gameId}`, {
+    const res = await axiosInstance.get(`/games/${gameId}/comment`, {
       params: { page, limit },
     });
 
@@ -196,8 +196,7 @@ export const createGameComment = async (gameId, content) => {
     if (!gameId) throw new Error("gameId is required");
     if (!content?.trim()) throw new Error("content is required");
 
-    const res = await axiosInstance.post("/GameComments", {
-      gameId,
+    const res = await axiosInstance.post(`/games/${gameId}/comment`, {
       content: content.trim(),
     });
 
@@ -212,7 +211,7 @@ export const getGameRatings = async (gameId, { page = 1, limit = 10 } = {}) => {
   try {
     if (!gameId) throw new Error("gameId is required");
 
-    const res = await axiosInstance.get(`/GameRatings/${gameId}`, {
+    const res = await axiosInstance.get(`/games/${gameId}/ratings`, {
       params: { page, limit },
     });
 
@@ -233,9 +232,8 @@ export const rateGame = async (gameId, rating) => {
       throw new Error("rating must be between 1 and 5");
     }
 
-    const res = await axiosInstance.post("/GameRatings", {
-      gameId,
-      rating,
+    const res = await axiosInstance.put(`/games/${gameId}/ratings`, {
+      stars: rating,
     });
 
     return res.data;
@@ -245,14 +243,14 @@ export const rateGame = async (gameId, rating) => {
 };
 
 // GAME PURCHASES
-export const purchaseGame = async (gameId) => {
+export const purchaseGame = async (gameId, amount = 0) => {
   try {
     assertAuthenticated();
 
     if (!gameId) throw new Error("gameId is required");
 
-    const res = await axiosInstance.post("/GamePurchases", {
-      gameId,
+    const res = await axiosInstance.post(`/games/${gameId}/purchase`, {
+      amountPaid: amount
     });
 
     return res.data;

@@ -155,16 +155,27 @@ export const changePassword = async (
       typeof payloadOrOldPassword === "object"
         ? payloadOrOldPassword
         : {
-            oldPassword: payloadOrOldPassword,
-            newPassword: nextPassword,
-            confirmPassword: nextConfirmPassword,
-          };
+          oldPassword: payloadOrOldPassword,
+          newPassword: nextPassword,
+          confirmPassword: nextConfirmPassword,
+        };
 
     const res = await axiosInstance.patch("/Users/password", payload);
     return res.data;
   } catch (error) {
     throw new Error(
       getErrorMessage(error, "Không thể đổi mật khẩu. Vui lòng thử lại."),
+    );
+  }
+};
+
+export const getMyGames = async () => {
+  try {
+    const res = await axiosInstance.get("/Users/mygame");
+    return res.data;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "Không lấy được danh sách game")
     );
   }
 };
