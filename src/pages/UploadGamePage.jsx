@@ -36,6 +36,7 @@ export default function UploadGamePage() {
 
   const { tags } = useTag();
 
+
   const gameFile = watch("GameFile");
   const thumbnail = watch("Thumbnail");
 

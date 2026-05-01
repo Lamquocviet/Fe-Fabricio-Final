@@ -19,7 +19,7 @@ export default function GameDetailSection({ game }) {
         <div className="lg:col-span-4">
           <div className="sticky top-8">
             <GameInfo game={game} />
-            <ActionButtons />
+            <ActionButtons game={game} />
           </div>
         </div>
       </div>

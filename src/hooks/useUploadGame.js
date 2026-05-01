@@ -4,10 +4,13 @@ import * as yup from "yup";
 import { toast } from "sonner";
 import { uploadGame } from "@/services/gameService";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import { useNavigate } from "react-router";
+
+
 
 export const useUploadGame = () => {
   const { requireAuth } = useRequireAuth();
-
+  const navigate = useNavigate();
   const schema = yup.object({
     Title: yup.string().required("Tên game bắt buộc"),
     Description: yup.string().required("Mô tả bắt buộc"),
@@ -44,6 +47,8 @@ export const useUploadGame = () => {
       await uploadGame(data);
       toast.success("Upload thành công");
       reset();
+      // Navigate to game library after successful upload
+      navigate("/games");
     } catch (err) {
       console.error(err);
       toast.error(err?.response?.data?.message || err?.message || "Lỗi upload");
@@ -65,10 +70,13 @@ export const useUploadGame = () => {
   const handleTagIds = (tagId) => {
     const current = getValues("TagIds") || [];
     const exists = current.includes(tagId);
+    
+    const newTagIds = exists ? current.filter((id) => id !== tagId) : [...current, tagId];
+    console.log("Toggle tag:", tagId, "- New TagIds:", newTagIds);
 
     setValue(
       "TagIds",
-      exists ? current.filter((id) => id !== tagId) : [...current, tagId],
+      newTagIds,
       { shouldValidate: true },
     );
   };

@@ -37,8 +37,8 @@ export default function GameTabs({ game }) {
       {/* Tab Content */}
       <div className="mt-8">
         {activeTab === 'description' && <DescriptionTab game={game} />}
-        {activeTab === 'comments' && <CommentsTab />}
-        {activeTab === 'ratings' && <RatingsTab />}
+        {activeTab === 'comments' && <CommentsTab  game = {game}/>}
+        {activeTab === 'ratings' && <RatingsTab game={game} />}
       </div>
     </div>
   );

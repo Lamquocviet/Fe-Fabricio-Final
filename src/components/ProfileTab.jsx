@@ -1,3 +1,7 @@
+
+import { useEffect, useState } from "react";
+import MyGameTab from "./MyGameTab";
+import { userService } from "@/services/userService";
 import { useCallback, useEffect, useState } from "react";
 import PostCard from "@/components/PostCard";
 import { userService } from "@/services/userService";
@@ -44,6 +48,7 @@ export default function ProfileTab({ user }) {
   const [postsLoading, setPostsLoading] = useState(false);
   const [postsError, setPostsError] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [users, setUser] = useState(null);
 
   const userId = getUserId(user);
 
@@ -52,6 +57,26 @@ export default function ProfileTab({ user }) {
     { id: "Posts", label: "Posts" },
     { id: "My games", label: "My games" },
   ];
+
+
+  // 🔥 fetch user
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await userService.getCurrentUser();
+        setUser(data);
+      } catch (err) {
+        console.error("GetMe error:", err);
+      }
+    };
+
+    fetchUser();
+  }, []);
+  
+  
+  if (!user) {
+    return <p className="text-white">Loading profile...</p>;
+  }
 
   const mapPostWithAuthor = useCallback(
     (post) => {
@@ -283,6 +308,7 @@ export default function ProfileTab({ user }) {
     );
   };
 
+
   return (
     <div className="mt-16 max-w-7xl mx-auto px-6">
       {/* Tab Navigation */}
@@ -305,13 +331,24 @@ export default function ProfileTab({ user }) {
           </button>
         ))}
       </div>
+      
 
       {/* Tab Content */}
-      <div className="mt-8">
-        {activeTab === "Games" && <h1>Games</h1>}
-        {activeTab === "Posts" && renderPosts()}
-        {activeTab === "My games" && <h1>My games</h1>}
+
+       <div className="mt-8">
+
+        {activeTab === "Games" && (
+          <h1 className="text-white">All Games</h1>
+        )}
+
+         {activeTab === "Posts" && renderPosts()}
+
+        {activeTab === "My games" && (
+          <MyGameTab userId={users.id} />
+        )}
+
       </div>
     </div>
+
   );
 }

@@ -54,7 +54,22 @@ export const getTopRatedGames = async () => {
   }
 };
 
+export const userService = {
+  async getMe() {
+    try {
+    const res = await axiosInstance.get("/Users/me");
+    return res.data;
+  
+    } catch (error) {
+      console.error("getMe error:", error);
+      throw error;
+    }
+  },
+};
+
+
 export const gameLibraryService = {
+
   async getGameLibrary({ page = 1, limit = 12, search = "" } = {}) {
     // console.log("CALL getGameLibrary");
 
@@ -84,19 +99,13 @@ export const gameLibraryService = {
   async getGameById(id) {
     try {
       const res = await axiosInstance.get(`/Games/${id}`);
-      return res.data;
+      return res.data.game;
     } catch (error) {
       throw new Error(getErrorMessage(error, "Không lấy được thông tin game"));
+
     }
   },
-  async getGameDetails(id) {
-    try {
-      const res = await axiosInstance.get(`/Games/${id}`);
-      return res.data;
-    } catch (error) {
-      throw new Error(getErrorMessage(error, "Không lấy được chi tiết game"));
-    }
-  },
+
   async getGameFavorites(userId) {
     try {
       assertAuthenticated();
@@ -107,8 +116,11 @@ export const gameLibraryService = {
       throw new Error(
         getErrorMessage(error, "Không lấy được danh sách yêu thích"),
       );
+
     }
   },
+
+
   async addGameFavorite(gameId) {
     try {
       assertAuthenticated();
@@ -128,13 +140,16 @@ export const gameLibraryService = {
     } catch (error) {
       throw new Error(getErrorMessage(error, "Xóa khỏi yêu thích thất bại"));
     }
-  },
-};
+  
+
+}};
+
+
+
 export const uploadGame = async (payload) => {
   try {
-    assertAuthenticated();
 
-    console.log("Uploading game with payload:", payload);
+    assertAuthenticated();
 
     const formData = new FormData();
 
@@ -145,16 +160,13 @@ export const uploadGame = async (payload) => {
     formData.append("GameFile", payload.GameFile);
     formData.append("Price", payload.Price ?? 0);
 
-    if (Array.isArray(payload.TagIds)) {
-      payload.TagIds.forEach((tagId) => {
-        formData.append("TagIds", tagId);
-      });
-    }
 
-    console.log("FormData entries:");
-    for (const [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
+    console.log("Adding TagIds to FormData:");
+    payload.TagIds?.forEach((tagId, index) => {
+      console.log(`  TagIds[${index}]:`, tagId);
+      formData.append("TagIds", tagId);
+    });
+
 
     const res = await axiosInstance.post("/Games", formData, {
       headers: {
@@ -162,24 +174,27 @@ export const uploadGame = async (payload) => {
       },
     });
 
+
     return res.data;
   } catch (error) {
+    console.error("Upload error:", error);
     throw new Error(getErrorMessage(error, "Failed to upload game"));
   }
 };
 
-// GAME COMMENTS
-
+// GET COMMENTS
 export const getGameComments = async (
   gameId,
   { page = 1, limit = 10 } = {},
 ) => {
   try {
+
     if (!gameId) throw new Error("gameId is required");
 
     const res = await axiosInstance.get(`/games/${gameId}/comment`, {
       params: { page, limit },
     });
+
 
     return res.data;
   } catch (error) {
@@ -189,8 +204,10 @@ export const getGameComments = async (
   }
 };
 
+// POST COMMENT
 export const createGameComment = async (gameId, content) => {
   try {
+
     assertAuthenticated();
 
     if (!gameId) throw new Error("gameId is required");
@@ -202,27 +219,64 @@ export const createGameComment = async (gameId, content) => {
 
     return res.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Tạo bình luận thất bại"));
+    throw new Error(
+      getErrorMessage(error, "Tạo bình luận thất bại")
+    );
   }
 };
-
 // GAME RATINGS
-export const getGameRatings = async (gameId, { page = 1, limit = 10 } = {}) => {
+export const getGameRatings = async (gameId) => {
   try {
     if (!gameId) throw new Error("gameId is required");
 
+    const res = await axiosInstance.get(`/games/${gameId}/ratings`);
+
+    return res.data; // { total, average }
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Không lấy được rating"));
+  }
+};
+
+<<<<<<< HEAD
+export const putGameRatings = async (gameId, value) => {
+=======
+// GAME RATINGS
+export const getGameRatings = async (gameId, { page = 1, limit = 10 } = {}) => {
+>>>>>>> 64d01de5e1b72e7605ba0721bd8dce01ee845c62
+  try {
+    if (!gameId) throw new Error("gameId is required");
+    if (!value) throw new Error("rating value is required");
+
+<<<<<<< HEAD
+    const res = await axiosInstance.put(
+      `/games/${gameId}/ratings`,
+      { value } 
+    );
+=======
     const res = await axiosInstance.get(`/games/${gameId}/ratings`, {
       params: { page, limit },
     });
+>>>>>>> 64d01de5e1b72e7605ba0721bd8dce01ee845c62
 
     return res.data;
   } catch (error) {
     throw new Error(
+<<<<<<< HEAD
+      getErrorMessage(error, "Đánh giá thất bại")
+=======
       getErrorMessage(error, "Không lấy được danh sách đánh giá"),
+>>>>>>> 64d01de5e1b72e7605ba0721bd8dce01ee845c62
     );
   }
 };
 
+<<<<<<< HEAD
+// GAME PURCHASES
+export const purchaseGame = (gameId, amount) => {
+  return axiosInstance.post(`/games/${gameId}/purchase`, {
+    amound: amount, // backend đang typo "amound"
+  });
+=======
 export const rateGame = async (gameId, rating) => {
   try {
     assertAuthenticated();
@@ -257,8 +311,16 @@ export const purchaseGame = async (gameId, amount = 0) => {
   } catch (error) {
     throw new Error(getErrorMessage(error, "Mua game thất bại"));
   }
+>>>>>>> 64d01de5e1b72e7605ba0721bd8dce01ee845c62
 };
 
+export const getPlayUrl = (gameId) => {
+  return axiosInstance.get(`/Games/${gameId}/play`);
+};
+
+export const getDownloadUrl = (gameId) => {
+  return axiosInstance.get(`/Games/${gameId}/download`);
+};
 export const getUserGamePurchases = async (userId) => {
   try {
     assertAuthenticated();
