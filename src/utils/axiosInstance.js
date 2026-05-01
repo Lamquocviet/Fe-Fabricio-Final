@@ -1,4 +1,10 @@
 import axios from "axios";
+import {
+  clearStoredAuth,
+  isAuthErrorStatus,
+  notifyAuthRequired,
+  SESSION_EXPIRED_MESSAGE,
+} from "@/utils/authGuard";
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
@@ -12,9 +18,21 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error?.response?.status === 401) {
-      localStorage.removeItem("user");
-      window.location.href = "/signin";
+    const status = error?.response?.status;
+    const requestUrl = error?.config?.url || "";
+    const isAuthRequest = /\/auth\/(login|register|signin|signout|logout)/i.test(
+      requestUrl,
+    );
+
+    if (isAuthErrorStatus(status) && !isAuthRequest) {
+      clearStoredAuth();
+      notifyAuthRequired(SESSION_EXPIRED_MESSAGE);
+
+      if (window.location.pathname !== "/signin") {
+        window.setTimeout(() => {
+          window.location.href = "/signin";
+        }, 300);
+      }
     }
 
     return Promise.reject(error);

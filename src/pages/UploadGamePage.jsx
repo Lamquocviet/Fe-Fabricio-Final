@@ -34,8 +34,10 @@ export default function UploadGamePage() {
     watch,
   } = useUploadGame();
 
-  const { tags } = useTag(); 
+  const { tags } = useTag();
 
+  const gameFile = watch("GameFile");
+  const thumbnail = watch("Thumbnail");
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -101,15 +103,22 @@ export default function UploadGamePage() {
                   </div>
                 </Section>
 
-                {/* FILE */}
                 <Section title="File game">
-                  <UploadBox onChange={handleGameFile} />
+                  <UploadBox
+                    onChange={handleGameFile}
+                    file={gameFile}
+                    label="Click hoặc kéo file game"
+                  />
                   {errors.GameFile && <Error text={errors.GameFile.message} />}
                 </Section>
 
-                {/* IMAGES */}
                 <Section title="Thumbnail">
-                  <UploadBox onChange={handleThumbnail} />
+                  <UploadBox
+                    onChange={handleThumbnail}
+                    file={thumbnail}
+                    label="Click hoặc kéo thumbnail"
+                    preview
+                  />
                   {errors.Thumbnail && (
                     <Error text={errors.Thumbnail.message} />
                   )}
@@ -181,7 +190,15 @@ function Input({ label, error, children }) {
   );
 }
 
-function UploadBox({ onChange, multiple = false }) {
+function UploadBox({
+  onChange,
+  multiple = false,
+  file,
+  label,
+  preview = false,
+}) {
+  const selectedFile = Array.isArray(file) ? file[0] : file;
+
   return (
     <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#2a2d3d] hover:border-purple-500 rounded-xl p-6 cursor-pointer transition">
       <input
@@ -190,8 +207,29 @@ function UploadBox({ onChange, multiple = false }) {
         onChange={onChange}
         multiple={multiple}
       />
-      <span className="text-sm text-gray-400">Click hoặc kéo file</span>
-    </label>
+
+      {selectedFile ? (
+        <div className="flex flex-col items-center gap-3 text-center">
+          {preview && selectedFile instanceof File && (
+            <img
+              src={URL.createObjectURL(selectedFile)}
+              alt={selectedFile.name}
+              className="h-32 w-56 rounded-lg object-cover border border-[#2a2d3d]"
+            />
+          )}
+
+          <span className="text-sm text-green-400">
+            Đã chọn: {selectedFile.name}
+          </span>
+
+          <span className="text-xs text-gray-500">Click để đổi file khác</span>
+        </div>
+      ) : (
+        <span className="text-sm text-gray-400">
+          {label || "Click hoặc kéo file"}
+        </span>
+      )}
+    </label>  
   );
 }
 

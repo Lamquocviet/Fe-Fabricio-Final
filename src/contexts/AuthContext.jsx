@@ -6,6 +6,7 @@ import {
   getMyProfile,
   logoutUser,
 } from "../services/authService";
+import { AUTH_SESSION_CLEARED_EVENT } from "@/utils/authGuard";
 
 const AuthContext = createContext(null);
 
@@ -98,15 +99,37 @@ export function AuthProvider({ children }) {
   };
 
   useEffect(() => {
-    const localUser = localStorage.getItem("user");
-    if (localUser) {
+    const syncLocalUser = () => {
       try {
+        const localUser = localStorage.getItem("user");
+        if (!localUser) {
+          setUser(null);
+          return;
+        }
+
         const parsedUser = JSON.parse(localUser);
         setUser(parsedUser);
       } catch (error) {
         console.error("Error parsing user from localStorage:", error);
+        setUser(null);
+        localStorage.removeItem("user");
       }
-    }
+    };
+
+    const clearSession = () => {
+      setUser(null);
+      setError("");
+    };
+
+    syncLocalUser();
+
+    window.addEventListener("storage", syncLocalUser);
+    window.addEventListener(AUTH_SESSION_CLEARED_EVENT, clearSession);
+
+    return () => {
+      window.removeEventListener("storage", syncLocalUser);
+      window.removeEventListener(AUTH_SESSION_CLEARED_EVENT, clearSession);
+    };
   }, []);
 
   return (
