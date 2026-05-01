@@ -10,8 +10,11 @@ import {
   createReaction,
   removeReaction,
 } from "../services/postService";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 export default function usePosts({ page = 1, limit = 10 } = {}) {
+  const { ensureAuth } = useRequireAuth();
+
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState({});
   const [pagination, setPagination] = useState(null);
@@ -124,6 +127,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
   const handleCreatePost = async (payload) => {
     try {
+      ensureAuth();
       setCreating(true);
       setError("");
 
@@ -146,6 +150,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
   const handleUpdatePost = async (postId, payload) => {
     try {
+      ensureAuth();
       setCreating(true);
       setError("");
 
@@ -160,6 +165,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
   const handleDeletePost = async (postId) => {
     try {
+      ensureAuth();
       setDeleting(true);
       setError("");
 
@@ -176,6 +182,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
   const handleCreateReaction = async (postId, type) => {
     try {
+      ensureAuth();
       await createReaction(postId, type);
     } catch (err) {
       setError(err.message || "Thêm phản ứng thất bại");
@@ -185,6 +192,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
   const handleRemoveReaction = async (postId, type) => {
     try {
+      ensureAuth();
       await removeReaction(postId);
     } catch (err) {
       setError(err.message || "Xoá phản ứng thất bại");
@@ -216,6 +224,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
   const handleCreateComment = async (postId, content) => {
     try {
+      ensureAuth();
       setCreating(true);
       setError("");
 

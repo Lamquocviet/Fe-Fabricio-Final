@@ -1,11 +1,12 @@
 import axiosInstance from "../utils/axiosInstance";
 import { mockPosts } from "../mocks/postMock";
+import { assertAuthenticated } from "@/utils/authGuard";
 
 const USE_MOCK = true;
 const wait = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getErrorMessage = (error, fallbackMessage) => {
-  return error?.response?.data?.message || fallbackMessage;
+  return error?.response?.data?.message || error?.message || fallbackMessage;
 };
 
 // Lấy danh sách bài viết với phân trang
@@ -14,7 +15,6 @@ export const getPosts = async ({ page = 1, limit = 10 } = {}) => {
     const res = await axiosInstance.get("/Post", {
       params: { page, limit },
     });
-    console.log("Fetched posts response:", res.data);
     return res.data;
   } catch (error) {
     throw new Error(
@@ -22,6 +22,19 @@ export const getPosts = async ({ page = 1, limit = 10 } = {}) => {
     );
   }
 };
+
+export const getTrendingPosts = async ({ page = 1, limit = 10 } = {}) => {
+  try {
+    const res = await axiosInstance.get("/Post/trending", {
+      params: { page, limit },
+    });
+    return res.data;    
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "Không lấy được danh sách bài viết"),
+    );
+  }
+}
 
 export const getLatestPosts = async () => {
   try {
@@ -57,6 +70,8 @@ export const getPostById = async (postId) => {
 // Lấy danh sách bài viết của người dùng hiện tại
 export const getMyPosts = async ({ page = 1, limit = 10 } = {}) => {
   try {
+    assertAuthenticated();
+
     const res = await axiosInstance.get("/Post/user/me", {
       params: { page, limit },
     });
@@ -71,6 +86,8 @@ export const getMyPosts = async ({ page = 1, limit = 10 } = {}) => {
 // Tạo bài viết mới
 export const createPost = async (payload) => {
   try {
+    assertAuthenticated();
+
     if (!payload) {
       throw new Error("Dữ liệu bài viết không hợp lệ");
     }
@@ -107,6 +124,8 @@ export const createPost = async (payload) => {
 // Cập nhật bài viết
 export const updatePost = async (postId, payload) => {
   try {
+    assertAuthenticated();
+
     if (!postId) {
       throw new Error("Thiếu postId để cập nhật bài viết");
     }
@@ -130,6 +149,8 @@ export const updatePost = async (postId, payload) => {
 // Xóa bài viết
 export const deletePost = async (postId) => {
   try {
+    assertAuthenticated();
+
     if (!postId) {
       throw new Error("Thiếu postId để xóa bài viết");
     }
@@ -163,6 +184,8 @@ export const getPostComments = async ({ postId, Page = 1, PageSize = 5 }) => {
 // Tạo bình luận cho một bài viết
 export const createComment = async (postId, payload) => {
   try {
+    assertAuthenticated();
+
     if(!postId) {
       throw new Error("Thiếu postId để tạo bình luận");
     }
@@ -179,6 +202,8 @@ export const createComment = async (postId, payload) => {
 // Tương tác like/dislike bài viết
 export const createReaction= async (postId, reactionType) => {
   try {
+    assertAuthenticated();
+
     if (!postId) {
       throw new Error("Thiếu postId để tương tác");
     }
@@ -201,6 +226,8 @@ export const createReaction= async (postId, reactionType) => {
 // Xoá tương tác like/dislike bài viết
 export const removeReaction = async (postId) => {
   try {
+    assertAuthenticated();
+
     if (!postId) {
       throw new Error("Thiếu postId để xoá tương tác");
     }

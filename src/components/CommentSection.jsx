@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import useInfiniteComments from "../hooks/useInfiniteComments";
 import CommentItem from "./CommentItem";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 export default function CommentSection({ postId, isOpen, authorId, onCreateComment }) {
+  const { requireAuth } = useRequireAuth();
+
   const containerRef = useRef(null);
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -18,8 +21,10 @@ export default function CommentSection({ postId, isOpen, authorId, onCreateComme
   } = useInfiniteComments(postId, isOpen);
 
   const handleSubmitComment = async () => {
+    if (submitting || !requireAuth()) return;
+
     const value = content.trim();
-    if (!value || submitting) return;
+    if (!value) return;
 
     try {
       setSubmitting(true);

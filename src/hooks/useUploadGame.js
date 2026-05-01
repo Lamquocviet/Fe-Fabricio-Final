@@ -1,10 +1,15 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { toast } from "sonner";
 import { uploadGame } from "@/services/gameService";
+import useRequireAuth from "@/hooks/useRequireAuth";
 import { useNavigate } from "react-router";
 
+
+
 export const useUploadGame = () => {
+  const { requireAuth } = useRequireAuth();
   const navigate = useNavigate();
   const schema = yup.object({
     Title: yup.string().required("Tên game bắt buộc"),
@@ -21,6 +26,7 @@ export const useUploadGame = () => {
     handleSubmit,
     setValue,
     watch,
+    getValues,
     reset,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -35,17 +41,22 @@ export const useUploadGame = () => {
   });
 
   const onSubmit = async (data) => {
+    if (!requireAuth()) return;
+
     try {
-      console.log("Submitting game with data:", data);
       await uploadGame(data);
-      alert("Upload thành công");
+      toast.success("Upload thành công");
       reset();
       // Navigate to game library after successful upload
       navigate("/games");
     } catch (err) {
       console.error(err);
-      alert(err?.response?.data?.message || "Lỗi upload");
+      toast.error(err?.response?.data?.message || err?.message || "Lỗi upload");
     }
+  };
+
+  const onInvalid = () => {
+    requireAuth();
   };
 
   const handleGameFile = (e) => {
@@ -57,7 +68,7 @@ export const useUploadGame = () => {
   };
 
   const handleTagIds = (tagId) => {
-    const current = watch("TagIds") || [];
+    const current = getValues("TagIds") || [];
     const exists = current.includes(tagId);
     
     const newTagIds = exists ? current.filter((id) => id !== tagId) : [...current, tagId];
@@ -72,7 +83,7 @@ export const useUploadGame = () => {
 
   return {
     register,
-    handleSubmit: handleSubmit(onSubmit),
+    handleSubmit: handleSubmit(onSubmit, onInvalid),
     errors,
     isSubmitting,
     handleGameFile,

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 export default function CreatePostBox({
   user = {},
@@ -6,6 +7,8 @@ export default function CreatePostBox({
   loading = false,
   error = "",
 }) {
+  const { requireAuth } = useRequireAuth();
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
@@ -27,6 +30,11 @@ export default function CreatePostBox({
   };
 
   const handleSelectImages = (e) => {
+    if (!requireAuth()) {
+      e.target.value = "";
+      return;
+    }
+
     const files = Array.from(e.target.files || []);
     setImages((prev) => [...prev, ...files]);
 
@@ -38,6 +46,8 @@ export default function CreatePostBox({
   };
 
   const handleSubmit = async () => {
+    if (!requireAuth()) return;
+
     if (!title.trim()) {
       setFormError("Title is required");
       return;

@@ -5,6 +5,8 @@ import {
   getDownloadUrl,
 } from "@/services/gameService";
 
+import useRequireAuth from "@/hooks/useRequireAuth";
+
 export default function ActionButtons({ game }) {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -50,6 +52,12 @@ export default function ActionButtons({ game }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const { requireAuth } = useRequireAuth();
+
+  const handleProtectedAction = () => {
+    requireAuth();
   };
 
   return (

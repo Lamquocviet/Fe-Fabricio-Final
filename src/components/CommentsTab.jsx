@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { getGameComments, createGameComment } from "@/services/gameService";
 
+import useRequireAuth from "@/hooks/useRequireAuth";
+
 export default function CommentsTab({ game }) {
   const [comments, setComments] = useState([]);
   const [content, setContent] = useState("");
@@ -59,6 +61,8 @@ export default function CommentsTab({ game }) {
       setLoading(false);
     }
   };
+
+  const { requireAuth } = useRequireAuth();
 
   return (
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 md:p-10">

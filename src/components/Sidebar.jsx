@@ -1,29 +1,22 @@
 import { Link, NavLink } from "react-router-dom";
 import { X } from "lucide-react";
 import useAuth from "@/contexts/AuthContext";
+import { getTags } from "@/services/tagService";
+import { useEffect, useState } from "react";
+import usePosts from "@/hooks/usePost";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 const mainNavItems = [
   { label: "Home", path: "/" },
   { label: "Games", path: "/games" },
   { label: "Posts", path: "/posts" },
-  { label: "Submit Game", path: "/submit-game" },
+  { label: "Submit Game", path: "/uploadgame", requiresAuth: true },
 ];
 
 const discoverItems = [
-  { label: "Dashboard", path: "/dashboard" },
+  { label: "Dashboard", path: "/dashboard", requiresAuth: true },
   { label: "Spotlight", path: "/spotlight" },
-  { label: "Upload Game", path: "/submit-game" },
-];
-
-const tags = [
-  "Racing",
-  "Arcade",
-  "Cyberpunk",
-  "RPG",
-  "Adventure",
-  "Story",
-  "Puzzle",
-  "Cozy",
+  { label: "Upload Game", path: "/uploadgame", requiresAuth: true },
 ];
 
 const navClass = ({ isActive }) =>
@@ -36,15 +29,42 @@ const navClass = ({ isActive }) =>
 
 const SidebarContent = ({ onClose }) => {
   const { user, handleLogout } = useAuth();
+  const { requireAuth } = useRequireAuth();
 
-  console.log("Sidebar user:", user);
+  const [tags, setTags] = useState([]);
+
+  const { posts } = usePosts({ page: 1, limit: 5 });
+
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const res = await getTags();
+
+        setTags(res?.data || res || []);
+      } catch (error) {
+        console.error("Get tags failed:", error);
+        setTags([]);
+      }
+    };
+
+    fetchTags();
+  }, []);
 
   const authNavItems = user
     ? [
         { label: "Profile", path: "/profile" },
         { label: "Admin", path: "/admin" },
       ]
-    : [{ label: "Login", path: "/login" }];
+    : [{ label: "Login", path: "/signin" }];
+
+  const handleNavClick = (event, item) => {
+    if (item.requiresAuth && !requireAuth()) {
+      event.preventDefault();
+      return;
+    }
+
+    onClose?.();
+  };
 
   const handleSignOut = () => {
     handleLogout();
@@ -103,7 +123,7 @@ const SidebarContent = ({ onClose }) => {
               key={item.path}
               to={item.path}
               end={item.path === "/"}
-              onClick={onClose}
+              onClick={(event) => handleNavClick(event, item)}
               className={navClass}
             >
               {item.label}
@@ -111,7 +131,7 @@ const SidebarContent = ({ onClose }) => {
           ))}
 
           {!user ? (
-            <NavLink to="/login" onClick={onClose} className={navClass}>
+            <NavLink to="/signin" onClick={onClose} className={navClass}>
               Login
             </NavLink>
           ) : (
@@ -135,7 +155,7 @@ const SidebarContent = ({ onClose }) => {
             <NavLink
               key={item.path}
               to={item.path}
-              onClick={onClose}
+              onClick={(event) => handleNavClick(event, item)}
               className={navClass}
             >
               {item.label}
@@ -163,12 +183,12 @@ const SidebarContent = ({ onClose }) => {
         <div className="flex flex-wrap gap-3">
           {tags.map((tag) => (
             <Link
-              key={tag}
-              to={`/games?tag=${encodeURIComponent(tag)}`}
+              key={tag.id}
+              to={`/games?tag=${encodeURIComponent(tag.name)}`}
               onClick={onClose}
               className="rounded-full border border-white/10 bg-white/3 px-4 py-2 text-[14px] text-zinc-300 transition hover:border-white/20 hover:bg-white/6 hover:text-white"
             >
-              {tag}
+              {tag.name}
             </Link>
           ))}
         </div>
@@ -186,8 +206,8 @@ const SidebarContent = ({ onClose }) => {
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/3 px-7 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-            <p className="text-[15px] text-zinc-400">New posts today</p>
-            <p className="mt-5 text-[20px] font-bold text-white">36</p>
+            <p className="text-[15px] text-zinc-400"> Total posts </p>
+            <p className="mt-5 text-[20px] font-bold text-white">{posts.length}</p>
           </div>
         </div>
       </section>
