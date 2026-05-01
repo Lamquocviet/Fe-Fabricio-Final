@@ -237,46 +237,31 @@ export const getGameRatings = async (gameId) => {
   }
 };
 
-<<<<<<< HEAD
+
 export const putGameRatings = async (gameId, value) => {
-=======
-// GAME RATINGS
-export const getGameRatings = async (gameId, { page = 1, limit = 10 } = {}) => {
->>>>>>> 64d01de5e1b72e7605ba0721bd8dce01ee845c62
+
   try {
     if (!gameId) throw new Error("gameId is required");
     if (!value) throw new Error("rating value is required");
 
-<<<<<<< HEAD
+
     const res = await axiosInstance.put(
       `/games/${gameId}/ratings`,
       { value } 
     );
-=======
-    const res = await axiosInstance.get(`/games/${gameId}/ratings`, {
-      params: { page, limit },
-    });
->>>>>>> 64d01de5e1b72e7605ba0721bd8dce01ee845c62
+
+    
+
 
     return res.data;
   } catch (error) {
     throw new Error(
-<<<<<<< HEAD
       getErrorMessage(error, "Đánh giá thất bại")
-=======
-      getErrorMessage(error, "Không lấy được danh sách đánh giá"),
->>>>>>> 64d01de5e1b72e7605ba0721bd8dce01ee845c62
     );
   }
 };
 
-<<<<<<< HEAD
-// GAME PURCHASES
-export const purchaseGame = (gameId, amount) => {
-  return axiosInstance.post(`/games/${gameId}/purchase`, {
-    amound: amount, // backend đang typo "amound"
-  });
-=======
+
 export const rateGame = async (gameId, rating) => {
   try {
     assertAuthenticated();
@@ -311,7 +296,6 @@ export const purchaseGame = async (gameId, amount = 0) => {
   } catch (error) {
     throw new Error(getErrorMessage(error, "Mua game thất bại"));
   }
->>>>>>> 64d01de5e1b72e7605ba0721bd8dce01ee845c62
 };
 
 export const getPlayUrl = (gameId) => {

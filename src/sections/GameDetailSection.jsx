@@ -12,7 +12,7 @@ export default function GameDetailSection({ game }) {
         {/* Left Column */}
         <div className="lg:col-span-8 space-y-8">
           <GameMedia game={game} />
-          <VideoPlaceholder />
+          {/* <VideoPlaceholder /> */}
         </div>
 
         {/* Right Column */}

@@ -1,10 +1,8 @@
-
-import { useEffect, useState } from "react";
 import MyGameTab from "./MyGameTab";
 import { userService } from "@/services/userService";
 import { useCallback, useEffect, useState } from "react";
 import PostCard from "@/components/PostCard";
-import { userService } from "@/services/userService";
+
 import {
   createComment,
   createReaction,
