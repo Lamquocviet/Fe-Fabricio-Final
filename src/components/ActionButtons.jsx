@@ -1,31 +1,35 @@
 import { useState } from "react";
 import PaymentModal from "./PaymentModal";
-import {
-  getPlayUrl,
-  getDownloadUrl,
-} from "@/services/gameService";
-
+import { getPlayUrl, getDownloadUrl } from "@/services/gameService";
+import { usePurchase } from "@/hooks/usePurchase";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
 export default function ActionButtons({ game }) {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const isFree = game?.rawPrice === 0;
-  const isBrowser = game?.type?.toLowerCase() === "browser";
+  const { purchasedIds, fetchPurchased, addPurchasedId, loading: purchaseLoading } =
+    usePurchase();
 
-  const isPurchased = (() => {
-  const data = localStorage.getItem("purchasedGames");
-  const list = data ? JSON.parse(data) : [];
-  return list.includes(game?.id);
-})();
+  const type = game?.type?.trim()?.toLowerCase() || "";
+
+  const isBrowser = type === "browser";
+  const isDownload = type === "download";
+  const isFree = game?.rawPrice === 0;
+
+  const isPurchased = purchasedIds.includes(String(game?.id));
+
+  const { requireAuth } = useRequireAuth();
+
+  if (purchaseLoading) {
+    return <div className="text-white">Loading...</div>;
+  }
 
   const handlePlay = async () => {
     try {
       setLoading(true);
-
       const res = await getPlayUrl(game.id);
-      window.open(res.data.gameUrl, "_blank");
+      window.open(res.gameUrl, "_blank");
     } catch (err) {
       console.error(err);
       alert("Không thể mở game!");
@@ -37,11 +41,10 @@ export default function ActionButtons({ game }) {
   const handleDownload = async () => {
     try {
       setLoading(true);
-
       const res = await getDownloadUrl(game.id);
 
       const link = document.createElement("a");
-      link.href = res.data.downloadUrl;
+      link.href = res.downloadUrl;
       link.setAttribute("download", "");
       document.body.appendChild(link);
       link.click();
@@ -53,57 +56,53 @@ export default function ActionButtons({ game }) {
       setLoading(false);
     }
   };
-
-  const { requireAuth } = useRequireAuth();
-
-  const handleProtectedAction = () => {
-    requireAuth();
-  };
+  console.log("GAME ID:", game.id);
+console.log("PURCHASED IDS:", purchasedIds);
+console.log("IS PURCHASED:", purchasedIds.includes(String(game.id)));
 
   return (
-  <div className="space-y-4 mt-12">
+    <div className="space-y-4 mt-12">
 
-    {/* FREE OR OWNED */}
-    {(isFree || isPurchased) ? (
-      isBrowser ? (
-        <button
-          onClick={handlePlay}
-          disabled={loading}
-          className="w-full py-5 rounded-2xl bg-green-600 hover:bg-green-700"
-        >
-          {loading ? "Loading..." : "🎮 Play"}
-        </button>
+      {/* FREE OR PURCHASED */}
+      {(isFree || isPurchased) ? (
+        isBrowser ? (
+          <button
+            onClick={handlePlay}
+            disabled={loading}
+            className="w-full py-5 rounded-2xl bg-green-600 hover:bg-green-700"
+          >
+            {loading ? "Loading..." : "🎮 Play"}
+          </button>
+        ) : isDownload ? (
+          <button
+            onClick={handleDownload}
+            disabled={loading}
+            className="w-full py-5 rounded-2xl bg-blue-600 hover:bg-blue-700"
+          >
+            {loading ? "Downloading..." : "⬇ Download"}
+          </button>
+        ) : null
       ) : (
-        <button
-          onClick={handleDownload}
-          disabled={loading}
-          className="w-full py-5 rounded-2xl bg-blue-600 hover:bg-blue-700"
-        >
-          {loading ? "Downloading..." : "⬇ Download"}
-        </button>
-      )
-    ) : (
-      /*  NOT OWNED */
-      <>
-        <button
-          onClick={() => setShowModal(true)}
-          className="w-full py-5 rounded-2xl bg-red-600 hover:bg-red-700"
-        >
-          Buy Now
-        </button>
+        <>
+          <button
+            onClick={() => setShowModal(true)}
+            className="w-full py-5 rounded-2xl bg-red-600 hover:bg-red-700"
+          >
+            Buy Now
+          </button>
 
-        {showModal && (
-          <PaymentModal
-            game={game}
-            onClose={() => setShowModal(false)}
-            onSuccess={() => {
-              //  trigger re-render
-              window.location.reload();
-            }}
-          />
-        )}
-      </>
-    )}
-  </div>
-);
+          {showModal && (
+            <PaymentModal
+              game={game}
+              onClose={() => setShowModal(false)}
+              onSuccess={(id) => {
+                addPurchasedId(id); //  update UI ngay
+                // fetchPurchased();   //  sync backend
+              }}
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
 }

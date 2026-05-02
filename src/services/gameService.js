@@ -42,6 +42,23 @@ export const getFeaturedGames = async () => {
   }
 };
 
+export const rateGame = async (gameId, rating) => {
+  try {
+    if (!gameId) throw new Error("gameId is required");
+    if (rating < 1 || rating > 5) {
+      throw new Error("rating must be between 1 and 5");
+    }
+
+    const res = await axiosInstance.put(`/games/${gameId}/ratings`, {
+      stars: rating,
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error("Đánh giá game thất bại");
+  }
+};
+
 export const getTopRatedGames = async () => {
   try {
     const res = await axiosInstance.get("/Games/topRatingGames");
@@ -295,49 +312,34 @@ export const putGameRatings = async (gameId, value) => {
   }
 };
 
-export const rateGame = async (gameId, rating) => {
-  try {
-    assertAuthenticated();
 
-    if (!gameId) throw new Error("gameId is required");
-    if (rating < 1 || rating > 5) {
-      throw new Error("rating must be between 1 and 5");
-    }
 
-    const res = await axiosInstance.put(`/games/${gameId}/ratings`, {
-      stars: rating,
-    });
-
-    return res.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error, "Đánh giá game thất bại"));
-  }
+export const purchaseGame = async (gameId, amount) => {
+  const res = await axiosInstance.post(`/games/${gameId}/purchase`, {
+    amound: amount, // nếu backend đang dùng typo này thì giữ
+  });
+  return res.data;
 };
 
-// GAME PURCHASES
-export const purchaseGame = async (gameId, amount = 0) => {
-  try {
-    assertAuthenticated();
 
-    if (!gameId) throw new Error("gameId is required");
 
-    const res = await axiosInstance.post(`/games/${gameId}/purchase`, {
-      amountPaid: amount,
-    });
+export const getPurchaseHistory = async () => {
+  const res = await axiosInstance.get(`/Users/gamepaid`);
+  return res.data;
 
-    return res.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error, "Mua game thất bại"));
-  }
 };
 
-export const getPlayUrl = (gameId) => {
-  return axiosInstance.get(`/Games/${gameId}/play`);
+
+export const getPlayUrl = async (gameId) => {
+  const res = await axiosInstance.get(`/Games/${gameId}/play`);
+  return res.data;
 };
 
-export const getDownloadUrl = (gameId) => {
-  return axiosInstance.get(`/Games/${gameId}/download`);
+export const getDownloadUrl = async (gameId) => {
+  const res = await axiosInstance.get(`/Games/${gameId}/download`);
+  return res.data;
 };
+
 export const getUserGamePurchases = async () => {
   try {
     assertAuthenticated();
@@ -349,3 +351,4 @@ export const getUserGamePurchases = async () => {
     throw new Error(getErrorMessage(error, "Không lấy được lịch sử mua game"));
   }
 };
+

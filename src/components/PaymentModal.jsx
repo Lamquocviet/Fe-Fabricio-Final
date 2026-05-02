@@ -8,48 +8,35 @@ import {
 export default function PaymentModal({ game, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
 
-  const savePurchased = (gameId) => {
-    const data = localStorage.getItem("purchasedGames");
-    const list = data ? JSON.parse(data) : [];
+  // const savePurchased = (gameId) => {
+  //   const data = localStorage.getItem("purchasedGames");
+  //   const list = data ? JSON.parse(data) : [];
 
-    if (!list.includes(gameId)) {
-      list.push(gameId);
-      localStorage.setItem("purchasedGames", JSON.stringify(list));
-    }
-  };
+  //   if (!list.includes(gameId)) {
+  //     list.push(gameId);
+  //     localStorage.setItem("purchasedGames", JSON.stringify(list));
+  //   }
+  // };
+const handleConfirm = async () => {
+  try {
+    setLoading(true);
 
-  const handleConfirm = async () => {
-    try {
-      setLoading(true);
+    await purchaseGame(game.id, game.rawPrice);
 
-      await purchaseGame(game.id, game.rawPrice);
+    alert("Thanh toán thành công!");
 
-      savePurchased(game.id);
+    onSuccess(game.id);
 
-      // 3. Handle game type
-      if (game.type === "Browser") {
-        const res = await getPlayUrl(game.id);
-        window.open(res.data.gameUrl, "_blank");
-      } else {
-        const res = await getDownloadUrl(game.id);
-
-        const link = document.createElement("a");
-        link.href = res.data.downloadUrl;
-        link.setAttribute("download", "");
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      }
-
-      onSuccess();
-      onClose();
-    } catch (err) {
-      console.error(err);
-      alert("Thanh toán thất bại!");
-    } finally {
-      setLoading(false);
-    }
-  };
+    onClose();
+  } catch (err) {
+    console.error(err);
+    alert("Thanh toán thất bại!");
+  } finally {
+    setLoading(false);
+  }
+};
+  
+ 
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center">
