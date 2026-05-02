@@ -280,29 +280,26 @@ export const putGameRatings = async (gameId, value) => {
 
 
 
-export const purchaseGame = (gameId, amount) => {
-  return axiosInstance.post(`/games/${gameId}/purchase`, {
-    amound: amount, // backend đang typo "amound"
+export const purchaseGame = async (gameId, amount) => {
+  const res = await axiosInstance.post(`/games/${gameId}/purchase`, {
+    amound: amount, // nếu backend đang dùng typo này thì giữ
   });
+  return res.data;
 };
 
-export const getPlayUrl = (gameId) => {
-  return axiosInstance.get(`/Games/${gameId}/play`);
+
+export const getPurchaseHistory = async () => {
+  const res = await axiosInstance.get(`/Users/gamepaid`);
+  return res.data;
 };
 
-export const getDownloadUrl = (gameId) => {
-  return axiosInstance.get(`/Games/${gameId}/download`);
+
+export const getPlayUrl = async (gameId) => {
+  const res = await axiosInstance.get(`/Games/${gameId}/play`);
+  return res.data;
 };
-export const getUserGamePurchases = async (userId) => {
-  try {
-    assertAuthenticated();
 
-    if (!userId) throw new Error("userId is required");
-
-    const res = await axiosInstance.get(`/GamePurchases/user/${userId}`);
-
-    return res.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error, "Không lấy được lịch sử mua game"));
-  }
+export const getDownloadUrl = async (gameId) => {
+  const res = await axiosInstance.get(`/Games/${gameId}/download`);
+  return res.data;
 };
