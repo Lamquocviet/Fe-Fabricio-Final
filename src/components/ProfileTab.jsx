@@ -3,6 +3,7 @@ import MyGameTab from "./MyGameTab";
 import { userService } from "@/services/userService";
 import { useCallback, useEffect, useState } from "react";
 import PostCard from "@/components/PostCard";
+import MyGameFavoriteTab from "./MyGameFavoriteTab";
 
 import {
   createComment,
@@ -52,8 +53,8 @@ export default function ProfileTab({ user }) {
   const userId = getUserId(user);
 
   const tabs = [
-    { id: "Games", label: "Games" },
-    { id: "Posts", label: "Posts" },
+    { id: "Games", label: "My Favorite Games" },
+    { id: "Posts", label: "My Posts" },
     { id: "My games", label: "My games" },
   ];
 
@@ -337,7 +338,7 @@ export default function ProfileTab({ user }) {
        <div className="mt-8">
 
         {activeTab === "Games" && (
-          <h1 className="text-white">All Games</h1>
+          <MyGameFavoriteTab />
         )}
 
          {activeTab === "Posts" && renderPosts()}

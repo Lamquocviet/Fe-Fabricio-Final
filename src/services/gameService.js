@@ -99,11 +99,11 @@ export const gameLibraryService = {
     }
   },
 
-  async getGameFavorites(userId) {
+  async getGameFavorites() {
     try {
       assertAuthenticated();
 
-      const res = await axiosInstance.get(`/GameFavorites/user/${userId}`);
+      const res = await axiosInstance.get(`/Users/gamefavorite`);
       return res.data;
     } catch (error) {
       throw new Error(
@@ -130,6 +130,18 @@ export const gameLibraryService = {
       return res.data;
     } catch (error) {
       throw new Error(getErrorMessage(error, "Xóa khỏi yêu thích thất bại"));
+    }
+  },
+
+  async getMyGames() {
+    try {
+      assertAuthenticated();
+      const res = await axiosInstance.get("/Users/mygame");
+      return res.data;
+    } catch (error) {
+      throw new Error(
+        getErrorMessage(error, "Không lấy được danh sách game của bạn"),
+      );
     }
   },
 };
@@ -326,13 +338,11 @@ export const getPlayUrl = (gameId) => {
 export const getDownloadUrl = (gameId) => {
   return axiosInstance.get(`/Games/${gameId}/download`);
 };
-export const getUserGamePurchases = async (userId) => {
+export const getUserGamePurchases = async () => {
   try {
     assertAuthenticated();
 
-    if (!userId) throw new Error("userId is required");
-
-    const res = await axiosInstance.get(`/GamePurchases/user/${userId}`);
+    const res = await axiosInstance.get(`/Users/gamepaid`);
 
     return res.data;
   } catch (error) {

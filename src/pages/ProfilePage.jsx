@@ -9,6 +9,8 @@ import { changePassword } from "@/services/userService";
 import { Edit2, Camera, Save, X, KeyRound } from "lucide-react";
 import ProfileTab from "@/components/ProfileTab";
 
+import { toast } from "sonner";
+
 const INITIAL_PASSWORD_FORM = {
   oldPassword: "",
   newPassword: "",
@@ -48,10 +50,11 @@ const ProfilePage = () => {
     text: "",
   });
 
+  const [avatarVersion, setAvatarVersion] = useState(0);
+
   const profileName = getProfileName(user);
-  const avatarSrc = isEditing
-    ? formData.avatarPreview || formData.avatar || user?.avatarUrl
-    : user?.avatarUrl || user?.avatar;
+  const avatarSrc = (user?.avatarUrl || user?.avatar) + `?v=${avatarVersion}`;
+
   const shouldShowAvatarImage =
     Boolean(avatarSrc) && failedAvatarSrc !== avatarSrc;
 
@@ -76,6 +79,10 @@ const ProfilePage = () => {
       bio: formData.bio || "",
       avatarFile: formData.avatarFile,
     });
+
+    setAvatarVersion((prev) => prev + 1);
+    setFailedAvatarSrc("");
+
     setIsEditing(false);
   };
 
@@ -369,9 +376,7 @@ const ProfilePage = () => {
           <div className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-white">
-                  Đổi mật khẩu
-                </h2>
+                <h2 className="text-2xl font-bold text-white">Đổi mật khẩu</h2>
                 <p className="mt-1 text-sm text-zinc-400">
                   Cập nhật mật khẩu đăng nhập cho tài khoản của bạn.
                 </p>

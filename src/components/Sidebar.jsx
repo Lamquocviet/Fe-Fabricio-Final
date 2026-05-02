@@ -15,7 +15,6 @@ const mainNavItems = [
 
 const discoverItems = [
   { label: "Dashboard", path: "/dashboard", requiresAuth: true },
-  { label: "Spotlight", path: "/spotlight" },
   { label: "Upload Game", path: "/uploadgame", requiresAuth: true },
 ];
 
