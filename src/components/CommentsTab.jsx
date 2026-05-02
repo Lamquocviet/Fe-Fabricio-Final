@@ -114,14 +114,7 @@ export default function CommentsTab({ game }) {
                   {c.content || "No content"}
                 </p>
 
-                <div className="flex gap-4 mt-3 text-xs text-zinc-500">
-                  <button className="hover:text-red-400 transition">
-                    Like
-                  </button>
-                  <button className="hover:text-blue-400 transition">
-                    Reply
-                  </button>
-                </div>
+                
               </div>
             </div>
           ))
