@@ -14,6 +14,13 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
+  ShieldAlert,
+  MessageSquareOff,
+  UserX,
+  Clock,
+  ShieldCheck,
+  Zap,
+  Tags,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -29,47 +36,68 @@ import {
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { adminService } from "@/services/adminService";
+import { userService } from "@/services/userService";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
 /* ─────────────── Sub-components ─────────────── */
 
 const StatCard = ({ title, value, icon: Icon, color, trend }) => (
-  <div className="bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-3xl p-6 hover:border-white/10 transition-all group">
-    <div className="flex items-start justify-between">
-      <div className={`p-3 rounded-2xl ${color} bg-opacity-10 group-hover:scale-110 transition-transform`}>
-        <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
+  <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[32px] p-8 hover:border-white/10 transition-all group relative overflow-hidden">
+    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl -mr-16 -mt-16 group-hover:bg-white/10 transition-colors" />
+    <div className="flex items-start justify-between relative z-10">
+      <div className={`p-4 rounded-2xl ${color} bg-opacity-10 group-hover:scale-110 transition-transform duration-500`}>
+        <Icon className={`w-7 h-7 ${color.replace('bg-', 'text-')}`} />
       </div>
       {trend && (
-        <span className="flex items-center gap-1 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">
+        <span className="flex items-center gap-1.5 text-xs font-black text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
           <TrendingUp className="w-3 h-3" />
           {trend}
         </span>
       )}
     </div>
-    <div className="mt-4">
-      <h3 className="text-zinc-400 text-sm font-medium">{title}</h3>
-      <p className="text-3xl font-bold text-white mt-1">{value}</p>
+    <div className="mt-8 relative z-10">
+      <h3 className="text-zinc-500 text-sm font-black uppercase tracking-widest">{title}</h3>
+      <p className="text-4xl font-black text-white mt-2 tracking-tight">{value}</p>
     </div>
   </div>
 );
 
 const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText = "Xác nhận", type = "danger" }) => {
   if (!isOpen) return null;
+
+  const getStyles = () => {
+    switch (type) {
+      case 'warning': return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
+      case 'info': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+      case 'success': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+      default: return 'bg-rose-500/10 text-rose-500 border-rose-500/20';
+    }
+  };
+
+  const getBtnStyles = () => {
+    switch (type) {
+      case 'warning': return 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/20';
+      case 'info': return 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/20';
+      case 'success': return 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20';
+      default: return 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/20';
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md bg-zinc-900 border border-white/10 rounded-[28px] p-8 shadow-2xl animate-in zoom-in duration-200">
-        <div className={`w-14 h-14 rounded-2xl mb-6 flex items-center justify-center ${type === 'danger' ? 'bg-rose-500/10 text-rose-500' : 'bg-blue-500/10 text-blue-500'}`}>
-          <AlertCircle className="w-8 h-8" />
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+      <div className="w-full max-w-md bg-zinc-950 border border-white/10 rounded-[40px] p-10 shadow-2xl animate-in zoom-in-95 duration-300">
+        <div className={`w-20 h-20 rounded-3xl mb-8 flex items-center justify-center border ${getStyles()}`}>
+          <AlertCircle className="w-10 h-10" />
         </div>
-        <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-        <p className="text-zinc-400 leading-relaxed mb-8">{message}</p>
-        <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-3.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded-2xl font-bold transition-colors">
-            Hủy
+        <h3 className="text-3xl font-black text-white mb-4 tracking-tight">{title}</h3>
+        <p className="text-zinc-400 leading-relaxed mb-10 text-lg font-medium">{message}</p>
+        <div className="flex gap-4">
+          <button onClick={onCancel} className="flex-1 py-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl font-black transition-all border border-white/5 active:scale-95">
+            Hủy bỏ
           </button>
-          <button 
-            onClick={onConfirm} 
-            className={`flex-1 py-3.5 rounded-2xl font-bold text-white shadow-lg transition-all active:scale-95 ${type === 'danger' ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/20' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/20'}`}
+          <button
+            onClick={onConfirm}
+            className={`flex-1 py-4 rounded-2xl font-black text-white shadow-xl transition-all active:scale-95 ${getBtnStyles()}`}
           >
             {confirmText}
           </button>
@@ -87,7 +115,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
+
   // Data states
   const [users, setUsers] = useState([]);
   const [games, setGames] = useState([]);
@@ -98,14 +126,14 @@ export default function AdminPage() {
   const [userContent, setUserContent] = useState({ games: [], posts: [], loading: false });
 
   // Confirmation state
-  const [confirmData, setConfirmData] = useState({ isOpen: false, action: null, title: "", message: "" });
+  const [confirmData, setConfirmData] = useState({ isOpen: false, action: null, title: "", message: "", type: "danger" });
 
   // Role Protection
   useEffect(() => {
-    const isAdmin = 
-      currentUser?.role?.toLowerCase() === "admin" || 
-      currentUser?.Role?.toLowerCase() === "admin" || 
-      currentUser?.role === 1 || 
+    const isAdmin =
+      currentUser?.role?.toLowerCase() === "admin" ||
+      currentUser?.Role?.toLowerCase() === "admin" ||
+      currentUser?.role === 1 ||
       currentUser?.Role === 1 ||
       currentUser?.role === "1" ||
       currentUser?.Role === "1";
@@ -134,16 +162,15 @@ export default function AdminPage() {
         adminService.getAllGames(),
         adminService.getAllPosts(1, 1000)
       ]);
-      
+
       if (usersRes.status === "fulfilled") setUsers(usersRes.value || []);
-      
+
       if (gamesRes.status === "fulfilled") {
         const gData = gamesRes.value;
-        // Linh hoạt xử lý nếu backend trả về { games: [...] } hoặc trực tiếp mảng [...]
         const gamesList = gData?.games || gData?.Games || (Array.isArray(gData) ? gData : []);
         setGames(gamesList);
       }
-      
+
       if (postsRes.status === "fulfilled") {
         const pData = postsRes.value;
         const postsList = pData?.items || pData?.Items || (Array.isArray(pData) ? pData : []);
@@ -167,27 +194,19 @@ export default function AdminPage() {
         setUserContent(prev => ({ ...prev, loading: true }));
         try {
           const userId = selectedUser.id || selectedUser.Id;
-          const [gamesRes, postsRes] = await Promise.allSettled([
-            adminService.getAllGames(),
-            adminService.getAllPosts(1, 1000)
-          ]);
-          
-          let userGames = [];
-          if (gamesRes.status === "fulfilled") {
-            const gData = gamesRes.value;
-            const allGames = gData?.games || gData?.Games || (Array.isArray(gData) ? gData : []);
-            userGames = allGames.filter(g => (g.userId || g.UserId) === userId);
-          }
 
-          let userPosts = [];
-          if (postsRes.status === "fulfilled") {
-            const pData = postsRes.value;
-            const allPosts = pData?.items || pData?.Items || (Array.isArray(pData) ? pData : []);
-            userPosts = allPosts.filter(p => (p.authorId || p.AuthorId) === userId);
-          }
+          // Fetch Games and filter by OwnerId
+          const gamesRes = await adminService.getAllGames();
+          const allGames = gamesRes?.games || gamesRes?.Games || (Array.isArray(gamesRes) ? gamesRes : []);
+          const userGames = allGames.filter(g => (g.ownerId || g.OwnerId) === userId);
+
+          // Fetch Posts using user-specific API
+          const postsRes = await userService.getUserPosts(userId, { limit: 100 });
+          const userPosts = postsRes?.items || postsRes?.Items || (Array.isArray(postsRes) ? postsRes : []);
 
           setUserContent({ games: userGames, posts: userPosts, loading: false });
         } catch (err) {
+          console.error("Error fetching user content:", err);
           setUserContent(prev => ({ ...prev, loading: false }));
         }
       };
@@ -200,11 +219,38 @@ export default function AdminPage() {
     setConfirmData({ isOpen: true, action, title, message, type });
   };
 
-  const handleBanUser = async (userId, isBanned) => {
+  const handleUpdateGameBan = async (userId, currentStatus) => {
     try {
-      await adminService.banGameUpload(userId);
-      toast.success(isBanned ? "Đã mở khóa tài khoản" : "Đã cấm đăng game thành công");
+      await adminService.updateGameBan(userId, !currentStatus);
+      toast.success(!currentStatus ? "Đã cấm upload game" : "Đã gỡ cấm upload game");
       loadAllData();
+      if (selectedUser?.id === userId) setSelectedUser(prev => ({ ...prev, isGameBanned: !currentStatus }));
+    } catch (err) {
+      toast.error("Thao tác thất bại");
+    } finally {
+      setConfirmData(prev => ({ ...prev, isOpen: false }));
+    }
+  };
+
+  const handleUpdatePostBan = async (userId, currentStatus) => {
+    try {
+      await adminService.updatePostBan(userId, !currentStatus);
+      toast.success(!currentStatus ? "Đã cấm đăng bài" : "Đã gỡ cấm đăng bài");
+      loadAllData();
+      if (selectedUser?.id === userId) setSelectedUser(prev => ({ ...prev, isPostBanned: !currentStatus }));
+    } catch (err) {
+      toast.error("Thao tác thất bại");
+    } finally {
+      setConfirmData(prev => ({ ...prev, isOpen: false }));
+    }
+  };
+
+  const handleUpdateAccountBan = async (userId, currentStatus) => {
+    try {
+      await adminService.updateAccountBan(userId, !currentStatus);
+      toast.success(!currentStatus ? "Đã khóa tài khoản" : "Đã mở khóa tài khoản");
+      loadAllData();
+      if (selectedUser?.id === userId) setSelectedUser(prev => ({ ...prev, isBanned: !currentStatus }));
     } catch (err) {
       toast.error("Thao tác thất bại");
     } finally {
@@ -246,50 +292,57 @@ export default function AdminPage() {
     })).reverse();
 
     return (
-      <div className="space-y-8 animate-in fade-in duration-700">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="space-y-10 animate-in fade-in duration-700">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <StatCard title="Người dùng" value={stats.totalUsers} icon={Users} color="bg-blue-500" trend="+12%" />
           <StatCard title="Tổng Game" value={stats.totalGames} icon={Gamepad2} color="bg-violet-500" trend="+5%" />
           <StatCard title="Bài viết" value={stats.totalPosts} icon={FileText} color="bg-emerald-500" trend="+18%" />
-          <StatCard title="Đang hoạt động" value={stats.activeUsers} icon={CheckCircle2} color="bg-amber-500" />
+          <StatCard title="Đang hoạt động" value={stats.activeUsers} icon={Zap} color="bg-amber-500" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-zinc-900/40 border border-white/5 rounded-[32px] p-8">
-            <h3 className="text-xl font-bold text-white mb-8">Thống kê hoạt động hệ thống</h3>
-            <div className="h-[350px] w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[40px] p-10 shadow-2xl">
+            <h3 className="text-2xl font-black text-white mb-10 flex items-center gap-4">
+              <TrendingUp className="w-6 h-6 text-violet-500" />
+              Thống kê hoạt động
+            </h3>
+            <div className="h-[400px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="colorPosts" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
                   <XAxis dataKey="name" stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} />
                   <YAxis stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
-                    itemStyle={{ color: '#fff' }}
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#09090b', border: '1px solid #27272a', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', padding: '16px' }}
+                    itemStyle={{ color: '#fff', fontWeight: 'bold' }}
                   />
-                  <Area type="monotone" dataKey="posts" stroke="#8b5cf6" strokeWidth={4} fillOpacity={1} fill="url(#colorPosts)" />
+                  <Area type="monotone" dataKey="posts" stroke="#8b5cf6" strokeWidth={5} fillOpacity={1} fill="url(#colorPosts)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
-          
-          <div className="bg-zinc-900/40 border border-white/5 rounded-[32px] p-8">
-            <h3 className="text-xl font-bold text-white mb-8">Báo cáo mới nhất</h3>
-            <div className="space-y-5">
+
+          <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[40px] p-10 shadow-2xl">
+            <h3 className="text-2xl font-black text-white mb-10 flex items-center gap-4">
+              <ShieldAlert className="w-6 h-6 text-amber-500" />
+              Báo cáo mới
+            </h3>
+            <div className="space-y-6">
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className="flex gap-5 p-4 rounded-[24px] bg-white/5 hover:bg-white/10 transition-all border border-white/0 hover:border-white/5 group">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                    <AlertCircle className="w-6 h-6 text-amber-500" />
+                <div key={i} className="flex gap-6 p-5 rounded-[28px] bg-white/5 hover:bg-white/10 transition-all border border-white/0 hover:border-white/5 group relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-1 bg-amber-500 h-0 group-hover:h-full transition-all duration-500" />
+                  <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
+                    <AlertCircle className="w-7 h-7 text-amber-500" />
                   </div>
                   <div>
-                    <p className="text-sm text-white font-bold">Nội dung không phù hợp</p>
-                    <p className="text-xs text-zinc-500 mt-1 line-clamp-1">Bài viết bị báo cáo bởi cộng đồng.</p>
+                    <p className="text-base text-white font-black">Vi phạm cộng đồng</p>
+                    <p className="text-sm text-zinc-500 mt-1 line-clamp-1 font-medium">Người dùng bị báo cáo do ngôn từ...</p>
                   </div>
                 </div>
               ))}
@@ -301,84 +354,84 @@ export default function AdminPage() {
   };
 
   const renderUsers = () => {
-    const filtered = users.filter(u => 
-      u.username?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const filtered = users.filter(u =>
+      u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       u.displayName?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
-      <div className="space-y-6 animate-in fade-in duration-500">
-        <div className="relative max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
-          <input 
-            className="w-full bg-zinc-900 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all shadow-inner"
-            placeholder="Tìm kiếm theo tên, username..."
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="relative max-w-xl group">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-zinc-500 group-focus-within:text-violet-500 transition-colors" />
+          <input
+            className="w-full bg-zinc-900 border border-white/10 rounded-[28px] py-5 pl-16 pr-6 text-base text-white focus:outline-none focus:ring-4 focus:ring-violet-500/20 transition-all shadow-2xl"
+            placeholder="Tìm kiếm tài khoản..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
-        <div className="bg-zinc-900/40 border border-white/5 rounded-[32px] overflow-hidden shadow-2xl">
+        <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[40px] overflow-hidden shadow-2xl">
           <table className="w-full text-left text-sm">
-            <thead className="bg-white/5 text-zinc-400 font-bold uppercase tracking-widest text-[10px]">
+            <thead className="bg-white/5 text-zinc-500 font-black uppercase tracking-[0.2em] text-[11px]">
               <tr>
-                <th className="px-8 py-5">Người dùng</th>
-                <th className="px-8 py-5">Phân quyền</th>
-                <th className="px-8 py-5">Trạng thái</th>
-                <th className="px-8 py-5 text-right">Thao tác</th>
+                <th className="px-10 py-7">Hồ sơ</th>
+                <th className="px-10 py-7">Phân quyền</th>
+                <th className="px-10 py-7">Trạng thái khóa</th>
+                <th className="px-10 py-7 text-right">Hành động</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.map(user => (
-                <tr key={user.id} className="group hover:bg-white/[0.02] transition-colors">
-                  <td className="px-8 py-5 whitespace-nowrap">
-                    <div className="flex items-center gap-4">
+                <tr key={user.id} className="group hover:bg-white/[0.03] transition-all">
+                  <td className="px-10 py-7 whitespace-nowrap">
+                    <div className="flex items-center gap-5">
                       <div className="relative">
-                        <img src={user.avatarUrl || `https://ui-avatars.com/api/?name=${user.username}`} className="w-12 h-12 rounded-[18px] object-cover border-2 border-white/10 group-hover:border-violet-500/50 transition-colors" />
-                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-zinc-900 ${user.isGameBanned ? 'bg-rose-500' : 'bg-emerald-500'}`} />
+                        <img src={user.avatarUrl || `https://ui-avatars.com/api/?name=${user.username}`} className="w-14 h-14 rounded-[24px] object-cover border-2 border-white/10 group-hover:border-violet-500 transition-all duration-500" />
+                        <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-4 border-zinc-900 ${user.isBanned ? 'bg-rose-500' : 'bg-emerald-500'}`} />
                       </div>
                       <div>
-                        <p className="font-bold text-white text-base">{user.displayName}</p>
-                        <p className="text-xs text-zinc-500">@{user.username}</p>
+                        <p className="font-black text-white text-lg tracking-tight">{user.displayName}</p>
+                        <p className="text-xs text-zinc-500 font-bold uppercase tracking-wider">@{user.username}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-5 whitespace-nowrap">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm ${user.role === 'Admin' || user.role === '1' ? 'bg-rose-500/10 text-rose-500' : 'bg-blue-500/10 text-blue-500'}`}>
-                      {user.role === 'Admin' || user.role === '1' ? 'Admin' : 'Member'}
+                  <td className="px-10 py-7 whitespace-nowrap">
+                    <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg ${user.role === 'Admin' || user.role === '1' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
+                      {user.role === 'Admin' || user.role === '1' ? 'Administrator' : 'Standard User'}
                     </span>
                   </td>
-                  <td className="px-8 py-5 whitespace-nowrap">
-                    {user.isGameBanned ? (
-                      <span className="inline-flex items-center gap-2 text-rose-400 bg-rose-400/10 px-3 py-1.5 rounded-xl text-xs font-bold">
-                        <Ban className="w-3.5 h-3.5" /> Bị cấm đăng
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-2 text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-xl text-xs font-bold">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Hoạt động
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-8 py-5 text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-3">
-                      <button 
-                        onClick={() => triggerConfirm(
-                          () => handleBanUser(user.id, user.isGameBanned),
-                          user.isGameBanned ? "Gỡ cấm người dùng?" : "Xác nhận cấm đăng game?",
-                          `Xác nhận thay đổi quyền đăng game cho @${user.username}?`,
-                          user.isGameBanned ? 'info' : 'danger'
-                        )}
-                        className={`p-3 rounded-2xl transition-all hover:scale-110 shadow-lg ${user.isGameBanned ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}
-                      >
-                        {user.isGameBanned ? <Unlock className="w-5 h-5" /> : <Ban className="w-5 h-5" />}
-                      </button>
-                      <button 
-                        onClick={() => { setSelectedUser(user); setDetailTab("info"); }}
-                        className="p-3 bg-white/5 hover:bg-white/10 text-white rounded-2xl transition-all hover:scale-110"
-                      >
-                        <Eye className="w-5 h-5" />
-                      </button>
+                  <td className="px-10 py-7 whitespace-nowrap">
+                    <div className="flex flex-wrap gap-2">
+                      {user.isBanned && (
+                        <span className="inline-flex items-center gap-1.5 text-rose-400 bg-rose-400/10 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter border border-rose-400/20">
+                          <UserX className="w-3.5 h-3.5" /> Bị Khóa
+                        </span>
+                      )}
+                      {user.isGameBanned && (
+                        <span className="inline-flex items-center gap-1.5 text-amber-400 bg-amber-400/10 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter border border-amber-400/20">
+                          <Ban className="w-3.5 h-3.5" /> Chặn Game
+                        </span>
+                      )}
+                      {user.isPostBanned && (
+                        <span className="inline-flex items-center gap-1.5 text-blue-400 bg-blue-400/10 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter border border-blue-400/20">
+                          <MessageSquareOff className="w-3.5 h-3.5" /> Chặn Post
+                        </span>
+                      )}
+                      {!user.isBanned && !user.isGameBanned && !user.isPostBanned && (
+                        <span className="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter border border-emerald-400/20">
+                          <ShieldCheck className="w-3.5 h-3.5" /> An toàn
+                        </span>
+                      )}
                     </div>
+                  </td>
+                  <td className="px-10 py-7 text-right whitespace-nowrap">
+                    <button
+                      onClick={() => { setSelectedUser(user); setDetailTab("info"); }}
+                      className="p-4 bg-zinc-800 hover:bg-violet-600 text-white rounded-[20px] transition-all hover:scale-110 hover:rotate-3 shadow-xl"
+                    >
+                      <Eye className="w-6 h-6" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -393,66 +446,74 @@ export default function AdminPage() {
     const filtered = games.filter(g => g.title?.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return (
-      <div className="space-y-6 animate-in fade-in duration-500">
-        <div className="relative max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
-          <input 
-            className="w-full bg-zinc-900 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
-            placeholder="Tìm kiếm game..."
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="relative max-w-xl group">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-zinc-500 group-focus-within:text-violet-500 transition-colors" />
+          <input
+            className="w-full bg-zinc-900 border border-white/10 rounded-[28px] py-5 pl-16 pr-6 text-base text-white focus:outline-none transition-all"
+            placeholder="Tìm kiếm sản phẩm..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
-        <div className="bg-zinc-900/40 border border-white/5 rounded-[32px] overflow-hidden shadow-2xl">
+        <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[40px] overflow-hidden shadow-2xl">
           <table className="w-full text-left text-sm">
-            <thead className="bg-white/5 text-zinc-400 font-bold uppercase tracking-widest text-[10px]">
+            <thead className="bg-white/5 text-zinc-500 font-black uppercase tracking-[0.2em] text-[11px]">
               <tr>
-                <th className="px-8 py-5">Trò chơi</th>
-                <th className="px-8 py-5">Giá</th>
-                <th className="px-8 py-5">Mã định danh</th>
-                <th className="px-8 py-5 text-right">Thao tác</th>
+                <th className="px-10 py-7">Sản phẩm</th>
+                <th className="px-10 py-7">Giá bán</th>
+                <th className="px-10 py-7">Thể loại</th>
+                <th className="px-10 py-7 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.map(game => (
-                <tr key={game.id} className="group hover:bg-white/[0.02] transition-colors">
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-4">
-                      <img src={game.thumbnailUrl} className="w-12 h-12 rounded-xl object-cover border border-white/10 group-hover:scale-105 transition-transform" />
+                <tr key={game.id} className="group hover:bg-white/[0.03] transition-all">
+                  <td className="px-10 py-7">
+                    <div className="flex items-center gap-5">
+                      <img src={game.thumbnailUrl} className="w-16 h-16 rounded-[24px] object-cover border border-white/10 group-hover:scale-110 transition-transform duration-500" />
                       <div>
-                        <p className="font-bold text-white text-base">{game.title}</p>
-                        <p className="text-[10px] text-zinc-500 uppercase font-medium">FabricIO Store</p>
+                        <p className="font-black text-white text-lg tracking-tight">{game.title}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-5">
-                    <span className="text-emerald-400 font-black text-base">
+                  <td className="px-10 py-7">
+                    <span className="text-emerald-400 font-black text-xl tracking-tighter">
                       {game.price > 0 ? `$${game.price}` : 'FREE'}
                     </span>
                   </td>
-                  <td className="px-8 py-5">
-                    <code className="text-[10px] text-zinc-500 bg-white/5 px-2 py-1 rounded">
-                      {game.id}
-                    </code>
+                  <td className="px-10 py-7">
+                    <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                      {game.tags && game.tags.length > 0 ? (
+                        game.tags.map(tag => (
+                          <span key={tag.id} className="px-2 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] text-zinc-400 font-bold">
+                            {tag.name}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-zinc-600 text-[10px] italic">No tags</span>
+                      )}
+                    </div>
                   </td>
-                  <td className="px-8 py-5 text-right">
-                    <div className="flex items-center justify-end gap-3">
-                      <button 
+                  <td className="px-10 py-7 text-right">
+                    <div className="flex items-center justify-end gap-4">
+                      <button
                         onClick={() => navigate(`/games/${game.id}`)}
-                        className="p-3 bg-white/5 hover:bg-white/10 text-white rounded-2xl transition-all"
+                        className="p-4 bg-zinc-800 hover:bg-white/10 text-white rounded-[20px] transition-all"
                       >
-                        <Eye className="w-5 h-5" />
+                        <Eye className="w-6 h-6" />
                       </button>
-                      <button 
+                      <button
                         onClick={() => triggerConfirm(
                           () => handleDeleteGame(game.id),
-                          "Xóa game vĩnh viễn?",
-                          `Game "${game.title}" sẽ bị gỡ bỏ hoàn toàn khỏi hệ thống.`
+                          "Xóa sản phẩm?",
+                          `Hành động này sẽ gỡ bỏ "${game.title}" vĩnh viễn khỏi hệ thống.`,
+                          "danger"
                         )}
-                        className="p-3 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-2xl transition-all"
+                        className="p-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-[20px] transition-all shadow-lg hover:shadow-rose-500/20"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-6 h-6" />
                       </button>
                     </div>
                   </td>
@@ -466,70 +527,71 @@ export default function AdminPage() {
   };
 
   const renderPosts = () => {
-    const filtered = posts.filter(p => 
-      p.author?.username?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const filtered = posts.filter(p =>
+      p.author?.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.title?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
-      <div className="space-y-6 animate-in fade-in duration-500">
-        <div className="relative max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
-          <input 
-            className="w-full bg-zinc-900 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-white focus:outline-none transition-all"
-            placeholder="Tìm theo người đăng hoặc tiêu đề..."
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="relative max-w-xl group">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-zinc-500 group-focus-within:text-violet-500 transition-colors" />
+          <input
+            className="w-full bg-zinc-900 border border-white/10 rounded-[28px] py-5 pl-16 pr-6 text-base text-white focus:outline-none transition-all"
+            placeholder="Tìm kiếm bài viết..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
-        <div className="bg-zinc-900/40 border border-white/5 rounded-[32px] overflow-hidden shadow-2xl">
+        <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[40px] overflow-hidden shadow-2xl">
           <table className="w-full text-left text-sm">
-            <thead className="bg-white/5 text-zinc-400 font-bold uppercase tracking-widest text-[10px]">
+            <thead className="bg-white/5 text-zinc-500 font-black uppercase tracking-[0.2em] text-[11px]">
               <tr>
-                <th className="px-8 py-5">Bài viết</th>
-                <th className="px-8 py-5">Người đăng</th>
-                <th className="px-8 py-5">Ngày tạo</th>
-                <th className="px-8 py-5 text-right">Thao tác</th>
+                <th className="px-10 py-7">Nội dung</th>
+                <th className="px-10 py-7">Tác giả</th>
+                <th className="px-10 py-7">Ngày đăng</th>
+                <th className="px-10 py-7 text-right">Hành động</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.map(post => (
-                <tr key={post.id} className="group hover:bg-white/[0.02] transition-colors">
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
-                        <FileText className="w-5 h-5 text-violet-400" />
+                <tr key={post.id} className="group hover:bg-white/[0.03] transition-all">
+                  <td className="px-10 py-7">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 rounded-[24px] bg-violet-500/10 flex items-center justify-center border border-violet-500/20 group-hover:rotate-12 transition-all">
+                        <FileText className="w-7 h-7 text-violet-400" />
                       </div>
-                      <p className="font-bold text-white text-base truncate max-w-xs">{post.title}</p>
+                      <p className="font-black text-white text-lg truncate max-w-md tracking-tight">{post.title}</p>
                     </div>
                   </td>
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-zinc-500" />
-                      <span className="text-zinc-300 font-medium">{post.author?.displayName}</span>
+                  <td className="px-10 py-7">
+                    <div className="flex items-center gap-3">
+                      <Users className="w-5 h-5 text-zinc-500" />
+                      <span className="text-zinc-200 font-black tracking-tight">{post.author?.displayName}</span>
                     </div>
                   </td>
-                  <td className="px-8 py-5 text-zinc-500">
+                  <td className="px-10 py-7 text-zinc-500 font-bold uppercase text-[11px] tracking-widest">
                     {new Date(post.createdAt).toLocaleDateString('vi-VN')}
                   </td>
-                  <td className="px-8 py-5 text-right">
-                    <div className="flex items-center justify-end gap-3">
-                      <button 
+                  <td className="px-10 py-7 text-right">
+                    <div className="flex items-center justify-end gap-4">
+                      <button
                         onClick={() => navigate(`/posts`)}
-                        className="p-3 bg-white/5 hover:bg-white/10 text-white rounded-2xl transition-all"
+                        className="p-4 bg-zinc-800 hover:bg-white/10 text-white rounded-[20px] transition-all"
                       >
-                        <Eye className="w-5 h-5" />
+                        <Eye className="w-6 h-6" />
                       </button>
-                      <button 
+                      <button
                         onClick={() => triggerConfirm(
                           () => handleDeletePost(post.id),
-                          "Xóa bài viết này?",
-                          "Bài viết này sẽ bị xóa vĩnh viễn khỏi cộng đồng."
+                          "Xóa bài viết?",
+                          "Bài viết này sẽ không thể khôi phục sau khi xóa.",
+                          "danger"
                         )}
-                        className="p-3 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-2xl transition-all"
+                        className="p-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-[20px] transition-all shadow-lg hover:shadow-rose-500/20"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-6 h-6" />
                       </button>
                     </div>
                   </td>
@@ -545,7 +607,7 @@ export default function AdminPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-violet-500 border-t-transparent rounded-full animate-spin shadow-[0_0_50px_rgba(139,92,246,0.2)]" />
+        <div className="w-24 h-24 border-8 border-violet-500 border-t-transparent rounded-full animate-spin shadow-[0_0_80px_rgba(139,92,246,0.3)]" />
       </div>
     );
   }
@@ -553,44 +615,40 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-violet-500/30">
       <Header onOpenSidebar={() => setIsSidebarOpen(true)} />
-      
+
       <div className="flex">
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-        
-        <main className="flex-1 p-6 lg:p-10">
-          <div className="max-w-[1500px] mx-auto">
-            <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+
+        <main className="flex-1 p-8 lg:p-14">
+          <div className="max-w-[1600px] mx-auto">
+            <header className="mb-16 flex flex-col xl:flex-row xl:items-end justify-between gap-10">
               <div>
-                <h1 className="text-5xl font-black bg-gradient-to-r from-violet-400 via-fuchsia-400 to-rose-400 bg-clip-text text-transparent tracking-tight">
-                  Quản trị hệ thống
-                </h1>
-                <p className="text-zinc-500 mt-3 text-lg font-medium">Bảng điều khiển trung tâm FabricIO.</p>
+                <p className="text-zinc-500 mt-5 text-xl font-medium tracking-tight">Hệ thống quản lý trung tâm FabricIO</p>
               </div>
-              
-              <div className="flex bg-zinc-900/50 p-2 rounded-[24px] border border-white/5 backdrop-blur-xl shadow-2xl">
+
+              <div className="flex bg-zinc-900/50 p-2.5 rounded-[32px] border border-white/5 backdrop-blur-2xl shadow-2xl">
                 {[
                   { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
                   { id: "users", label: "Tài khoản", icon: Users },
                   { id: "games", label: "Game", icon: Gamepad2 },
-                  { id: "posts", label: "Post", icon: FileText },
+                  { id: "posts", label: "Bài viết", icon: FileText },
                 ].map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => { setActiveTab(tab.id); setSearchQuery(""); }}
-                    className={`flex items-center gap-3 px-8 py-3.5 rounded-[20px] text-sm font-black transition-all ${
-                      activeTab === tab.id 
-                        ? "bg-violet-600 text-white shadow-[0_10px_25px_rgba(124,58,237,0.3)] scale-105" 
-                        : "text-zinc-400 hover:text-white hover:bg-white/5"
-                    }`}
+                    className={`flex items-center gap-3.5 px-10 py-5 rounded-[24px] text-sm font-black uppercase tracking-widest transition-all duration-500 ${activeTab === tab.id
+                      ? "bg-violet-600 text-white shadow-[0_15px_40px_rgba(124,58,237,0.4)] scale-105"
+                      : "text-zinc-500 hover:text-white hover:bg-white/5"
+                      }`}
                   >
-                    <tab.icon className="w-4 h-4" />
+                    <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'animate-pulse' : ''}`} />
                     {tab.label}
                   </button>
                 ))}
               </div>
             </header>
 
-            <div className="min-h-[600px]">
+            <div className="min-h-[700px]">
               {activeTab === "dashboard" && renderDashboard()}
               {activeTab === "users" && renderUsers()}
               {activeTab === "games" && renderGames()}
@@ -600,133 +658,184 @@ export default function AdminPage() {
         </main>
       </div>
 
-      <ConfirmationModal 
-        {...confirmData} 
-        onCancel={() => setConfirmData(prev => ({ ...prev, isOpen: false }))} 
+      <ConfirmationModal
+        {...confirmData}
+        onCancel={() => setConfirmData(prev => ({ ...prev, isOpen: false }))}
         onConfirm={confirmData.action}
       />
 
       {selectedUser && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 md:p-8 animate-in fade-in duration-300">
-          <div className="w-full max-w-4xl max-h-[90vh] bg-zinc-950 border border-white/10 rounded-[40px] overflow-hidden flex flex-col shadow-2xl relative">
-            {/* Header Profile - Fixed part */}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-2xl p-4 md:p-8 animate-in fade-in duration-500">
+          <div className="w-full max-w-5xl max-h-[92vh] bg-zinc-950 border border-white/10 rounded-[50px] overflow-hidden flex flex-col shadow-[0_0_150px_rgba(139,92,246,0.15)] relative">
             <div className="shrink-0">
-              <div className="h-40 bg-gradient-to-br from-violet-900/40 via-zinc-900 to-zinc-950 relative border-b border-white/5">
-                <button onClick={() => setSelectedUser(null)} className="absolute top-6 right-6 w-12 h-12 rounded-2xl bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-md border border-white/10 transition-all hover:scale-110 z-20">
-                  <XCircle className="w-6 h-6" />
+              <div className="h-48 bg-gradient-to-br from-violet-900/60 via-zinc-900 to-zinc-950 relative border-b border-white/5">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.2),transparent)]" />
+                <button onClick={() => setSelectedUser(null)} className="absolute top-8 right-8 w-14 h-14 rounded-2xl bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-md border border-white/10 transition-all hover:scale-110 z-20">
+                  <XCircle className="w-7 h-7" />
                 </button>
               </div>
 
-              <div className="px-10 relative z-10">
-                <div className="flex flex-col md:flex-row gap-8 -mt-16 items-end">
-                  <div className="relative shrink-0">
-                    <img 
-                      src={selectedUser.avatarUrl || `https://ui-avatars.com/api/?name=${selectedUser.username}`} 
-                      className="w-32 h-32 rounded-[32px] object-cover border-8 border-zinc-950 shadow-2xl" 
+              <div className="px-14 relative z-10">
+                <div className="flex flex-col md:flex-row gap-10 -mt-20 items-end">
+                  <div className="relative shrink-0 group">
+                    <img
+                      src={selectedUser.avatarUrl || `https://ui-avatars.com/api/?name=${selectedUser.username}`}
+                      className="w-40 h-40 rounded-[40px] object-cover border-[10px] border-zinc-950 shadow-2xl group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className={`absolute -bottom-2 -right-2 w-8 h-8 rounded-2xl border-4 border-zinc-950 ${selectedUser.isGameBanned ? 'bg-rose-500' : 'bg-emerald-500'}`} />
+                    <div className={`absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl border-4 border-zinc-950 shadow-xl ${selectedUser.isBanned ? 'bg-rose-500' : 'bg-emerald-500'}`} />
                   </div>
-                  <div className="pb-2 flex-1">
-                    <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div className="pb-4 flex-1">
+                    <div className="flex items-center justify-between flex-wrap gap-6">
                       <div>
-                        <h3 className="text-3xl font-black text-white">{selectedUser.displayName}</h3>
-                        <p className="text-zinc-500 font-medium text-lg">@{selectedUser.username}</p>
+                        <h3 className="text-4xl font-black text-white tracking-tight">{selectedUser.displayName}</h3>
+                        <p className="text-zinc-500 font-bold text-xl mt-1 uppercase tracking-widest">@{selectedUser.username}</p>
                       </div>
-                      <button 
-                        onClick={() => handleBanUser(selectedUser.id, selectedUser.isGameBanned)}
-                        className={`px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg active:scale-95 ${
-                          selectedUser.isGameBanned ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/10' : 'bg-rose-500 hover:bg-rose-400 text-white shadow-rose-500/10'
-                        }`}
-                      >
-                        {selectedUser.isGameBanned ? "Gỡ cấm đăng" : "Cấm đăng game"}
-                      </button>
+                      <div className="flex flex-wrap gap-3">
+                        <button
+                          onClick={() => triggerConfirm(
+                            () => handleUpdateAccountBan(selectedUser.id, selectedUser.isBanned),
+                            selectedUser.isBanned ? "Mở khóa Login?" : "Khóa đăng nhập?",
+                            selectedUser.isBanned ? `Người dùng @${selectedUser.username} sẽ có thể đăng nhập lại.` : `Người dùng @${selectedUser.username} sẽ bị chặn truy cập hệ thống.`,
+                            selectedUser.isBanned ? 'success' : 'danger'
+                          )}
+                          className={`px-6 py-3.5 rounded-[20px] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl active:scale-95 ${selectedUser.isBanned ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-rose-600 text-white hover:bg-rose-500'
+                            }`}
+                        >
+                          {selectedUser.isBanned ? <Unlock className="w-4 h-4" /> : <UserX className="w-4 h-4" />}
+                          {selectedUser.isBanned ? "Mở Khóa" : "Khóa Acc"}
+                        </button>
+
+                        <button
+                          onClick={() => triggerConfirm(
+                            () => handleUpdateGameBan(selectedUser.id, selectedUser.isGameBanned),
+                            selectedUser.isGameBanned ? "Gỡ chặn đăng Game?" : "Chặn đăng Game?",
+                            `Xác nhận thay đổi quyền upload game của @${selectedUser.username}.`,
+                            selectedUser.isGameBanned ? 'info' : 'warning'
+                          )}
+                          className={`px-6 py-3.5 rounded-[20px] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl active:scale-95 ${selectedUser.isGameBanned ? 'bg-emerald-600 text-white' : 'bg-amber-600 text-white'
+                            }`}
+                        >
+                          <Ban className="w-4 h-4" />
+                          {selectedUser.isGameBanned ? "Mở Game" : "Cấm Game"}
+                        </button>
+
+                        <button
+                          onClick={() => triggerConfirm(
+                            () => handleUpdatePostBan(selectedUser.id, selectedUser.isPostBanned),
+                            selectedUser.isPostBanned ? "Gỡ chặn Bài viết?" : "Chặn đăng Bài viết?",
+                            `Người dùng @${selectedUser.username} sẽ ${selectedUser.isPostBanned ? 'được' : 'bị'} đăng bài cộng đồng.`,
+                            selectedUser.isPostBanned ? 'info' : 'info'
+                          )}
+                          className={`px-6 py-3.5 rounded-[20px] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl active:scale-95 ${selectedUser.isPostBanned ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'
+                            }`}
+                        >
+                          <MessageSquareOff className="w-4 h-4" />
+                          {selectedUser.isPostBanned ? "Mở Post" : "Cấm Post"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Content area - Scrollable part */}
-            <div className="px-10 pb-10 flex-1 overflow-y-auto custom-scrollbar mt-8">
-              <div className="mt-4">
-                <div className="flex border-b border-white/5 gap-8 mb-8">
-                  {["info", "games", "posts"].map(t => (
-                    <button 
-                      key={t}
-                      onClick={() => setDetailTab(t)}
-                      className={`pb-4 text-sm font-black uppercase tracking-widest transition-all relative ${
-                        detailTab === t ? "text-white" : "text-zinc-500 hover:text-white"
+            <div className="px-14 pb-14 flex-1 overflow-y-auto custom-scrollbar mt-12">
+              <div className="flex border-b border-white/5 gap-12 mb-12">
+                {["info", "games", "posts"].map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setDetailTab(t)}
+                    className={`pb-5 text-sm font-black uppercase tracking-[0.2em] transition-all relative ${detailTab === t ? "text-white" : "text-zinc-500 hover:text-white"
                       }`}
-                    >
-                      {t === 'info' ? 'Thông tin' : t === 'games' ? 'Sản phẩm' : 'Bài viết'}
-                      {detailTab === t && <div className="absolute bottom-0 left-0 right-0 h-1 bg-violet-500 rounded-full" />}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="pb-10">
-                  {detailTab === "info" && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-bottom-4 duration-500">
-                      <div className="bg-white/3 rounded-3xl p-6 border border-white/5">
-                        <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest mb-2">Email</p>
-                        <p className="text-white text-lg font-medium">{selectedUser.email}</p>
-                      </div>
-                      <div className="bg-white/3 rounded-3xl p-6 border border-white/5 md:col-span-2">
-                        <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest mb-2">Tiểu sử (Bio)</p>
-                        <p className="text-white leading-relaxed">{selectedUser.bio || "Chưa cập nhật tiểu sử."}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {detailTab === "games" && (
-                    <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
-                      {userContent.loading ? (
-                        <p className="text-zinc-500 italic">Đang tải...</p>
-                      ) : userContent.games.length > 0 ? (
-                        userContent.games.map(g => (
-                          <div key={g.id} className="flex items-center gap-4 p-4 bg-white/3 rounded-2xl border border-white/5">
-                            <img src={g.thumbnailUrl} className="w-14 h-14 rounded-xl object-cover" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-white font-bold truncate">{g.title}</p>
-                              <p className="text-xs text-emerald-400 font-bold">{g.price > 0 ? `$${g.price}` : 'FREE'}</p>
-                            </div>
-                            <button onClick={() => navigate(`/games/${g.id}`)} className="p-2 hover:bg-white/5 rounded-lg text-zinc-400"><Eye className="w-4 h-4" /></button>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-zinc-500 italic text-center py-10">Chưa có game nào.</p>
-                      )}
-                    </div>
-                  )}
-
-                  {detailTab === "posts" && (
-                    <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
-                      {userContent.loading ? (
-                        <p className="text-zinc-500 italic">Đang tải...</p>
-                      ) : userContent.posts.length > 0 ? (
-                        userContent.posts.map(p => (
-                          <div key={p.id} className="p-5 bg-white/3 rounded-2xl border border-white/5 flex items-center justify-between gap-4">
-                             <p className="text-white font-bold truncate">{p.title}</p>
-                             <button onClick={() => handleDeletePost(p.id)} className="text-zinc-500 hover:text-rose-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-zinc-500 italic text-center py-10">Chưa có bài viết nào.</p>
-                      )}
-                    </div>
-                  )}
-                </div>
+                  >
+                    {t === 'info' ? 'Thông tin' : t === 'games' ? 'Game' : 'Post'}
+                    {detailTab === t && <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-violet-500 rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)]" />}
+                  </button>
+                ))}
               </div>
-              <button onClick={() => setSelectedUser(null)} className="w-full mt-6 py-4 bg-zinc-800 hover:bg-zinc-700 text-white rounded-2xl font-bold transition-colors">Đóng</button>
+
+              <div className="pb-10">
+                {detailTab === "info" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in slide-in-from-bottom-6 duration-700">
+                    <div className="bg-white/3 rounded-[32px] p-8 border border-white/5 hover:border-white/10 transition-colors">
+                      <p className="text-[11px] text-zinc-500 uppercase font-black tracking-widest mb-3 flex items-center gap-2">
+                        <MessageSquareOff className="w-3.5 h-3.5" /> Email Address
+                      </p>
+                      <p className="text-white text-xl font-bold tracking-tight">{selectedUser.email}</p>
+                    </div>
+                    <div className="bg-white/3 rounded-[32px] p-8 border border-white/5 hover:border-white/10 transition-colors">
+                      <p className="text-[11px] text-zinc-500 uppercase font-black tracking-widest mb-3 flex items-center gap-2">
+                        <Clock className="w-3.5 h-3.5" /> Security Level
+                      </p>
+                      <p className="text-white text-xl font-bold tracking-tight uppercase">
+                        {selectedUser.role === '1' || selectedUser.role === 'Admin' ? 'System Administrator' : 'Verified Member'}
+                      </p>
+                    </div>
+                    <div className="bg-white/3 rounded-[32px] p-8 border border-white/5 md:col-span-2 hover:border-white/10 transition-colors">
+                      <p className="text-[11px] text-zinc-500 uppercase font-black tracking-widest mb-3">Biography</p>
+                      <p className="text-white text-lg leading-relaxed font-medium">
+                        {selectedUser.bio || "Người dùng này chưa cập nhật tiểu sử cá nhân."}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {detailTab === "games" && (
+                  <div className="space-y-5 animate-in slide-in-from-bottom-6 duration-700">
+                    {userContent.loading ? (
+                      <div className="flex justify-center py-20"><div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" /></div>
+                    ) : userContent.games.length > 0 ? (
+                      userContent.games.map(g => (
+                        <div key={g.id} className="flex items-center gap-6 p-6 bg-white/3 rounded-[28px] border border-white/5 hover:border-violet-500/30 transition-all group">
+                          <img src={g.thumbnailUrl} className="w-20 h-20 rounded-[20px] object-cover border border-white/10 group-hover:scale-105 transition-transform" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white text-lg font-black tracking-tight truncate">{g.title}</p>
+                            <p className="text-sm text-emerald-400 font-black mt-1">{g.price > 0 ? `$${g.price}` : 'FREE CONTENT'}</p>
+                          </div>
+                          <button onClick={() => navigate(`/games/${g.id}`)} className="p-4 hover:bg-white/5 rounded-2xl text-zinc-400 hover:text-white transition-colors">
+                            <Eye className="w-6 h-6" />
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-20 text-zinc-600 font-black uppercase tracking-widest opacity-50">Empty Archive</div>
+                    )}
+                  </div>
+                )}
+
+                {detailTab === "posts" && (
+                  <div className="space-y-5 animate-in slide-in-from-bottom-6 duration-700">
+                    {userContent.loading ? (
+                      <div className="flex justify-center py-20"><div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" /></div>
+                    ) : userContent.posts.length > 0 ? (
+                      userContent.posts.map(p => (
+                        <div key={p.id} className="p-6 bg-white/3 rounded-[28px] border border-white/5 hover:border-violet-500/30 transition-all flex items-center justify-between gap-6 group">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white text-lg font-black tracking-tight truncate group-hover:text-violet-400 transition-colors">{p.title}</p>
+                            <p className="text-[10px] text-zinc-500 mt-2 font-black uppercase tracking-widest">{new Date(p.createdAt).toLocaleDateString()}</p>
+                          </div>
+                          <button onClick={() => triggerConfirm(() => handleDeletePost(p.id), "Xóa bài viết?", "Bài viết sẽ bị gỡ bỏ vĩnh viễn.")} className="p-4 text-zinc-600 hover:text-rose-500 transition-colors">
+                            <Trash2 className="w-6 h-6" />
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-20 text-zinc-600 font-black uppercase tracking-widest opacity-50">Khong co thong tin</div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <button onClick={() => setSelectedUser(null)} className="w-full mt-10 py-5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-[32px] font-black uppercase tracking-widest transition-all border border-white/5 shadow-2xl">Close Profile</button>
             </div>
           </div>
         </div>
       )}
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 20px; border: 2px solid #09090b; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
       `}} />
     </div>

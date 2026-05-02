@@ -269,11 +269,11 @@ export default function DashboardGameDetailPage() {
               ))}
             </div>
 
-            {/* Two-column layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Two-column layout: 7:3 Ratio */}
+            <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
 
-              {/* ═══ LEFT – Game Info / Edit ═══ */}
-              <div className="bg-zinc-900/60 backdrop-blur-sm border border-white/5 rounded-2xl p-6 space-y-6">
+              {/* ═══ LEFT – Game Info / Edit (70%) ═══ */}
+              <div className="lg:col-span-7 bg-zinc-900/60 backdrop-blur-xl border border-white/5 rounded-[32px] p-8 space-y-8 shadow-2xl">
                 {/* Toolbar */}
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -492,8 +492,9 @@ export default function DashboardGameDetailPage() {
                 </div>
               </div>
 
-              {/* ═══ RIGHT – Comments ═══ */}
-              <div className="bg-zinc-900/60 backdrop-blur-sm border border-white/5 rounded-2xl p-6 flex flex-col h-fit max-h-[calc(100vh-260px)]">
+              {/* ═══ RIGHT – Comments (30%) ═══ */}
+              <div className="lg:col-span-3 bg-zinc-900/60 backdrop-blur-xl border border-white/5 rounded-[32px] p-8 flex flex-col h-fit max-h-[calc(100vh-180px)] shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl -mr-16 -mt-16 pointer-events-none" />
                 <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-5 shrink-0">
                   <MessageSquare className="w-5 h-5 text-blue-400" />
                   Bình luận &amp; Đánh giá
