@@ -204,7 +204,14 @@ export default function AdminPage() {
     try {
       await adminService.banGameUpload(userId);
       toast.success(isBanned ? "Đã mở khóa tài khoản" : "Đã cấm đăng game thành công");
+      
+      // Cập nhật lại danh sách tổng
       loadAllData();
+
+      // Cập nhật ngay lập tức nếu đang mở Modal chi tiết của user này
+      if (selectedUser && (selectedUser.id === userId || selectedUser.Id === userId)) {
+        setSelectedUser(prev => ({ ...prev, isGameBanned: !isBanned }));
+      }
     } catch (err) {
       toast.error("Thao tác thất bại");
     } finally {
