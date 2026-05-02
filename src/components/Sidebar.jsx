@@ -53,7 +53,7 @@ const SidebarContent = ({ onClose }) => {
   const authNavItems = user
     ? [
         { label: "Profile", path: "/profile" },
-        { label: "Admin", path: "/admin" },
+        ...((user.role?.toLowerCase() === "admin" || user.Role?.toLowerCase() === "admin" || user.role === 1 || user.Role === 1 || user.role === "1" || user.Role === "1") ? [{ label: "Admin", path: "/admin" }] : []),
       ]
     : [{ label: "Login", path: "/signin" }];
 
