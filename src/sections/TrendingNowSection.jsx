@@ -2,7 +2,7 @@ import React from "react";
 import TrendingGameCard from "../components/TrendingGameCard";
 import GameCard from "@/components/GameCard";
 
-export default function TrendingNowSection({ games = [] }) {
+export default function TrendingNowSection({ games = [], favoriteIds = new Set()}) {
   return (
     <section className="space-y-5">
       <div>
@@ -21,6 +21,7 @@ export default function TrendingNowSection({ games = [] }) {
             game={item.game}
             averageRating={item.averageRating}
             totalRatings={item.totalRating}
+            isFavorite={favoriteIds.has(item.game.id)}
           />
         ))}
       </div>

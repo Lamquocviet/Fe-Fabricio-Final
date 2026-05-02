@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import FeaturedDropSection from "../sections/FeaturedDropSection";
@@ -9,12 +9,28 @@ import useHomeFeed from "../hooks/useHomeFeed";
 import usePosts from "../hooks/usePost";
 import useAuth from "@/contexts/AuthContext";
 
+import { gameLibraryService } from "@/services/gameService";
+
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
 
+  const { user } = useAuth();
+  
   const { featuredGames, topRatedGames, posts, loading, error, refetch } =
     useHomeFeed();
+  
 
+  useEffect(() => {
+    if (user) {
+      gameLibraryService.getGameFavorites()
+        .then(favs => {
+          const ids = new Set(favs.map(g => g.id));
+          setFavoriteIds(ids);
+        })
+        .catch(err => console.error("Lỗi lấy danh sách yêu thích:", err));
+    }
+  }, [user]);
   const {
     comments,
     deleting,
@@ -26,7 +42,7 @@ export default function Home() {
     removeReaction,
   } = usePosts({ page: 1, limit: 10 });
 
-  const { user } = useAuth();
+  
 
   const handleUpdatePost = async (postId, payload) => {
     await updatePost(postId, payload);
@@ -79,7 +95,7 @@ export default function Home() {
 
             <FeaturedGamesSection games={topRatedGames.slice(0, 2)} />
 
-            <TrendingNowSection games={topRatedGames.slice(2, 6)} />
+            <TrendingNowSection games={topRatedGames.slice(2, 6)}  favoriteIds={favoriteIds}/>
 
             <LatestPostsSection
               posts={posts}

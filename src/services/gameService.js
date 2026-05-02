@@ -119,7 +119,6 @@ export const gameLibraryService = {
   async getGameFavorites() {
     try {
       assertAuthenticated();
-
       const res = await axiosInstance.get(`/Users/gamefavorite`);
       return res.data;
     } catch (error) {
