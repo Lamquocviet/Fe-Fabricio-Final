@@ -182,6 +182,54 @@ export const uploadGame = async (payload) => {
   }
 };
 
+// DELETE GAME
+export const deleteGame = async (gameId) => {
+  try {
+    assertAuthenticated();
+    if (!gameId) throw new Error("gameId is required");
+    await axiosInstance.delete(`/Games/${gameId}`);
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Xóa game thất bại"));
+  }
+};
+
+// UPDATE GAME
+export const updateGame = async (gameId, payload) => {
+  try {
+    assertAuthenticated();
+
+    if (!gameId) throw new Error("gameId is required");
+
+    const formData = new FormData();
+
+    if (payload.Title !== undefined) formData.append("Title", payload.Title ?? "");
+    if (payload.Description !== undefined) formData.append("Description", payload.Description ?? "");
+    if (payload.Price !== undefined) formData.append("Price", payload.Price ?? 0);
+    if (payload.GameType !== undefined) formData.append("GameType", payload.GameType);
+
+    if (payload.Thumbnail instanceof File) {
+      formData.append("Thumbnail", payload.Thumbnail);
+    }
+
+    if (payload.TagIds) {
+      payload.TagIds.forEach((tagId) => {
+        formData.append("TagIds", tagId);
+      });
+    }
+
+    const res = await axiosInstance.put(`/Games/${gameId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    return res.data;
+  } catch (error) {
+    if (error.response?.status === 405) {
+      throw new Error("Backend hiện chưa hỗ trợ cập nhật game (API PUT 405). Vui lòng thử lại sau.");
+    }
+    throw new Error(getErrorMessage(error, "Cập nhật game thất bại"));
+  }
+};
+
 // GET COMMENTS
 export const getGameComments = async (
   gameId,
