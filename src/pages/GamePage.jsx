@@ -6,11 +6,12 @@ import FilterBar from "../components/FilterBar";
 import { useProducts } from "@/hooks/useLibraryGame";
 import TaskPagination from "@/components/TaskPagination";
 import GameLibrarySection from "@/sections/GameLibrarySection";
+import { RotateCcw } from "lucide-react";
 
 export default function GamePage() {
   const { loading, error } = useHomeFeed();
 
-  const { filters, setFilters, filteredProducts } = useProducts();
+  const { filters, setFilters, filteredProducts, resetFilters } = useProducts();
   const [page, setPage] = useState(1);
 
   const pageSize = 12;
@@ -53,16 +54,33 @@ export default function GamePage() {
         <Sidebar />
         <main className="flex-1 px-4 py-6 lg:px-6">
           <div className="min-h-screen bg-[#050505] text-white p-6">
-            <FilterBar filters={filters} setFilters={setFilters} />
+            <div className="flex flex-wrap items-center gap-4 mb-6">
+              <FilterBar filters={filters} setFilters={setFilters} />
 
+              {filters && (
+                <button
+                  onClick={resetFilters}
+                  className="group flex items-center gap-2 px-4 py-2.5 
+                   bg-zinc-900/50 hover:bg-red-500/10 
+                   border border-zinc-800 hover:border-red-500/50 
+                   rounded-xl transition-all duration-300 ease-out"
+                >
+                  <RotateCcw
+                    size={16}
+                    strokeWidth={2.5}
+                    className="text-zinc-500 group-hover:text-red-400 group-hover:rotate-[-180deg] transition-all duration-500"
+                  />
+
+                  <span className="text-sm font-medium text-zinc-400 group-hover:text-red-400">
+                    Reset Filters
+                  </span>
+                </button>
+              )}
+            </div>
+
+            {/* Phần hiển thị danh sách Game */}
             <div className="mt-6 space-y-2">
               <GameLibrarySection games={currentProducts} />
-              {/* {filteredProducts.map((p) => (
-                <div key={p.id} className="bg-zinc-800 p-4 rounded-lg">
-                  <h3>{p.name}</h3>
-                  <p>${p.price}</p>
-                </div>
-              ))} */}
             </div>
           </div>
           <TaskPagination
@@ -77,5 +95,3 @@ export default function GamePage() {
     </div>
   );
 }
-
-
