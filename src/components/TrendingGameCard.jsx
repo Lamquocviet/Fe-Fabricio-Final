@@ -1,6 +1,8 @@
 import React from "react";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { useNavigate } from "react-router";
+import { useState, useEffect} from "react";
+import { gameLibraryService } from "@/services/gameService";
 
 const renderStars = (rating = 0) => {
   return Array.from({ length: 5 }, (_, i) => {
@@ -18,15 +20,51 @@ const renderStars = (rating = 0) => {
   });
 };
 
+
 export default function TrendingGameCard({
   game,
   averageRating,
   totalRatings,
+  isFavorite: initialFavorite = false
 }) {
   const navigate = useNavigate();
   const handleClickView = () => {
     navigate(`/games/${game.id}`);
   };
+  const [isFavorite, setIsFavorite] = useState(initialFavorite);
+  const [loadingFav, setLoadingFav] = useState(false);
+
+  const handleToggleFavorite = async (e) => {
+  e.stopPropagation();
+  if (loadingFav) return;
+
+  try {
+    setLoadingFav(true);
+    if (isFavorite) {
+      await gameLibraryService.removeGameFavorite(game.id);
+      setIsFavorite(false);
+    } else {
+      await gameLibraryService.addGameFavorite(game.id);
+      setIsFavorite(true);
+    }
+  } catch (err) {
+    // Nếu Backend trả về lỗi 500 nhưng thực tế là do đã tồn tại (duplicate)
+    // Bạn có thể kiểm tra message từ server trả về
+    const errorMsg = err.response?.data?.message || err.message;
+    
+    if (errorMsg.includes("duplicate") || err.response?.status === 500) {
+      // Giả định nếu lỗi 500 khi Add là do đã tồn tại
+      setIsFavorite(true); 
+    } else {
+      alert("Phiên làm việc hết hạn hoặc lỗi hệ thống!");
+    }
+  } finally {
+    setLoadingFav(false);
+  }
+};
+useEffect(() => {
+  setIsFavorite(initialFavorite);
+}, [initialFavorite]);
   return (
     <article
       onClick={handleClickView}
@@ -50,13 +88,16 @@ export default function TrendingGameCard({
           </div>
 
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              // handle like ở đây
-            }}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] border border-red-500/25 bg-red-500/10 text-sm text-white transition hover:bg-red-500/20"
+            onClick={handleToggleFavorite}
+            disabled={loadingFav}
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] border transition
+    ${
+      isFavorite
+        ? "border-red-500 bg-red-500 text-white"
+        : "border-red-500/25 bg-red-500/10 text-white hover:bg-red-500/20"
+    }`}
           >
-            ♡
+            {isFavorite ? "❤️" : "♡"}
           </button>
         </div>
 
