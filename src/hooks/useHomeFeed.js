@@ -104,7 +104,6 @@ export default function useHomeFeed() {
     fetchHomeFeed();
   }, [fetchHomeFeed]);
 
-  console.log(topRatedGames);
   return {
     featuredGames,
     topRatedGames,

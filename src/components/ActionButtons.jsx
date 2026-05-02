@@ -56,9 +56,6 @@ export default function ActionButtons({ game }) {
       setLoading(false);
     }
   };
-  console.log("GAME ID:", game.id);
-console.log("PURCHASED IDS:", purchasedIds);
-console.log("IS PURCHASED:", purchasedIds.includes(String(game.id)));
 
   return (
     <div className="space-y-4 mt-12">

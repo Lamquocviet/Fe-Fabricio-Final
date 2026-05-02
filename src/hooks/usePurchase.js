@@ -11,8 +11,6 @@ export const usePurchase = () => {
 
     const data = await getPurchaseHistory();
 
-    console.log("PURCHASE RAW:", data);
-
     const ids = (data || []).map((g) => String(g.id)); 
   
     setPurchasedIds(ids);
