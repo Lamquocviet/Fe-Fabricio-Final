@@ -183,6 +183,8 @@ export const uploadGame = async (payload) => {
       formData.append("TagIds", tagId);
     });
 
+    console.log("FormData entries:", formData.entries ? Array.from(formData.entries()) : "No entries() method");
+
     const res = await axiosInstance.post("/Games", formData, {
       headers: {
         "Content-Type": "multipart/form-data",

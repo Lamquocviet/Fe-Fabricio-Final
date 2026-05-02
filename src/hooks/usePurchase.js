@@ -18,6 +18,7 @@ export const usePurchase = () => {
         return match ? match[1] : null;
       };
 
+
       const ids = (data || []).map((g) =>
         String(extractIdFromThumbnail(g.thumbnailUrl)),
       );
