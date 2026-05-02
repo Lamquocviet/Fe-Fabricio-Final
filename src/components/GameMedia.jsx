@@ -1,5 +1,4 @@
 export default function GameMedia({ game }) {
-  console.log("GAME MEDIA:", game);
   return (
     
     <div className="relative rounded-3xl overflow-hidden border border-zinc-800 bg-black">

@@ -12,7 +12,6 @@ export const useGameDetail = () => {
 
   useEffect(() => {
     const fetchGame = async () => {
-      console.log("Fetching game with id:", id);
 
       if (!id) {
         setLoading(false);

@@ -14,7 +14,7 @@ export default function TrendingNowSection({ games = [], favoriteIds = new Set()
         </p>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2 justify-items-center">
+      <div className="grid gap-4 xl:grid-cols-4 justify-items-center">
         {games.map((item) => (
           <TrendingGameCard
             key={item.game.id}

@@ -12,7 +12,7 @@ const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000,
+  timeout: 60000,
 });
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
