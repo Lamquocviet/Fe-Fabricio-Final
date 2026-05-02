@@ -128,12 +128,10 @@ export const gameLibraryService = {
     }
   },
   async addGameFavorite(gameId) {
-  assertAuthenticated();
+    assertAuthenticated();
 
-  return axiosInstance.post(
-    `/users/${gameId}/favrotite`
-  );
-},
+    return axiosInstance.post(`/users/${gameId}/favrotite`);
+  },
 
   // async addGameFavorite(id) {
   //   try {
@@ -147,13 +145,11 @@ export const gameLibraryService = {
   //     throw new Error(getErrorMessage(error, "Thêm vào yêu thích thất bại"));
   //   }
   // },
- async removeGameFavorite(gameId) {
-  assertAuthenticated();
+  async removeGameFavorite(gameId) {
+    assertAuthenticated();
 
-  return axiosInstance.delete(
-    `/users/${gameId}/favorite`
-  );
-},
+    return axiosInstance.delete(`/users/${gameId}/favorite`);
+  },
 
   async getMyGames() {
     try {
@@ -321,7 +317,7 @@ export const putGameRatings = async (gameId, value) => {
 
 export const purchaseGame = async (gameId, amount) => {
   const res = await axiosInstance.post(`/games/${gameId}/purchase`, {
-    amound: amount, // nếu backend đang dùng typo này thì giữ
+    Amound: amount, // nếu backend đang dùng typo này thì giữ
   });
   return res.data;
 };

@@ -75,18 +75,22 @@ const transformGameData = (apiGames) => {
 //HOOK
 
 export const useProducts = () => {
-  const [products, setProducts] = useState([]);
-  const [filters, setFilters] = useState({
+  const initialFilters = {
     price: "All",
     tag: "",
     sort: "Newest",
-  });
+  };
+  const [products, setProducts] = useState([]);
+  const [filters, setFilters] = useState(initialFilters);
 
   const [filteredProducts, setFilteredProducts] =
     useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  const resetFilters = () => {
+    setFilters(initialFilters);
+  };
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -125,6 +129,7 @@ export const useProducts = () => {
     filteredProducts,
     total,
     loading,
+    resetFilters,
     refetch: fetchData,
   };
 };
