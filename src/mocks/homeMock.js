@@ -1,13 +1,13 @@
 export const mockFeaturedDrop = {
   id: "featured-drop-1",
   title:
-    "Discover indie games, creator updates, and community threads in one dark, modern hub.",
+    "Ashfall Keep",
   description:
     "GameStore blends dense storefront discovery with a social feed designed for player reactions, creator updates, and community storytelling.",
   image:
     "https://clan.akamai.steamstatic.com/images/42956655/0b863b1bcc86d0912ad53437b2481cb3595991e5.png",
   gameTitle: "Ashfall Keep",
-  price: "$14.99",
+  price: "14.99",
   genre: "RPG",
 };
 

@@ -1,11 +1,32 @@
+/* eslint-disable no-unused-vars */
 import React, { use } from "react";
+
 import { useNavigate } from "react-router";
+import { usePurchase } from "@/hooks/usePurchase";
+import { getPlayUrl } from "@/services/gameService";
 
 export default function GameCard({ game }) {
   const navigate = useNavigate();
+  const { purchasedIds } = usePurchase();
+  const isPurchased = purchasedIds.includes(String(game.id));
+
   const handleClickView = () => {
     navigate(`/games/${game.id}`);
   };
+
+  const handleClickPlay = async () => {
+    try {
+      const res = await getPlayUrl(game.id);
+      if (res?.data?.gameUrl) {
+        window.open(res.gameUrl, "_blank");
+      } else {
+        alert("Không lấy được link chơi game!");
+      }
+    } catch (err) {
+      alert("Không thể mở game!");
+    }
+  };
+
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-[22px] border border-white/10 bg-[#141517] shadow-[0_8px_24px_rgba(0,0,0,0.24)] transition hover:-translate-y-0.5 hover:border-white/15">
       {/* Image */}
@@ -15,7 +36,6 @@ export default function GameCard({ game }) {
           alt={game.title}
           className="h-44 w-full object-cover"
         />
-
         <button className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-[14px] border border-red-500/25 bg-red-500/10 text-sm text-white">
           ♡
         </button>
@@ -31,8 +51,6 @@ export default function GameCard({ game }) {
               <span className="ml-2 text-sm text-white">({game.type})</span>
             )}
           </h3>
-
-          {/* <p className="truncate text-sm text-sky-200/70">{game.studio}</p> */}
         </div>
 
         {/* Tags */}
@@ -56,23 +74,27 @@ export default function GameCard({ game }) {
           >
             {game.price}
           </span>
-
           <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-zinc-200">
             ★ {game.rating}
           </span>
         </div>
 
         <div className="mt-auto grid grid-cols-2 gap-2 pt-2">
-          <button
-            onClick={handleClickView}
-            className="rounded-xl bg-linear-to-r from-[#ff6a4a] to-[#ff4d61] px-4 py-2 text-sm font-semibold text-white cursor-pointer"
-          >
-            View
-          </button>
-
-          <button className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200">
-            Play
-          </button>
+          {!isPurchased ? (
+            <button
+              onClick={handleClickView}
+              className="rounded-xl bg-linear-to-r from-[#ff6a4a] to-[#ff4d61] px-4 py-2 text-sm font-semibold text-white cursor-pointer"
+            >
+              View
+            </button>
+          ) : (
+            <button
+              onClick={handleClickPlay}
+              className="rounded-xl border border-green-500 bg-green-600 px-4 py-2 text-sm text-white"
+            >
+              Play
+            </button>
+          )}
         </div>
       </div>
     </article>

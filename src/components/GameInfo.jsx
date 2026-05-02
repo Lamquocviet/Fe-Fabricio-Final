@@ -1,6 +1,17 @@
-import { Star, Eye, Download } from "lucide-react";
+import { useState } from "react";
+import { Star } from "lucide-react";
+import { rateGame } from "@/services/gameService";
 
 export default function GameInfo({ game }) {
+  const [showRating, setShowRating] = useState(false);
+  const [stars, setStars] = useState(0);
+  const [hover, setHover] = useState(0); 
+  const [loading, setLoading] = useState(false);
+
+  const [localRating, setLocalRating] = useState(game?.rating || 0);
+  const [localTotal, setLocalTotal] = useState(game?.totalRatings || 0);
+  const [hasRated, setHasRated] = useState(false);
+
   if (!game) {
     return (
       <div className="text-center text-zinc-400">
@@ -11,9 +22,42 @@ export default function GameInfo({ game }) {
 
   const tags = game.tags || [];
 
+  // mở popup
+  const openRating = () => {
+    setStars(0);
+    setHover(0);
+    setShowRating(true);
+  };
+
+  // submit rating
+  const handleRate = async () => {
+    try {
+      setLoading(true);
+
+      await rateGame(game.id, stars);
+
+      const newTotal = localTotal + 1;
+      const newAvg = (localRating * localTotal + stars) / newTotal;
+
+      setLocalTotal(newTotal);
+      setLocalRating(newAvg);
+
+      setHasRated(true);
+      setShowRating(false);
+
+      alert("🎉 Đánh giá thành công!");
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Rating thất bại!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
-      <h1 className="text-5xl font-bold mb-2 !text-white">
+      {/* TITLE */}
+      <h1 className="text-5xl font-bold mb-2 text-white">
         {game.title}
         {game.type && (
           <span className="ml-4 text-sm text-zinc-400">
@@ -22,28 +66,34 @@ export default function GameInfo({ game }) {
         )}
       </h1>
 
-      {/* Price */}
+      {/* PRICE + BUTTON */}
       <div className="flex items-center gap-8 mt-8">
         <div>
           <div className="text-4xl font-bold text-emerald-400">
             {game.price}
           </div>
-          <p className="text-sm text-zinc-500">One-time purchase</p>
+          <p className="text-sm text-zinc-500">
+            One-time purchase
+          </p>
         </div>
 
-
-
-       
+        <button
+          onClick={openRating}
+          disabled={hasRated}
+          className="bg-yellow-500 hover:bg-yellow-600 px-6 py-3 rounded-xl font-semibold disabled:opacity-50"
+        >
+          {hasRated ? "✅ Already rated" : "⭐ Rate game"}
+        </button>
       </div>
 
-      {/* Rating */}
+      
       <div className="flex items-center gap-3 mt-10">
         <div className="flex text-2xl">
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
               className={`${
-                i < Math.round(game.rating)
+                i < Math.round(localRating)
                   ? "text-amber-400 fill-current"
                   : "text-zinc-600"
               }`}
@@ -52,15 +102,15 @@ export default function GameInfo({ game }) {
         </div>
 
         <span className="text-3xl font-semibold">
-          {game.rating.toFixed(1)}
+          {localRating.toFixed(1)}
         </span>
 
         <span className="text-sm text-zinc-500">
-          ({game.totalRatings} reviews)
+          ({localTotal} reviews)
         </span>
       </div>
 
-      {/* Tags */}
+      {/* TAGS */}
       <div className="flex flex-wrap gap-3 mt-10">
         {tags.length > 0 ? (
           tags.map((tag, index) => (
@@ -72,9 +122,67 @@ export default function GameInfo({ game }) {
             </span>
           ))
         ) : (
-          <p className="text-sm text-zinc-500">Không có tags</p>
+          <p className="text-sm text-zinc-500">
+            Không có tags
+          </p>
         )}
       </div>
+
+      {/* POPUP */}
+      {showRating && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-[#1c1d20] p-6 rounded-xl w-[400px]">
+            <h2 className="text-xl font-bold mb-4 text-white text-center">
+              Rate Game
+            </h2>
+
+            {/*  STAR PICKER */}
+            <div className="flex gap-2 mb-4 text-4xl justify-center">
+              {[1, 2, 3, 4, 5].map((n) => {
+                const active = n <= (hover || stars);
+
+                return (
+                  <Star
+                    key={n}
+                    onClick={() => setStars(n)}
+                    onMouseEnter={() => setHover(n)}
+                    onMouseLeave={() => setHover(0)}
+                    className={`cursor-pointer transition ${
+                      active
+                        ? "text-yellow-400 fill-yellow-400 scale-110"
+                        : "text-zinc-500"
+                    }`}
+                  />
+                );
+              })}
+            </div>
+
+            <p className="text-center text-zinc-400 mb-4">
+              {stars > 0
+                ? `You selected: ${stars} ⭐`
+                : "Chọn số sao"}
+            </p>
+
+            {/* ACTION */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowRating(false)}
+                className="flex-1 bg-zinc-600 py-2 rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleRate}
+                disabled={loading || stars === 0}
+                className="flex-1 bg-yellow-500 py-2 rounded disabled:opacity-50"
+              >
+                {loading ? "Submitting..." : "Submit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

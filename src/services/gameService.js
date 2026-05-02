@@ -28,27 +28,41 @@ export const getGameList = async () => {
 export const getFeaturedGames = async () => {
   try {
     const res = await axiosInstance.get("/Games/featuredGame");
+
     return res.data;
   } catch (error) {
-    if (USE_MOCK) {
+    if (error) {
+      console.log(
+        "Featured games endpoint not found (404). Returning mock data.",
+      );
       await wait(500);
-      return {
-        data: mockFeaturedDrop,
-      };
+      return mockFeaturedDrop;
     }
     throw new Error(getErrorMessage(error, "Failed to fetch featured games"));
+  }
+};
+
+export const rateGame = async (gameId, rating) => {
+  try {
+    if (!gameId) throw new Error("gameId is required");
+    if (rating < 1 || rating > 5) {
+      throw new Error("rating must be between 1 and 5");
+    }
+
+    const res = await axiosInstance.put(`/games/${gameId}/ratings`, {
+      stars: rating,
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error("Đánh giá game thất bại");
   }
 };
 
 export const getTopRatedGames = async () => {
   try {
     const res = await axiosInstance.get("/Games/topRatingGames");
-    if (res.data?.length === 0 && USE_MOCK) {
-      await wait(500);
-      return {
-        data: mockFeaturedGames,
-      };
-    }
+    return res.data;
   } catch (error) {
     throw new Error(getErrorMessage(error, "Failed to fetch top-rated games"));
   }
@@ -57,9 +71,8 @@ export const getTopRatedGames = async () => {
 export const userService = {
   async getMe() {
     try {
-    const res = await axiosInstance.get("/Users/me");
-    return res.data;
-  
+      const res = await axiosInstance.get("/Users/me");
+      return res.data;
     } catch (error) {
       console.error("getMe error:", error);
       throw error;
@@ -67,9 +80,7 @@ export const userService = {
   },
 };
 
-
 export const gameLibraryService = {
-
   async getGameLibrary({ page = 1, limit = 12, search = "" } = {}) {
     // console.log("CALL getGameLibrary");
 
@@ -102,24 +113,21 @@ export const gameLibraryService = {
       return res.data.game;
     } catch (error) {
       throw new Error(getErrorMessage(error, "Không lấy được thông tin game"));
-
     }
   },
 
-  async getGameFavorites(userId) {
+  async getGameFavorites() {
     try {
       assertAuthenticated();
 
-      const res = await axiosInstance.get(`/GameFavorites/user/${userId}`);
+      const res = await axiosInstance.get(`/Users/gamefavorite`);
       return res.data;
     } catch (error) {
       throw new Error(
         getErrorMessage(error, "Không lấy được danh sách yêu thích"),
       );
-
     }
   },
-
 
   async addGameFavorite(gameId) {
     try {
@@ -140,15 +148,23 @@ export const gameLibraryService = {
     } catch (error) {
       throw new Error(getErrorMessage(error, "Xóa khỏi yêu thích thất bại"));
     }
-  
+  },
 
-}};
-
-
+  async getMyGames() {
+    try {
+      assertAuthenticated();
+      const res = await axiosInstance.get("/Users/mygame");
+      return res.data;
+    } catch (error) {
+      throw new Error(
+        getErrorMessage(error, "Không lấy được danh sách game của bạn"),
+      );
+    }
+  },
+};
 
 export const uploadGame = async (payload) => {
   try {
-
     assertAuthenticated();
 
     const formData = new FormData();
@@ -160,20 +176,17 @@ export const uploadGame = async (payload) => {
     formData.append("GameFile", payload.GameFile);
     formData.append("Price", payload.Price ?? 0);
 
-
     console.log("Adding TagIds to FormData:");
     payload.TagIds?.forEach((tagId, index) => {
       console.log(`  TagIds[${index}]:`, tagId);
       formData.append("TagIds", tagId);
     });
 
-
     const res = await axiosInstance.post("/Games", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-
 
     return res.data;
   } catch (error) {
@@ -202,10 +215,14 @@ export const updateGame = async (gameId, payload) => {
 
     const formData = new FormData();
 
-    if (payload.Title !== undefined) formData.append("Title", payload.Title ?? "");
-    if (payload.Description !== undefined) formData.append("Description", payload.Description ?? "");
-    if (payload.Price !== undefined) formData.append("Price", payload.Price ?? 0);
-    if (payload.GameType !== undefined) formData.append("GameType", payload.GameType);
+    if (payload.Title !== undefined)
+      formData.append("Title", payload.Title ?? "");
+    if (payload.Description !== undefined)
+      formData.append("Description", payload.Description ?? "");
+    if (payload.Price !== undefined)
+      formData.append("Price", payload.Price ?? 0);
+    if (payload.GameType !== undefined)
+      formData.append("GameType", payload.GameType);
 
     if (payload.Thumbnail instanceof File) {
       formData.append("Thumbnail", payload.Thumbnail);
@@ -224,7 +241,9 @@ export const updateGame = async (gameId, payload) => {
     return res.data;
   } catch (error) {
     if (error.response?.status === 405) {
-      throw new Error("Backend hiện chưa hỗ trợ cập nhật game (API PUT 405). Vui lòng thử lại sau.");
+      throw new Error(
+        "Backend hiện chưa hỗ trợ cập nhật game (API PUT 405). Vui lòng thử lại sau.",
+      );
     }
     throw new Error(getErrorMessage(error, "Cập nhật game thất bại"));
   }
@@ -236,13 +255,11 @@ export const getGameComments = async (
   { page = 1, limit = 10 } = {},
 ) => {
   try {
-
     if (!gameId) throw new Error("gameId is required");
 
     const res = await axiosInstance.get(`/games/${gameId}/comment`, {
       params: { page, limit },
     });
-
 
     return res.data;
   } catch (error) {
@@ -255,7 +272,6 @@ export const getGameComments = async (
 // POST COMMENT
 export const createGameComment = async (gameId, content) => {
   try {
-
     assertAuthenticated();
 
     if (!gameId) throw new Error("gameId is required");
@@ -267,9 +283,7 @@ export const createGameComment = async (gameId, content) => {
 
     return res.data;
   } catch (error) {
-    throw new Error(
-      getErrorMessage(error, "Tạo bình luận thất bại")
-    );
+    throw new Error(getErrorMessage(error, "Tạo bình luận thất bại"));
   }
 };
 // GAME RATINGS
@@ -285,84 +299,56 @@ export const getGameRatings = async (gameId) => {
   }
 };
 
-
 export const putGameRatings = async (gameId, value) => {
-
   try {
     if (!gameId) throw new Error("gameId is required");
     if (!value) throw new Error("rating value is required");
 
-
-    const res = await axiosInstance.put(
-      `/games/${gameId}/ratings`,
-      { value } 
-    );
-
-    
-
+    const res = await axiosInstance.put(`/games/${gameId}/ratings`, { value });
 
     return res.data;
   } catch (error) {
-    throw new Error(
-      getErrorMessage(error, "Đánh giá thất bại")
-    );
+    throw new Error(getErrorMessage(error, "Đánh giá thất bại"));
   }
 };
 
 
-export const rateGame = async (gameId, rating) => {
+
+export const purchaseGame = async (gameId, amount) => {
+  const res = await axiosInstance.post(`/games/${gameId}/purchase`, {
+    amound: amount, // nếu backend đang dùng typo này thì giữ
+  });
+  return res.data;
+};
+
+
+
+export const getPurchaseHistory = async () => {
+  const res = await axiosInstance.get(`/Users/gamepaid`);
+  return res.data;
+
+};
+
+
+export const getPlayUrl = async (gameId) => {
+  const res = await axiosInstance.get(`/Games/${gameId}/play`);
+  return res.data;
+};
+
+export const getDownloadUrl = async (gameId) => {
+  const res = await axiosInstance.get(`/Games/${gameId}/download`);
+  return res.data;
+};
+
+export const getUserGamePurchases = async () => {
   try {
     assertAuthenticated();
 
-    if (!gameId) throw new Error("gameId is required");
-    if (rating < 1 || rating > 5) {
-      throw new Error("rating must be between 1 and 5");
-    }
-
-    const res = await axiosInstance.put(`/games/${gameId}/ratings`, {
-      stars: rating,
-    });
-
-    return res.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error, "Đánh giá game thất bại"));
-  }
-};
-
-// GAME PURCHASES
-export const purchaseGame = async (gameId, amount = 0) => {
-  try {
-    assertAuthenticated();
-
-    if (!gameId) throw new Error("gameId is required");
-
-    const res = await axiosInstance.post(`/games/${gameId}/purchase`, {
-      amountPaid: amount
-    });
-
-    return res.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error, "Mua game thất bại"));
-  }
-};
-
-export const getPlayUrl = (gameId) => {
-  return axiosInstance.get(`/Games/${gameId}/play`);
-};
-
-export const getDownloadUrl = (gameId) => {
-  return axiosInstance.get(`/Games/${gameId}/download`);
-};
-export const getUserGamePurchases = async (userId) => {
-  try {
-    assertAuthenticated();
-
-    if (!userId) throw new Error("userId is required");
-
-    const res = await axiosInstance.get(`/GamePurchases/user/${userId}`);
+    const res = await axiosInstance.get(`/Users/gamepaid`);
 
     return res.data;
   } catch (error) {
     throw new Error(getErrorMessage(error, "Không lấy được lịch sử mua game"));
   }
 };
+

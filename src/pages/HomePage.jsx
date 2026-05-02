@@ -77,9 +77,9 @@ export default function Home() {
           <div className="space-y-8 px-4 py-6 lg:p-0">
             <FeaturedDropSection featuredDrop={featuredGames} />
 
-            <FeaturedGamesSection games={topRatedGames} />
+            <FeaturedGamesSection games={topRatedGames.slice(0, 2)} />
 
-            <TrendingNowSection games={topRatedGames} />
+            <TrendingNowSection games={topRatedGames.slice(2, 6)} />
 
             <LatestPostsSection
               posts={posts}

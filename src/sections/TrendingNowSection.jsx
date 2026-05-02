@@ -1,5 +1,6 @@
 import React from "react";
 import TrendingGameCard from "../components/TrendingGameCard";
+import GameCard from "@/components/GameCard";
 
 export default function TrendingNowSection({ games = [] }) {
   return (
@@ -13,11 +14,13 @@ export default function TrendingNowSection({ games = [] }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {games.map((game) => (
+      <div className="grid gap-4 xl:grid-cols-2 justify-items-center">
+        {games.map((item) => (
           <TrendingGameCard
-            key={game.id}
-            game={game}
+            key={item.game.id}
+            game={item.game}
+            averageRating={item.averageRating}
+            totalRatings={item.totalRating}
           />
         ))}
       </div>

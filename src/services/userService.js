@@ -26,7 +26,7 @@ const uploadAvatarRequest = async (file) => {
   assertAuthenticated();
 
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("imgFile", file);
 
   const res = await axiosInstance.patch("/Users/avatar", formData, {
     headers: {
@@ -145,9 +145,7 @@ export const userService = {
       const res = await axiosInstance.get("/Users/mygame");
       return res.data;
     } catch (error) {
-      throw new Error(
-        getErrorMessage(error, "Không lấy được danh sách game"),
-      );
+      throw new Error(getErrorMessage(error, "Không lấy được danh sách game"));
     }
   },
 };
@@ -165,10 +163,10 @@ export const changePassword = async (
       typeof payloadOrOldPassword === "object"
         ? payloadOrOldPassword
         : {
-          oldPassword: payloadOrOldPassword,
-          newPassword: nextPassword,
-          confirmPassword: nextConfirmPassword,
-        };
+            oldPassword: payloadOrOldPassword,
+            newPassword: nextPassword,
+            confirmPassword: nextConfirmPassword,
+          };
 
     const res = await axiosInstance.patch("/Users/password", payload);
     return res.data;
@@ -178,4 +176,3 @@ export const changePassword = async (
     );
   }
 };
-
