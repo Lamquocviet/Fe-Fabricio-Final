@@ -9,7 +9,7 @@ export default function GameTabs({ game }) {
   const tabs = [
     { id: 'description', label: 'Description' },
     { id: 'comments', label: 'Comments' },
-    { id: 'ratings', label: 'Ratings' },
+    // { id: 'ratings', label: 'Ratings' },
   ];
 
   return (
