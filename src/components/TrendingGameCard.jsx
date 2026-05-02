@@ -1,7 +1,7 @@
 import React from "react";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { useNavigate } from "react-router";
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { gameLibraryService } from "@/services/gameService";
 
 const renderStars = (rating = 0) => {
@@ -20,12 +20,11 @@ const renderStars = (rating = 0) => {
   });
 };
 
-
 export default function TrendingGameCard({
   game,
   averageRating,
   totalRatings,
-  isFavorite: initialFavorite = false
+  isFavorite: initialFavorite = false,
 }) {
   const navigate = useNavigate();
   const handleClickView = () => {
@@ -35,36 +34,36 @@ export default function TrendingGameCard({
   const [loadingFav, setLoadingFav] = useState(false);
 
   const handleToggleFavorite = async (e) => {
-  e.stopPropagation();
-  if (loadingFav) return;
+    e.stopPropagation();
+    if (loadingFav) return;
 
-  try {
-    setLoadingFav(true);
-    if (isFavorite) {
-      await gameLibraryService.removeGameFavorite(game.id);
-      setIsFavorite(false);
-    } else {
-      await gameLibraryService.addGameFavorite(game.id);
-      setIsFavorite(true);
+    try {
+      setLoadingFav(true);
+      if (isFavorite) {
+        await gameLibraryService.removeGameFavorite(game.id);
+        setIsFavorite(false);
+      } else {
+        await gameLibraryService.addGameFavorite(game.id);
+        setIsFavorite(true);
+      }
+    } catch (err) {
+      // Nếu Backend trả về lỗi 500 nhưng thực tế là do đã tồn tại (duplicate)
+      // Bạn có thể kiểm tra message từ server trả về
+      const errorMsg = err.response?.data?.message || err.message;
+
+      if (errorMsg.includes("duplicate") || err.response?.status === 500) {
+        // Giả định nếu lỗi 500 khi Add là do đã tồn tại
+        setIsFavorite(true);
+      } else {
+        alert("Phiên làm việc hết hạn hoặc lỗi hệ thống!");
+      }
+    } finally {
+      setLoadingFav(false);
     }
-  } catch (err) {
-    // Nếu Backend trả về lỗi 500 nhưng thực tế là do đã tồn tại (duplicate)
-    // Bạn có thể kiểm tra message từ server trả về
-    const errorMsg = err.response?.data?.message || err.message;
-    
-    if (errorMsg.includes("duplicate") || err.response?.status === 500) {
-      // Giả định nếu lỗi 500 khi Add là do đã tồn tại
-      setIsFavorite(true); 
-    } else {
-      alert("Phiên làm việc hết hạn hoặc lỗi hệ thống!");
-    }
-  } finally {
-    setLoadingFav(false);
-  }
-};
-useEffect(() => {
-  setIsFavorite(initialFavorite);
-}, [initialFavorite]);
+  };
+  useEffect(() => {
+    setIsFavorite(initialFavorite);
+  }, [initialFavorite]);
   return (
     <article
       onClick={handleClickView}
@@ -74,7 +73,7 @@ useEffect(() => {
         <img
           src={game.thumbnailUrl}
           alt={game.title}
-          className="aspect-4/3 w-full object-cover"
+          className="h-64 w-full object-cover"
         />
       </div>
 
