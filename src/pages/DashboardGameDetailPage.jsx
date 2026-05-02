@@ -225,11 +225,12 @@ export default function DashboardGameDetailPage() {
   return (
     <div className="min-h-screen bg-[#050505] text-white">
       <Header />
-      <div className="flex me-4">
+      <div className="flex">
         <Sidebar />
 
-        <main className="flex-1 p-6 md:p-8 h-screen overflow-y-auto custom-scrollbar">
-          <div className="max-w-7xl mx-auto pb-20 space-y-6">
+        <main className="flex-1 px-4 lg:px-6">
+          <div className="min-h-screen bg-[#050505] text-white">
+            <div className="max-w-6xl mx-auto px-8 py-8 pb-20 space-y-6">
 
             {/* Breadcrumb */}
             <div className="flex items-center gap-3">
@@ -552,6 +553,7 @@ export default function DashboardGameDetailPage() {
                 </div>
               </div>
 
+            </div>
             </div>
           </div>
         </main>
