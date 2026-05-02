@@ -1,40 +1,88 @@
 import { useEffect, useState } from "react";
-import GameCard from "./GameCard";
-import { gameLibraryService } from "@/services/gameService";
+import TrendingGameCard from "./TrendingGameCard";
+import {
+  gameLibraryService,
+  getUserGamePurchases,
+} from "@/services/gameService";
 
 export default function MyGameTab({ userId }) {
-  const [games, setGames] = useState([]);
-  
+  const [uploadedGames, setUploadedGames] = useState([]);
+  const [purchasedGames, setPurchasedGames] = useState([]);
+  const [filter, setFilter] = useState("uploaded"); // 'uploaded' | 'purchased'
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const normalize = (res) => res?.games ?? res?.data ?? res ?? [];
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError("");
+
       try {
-        const res = await gameLibraryService.getGameLibrary();
+        const [uploadedRes, purchasedRes] = await Promise.all([
+          gameLibraryService.getMyGames(), // game bạn upload
+          getUserGamePurchases(), // game đã mua
+        ]);
 
-        console.log("ALL GAMES:", res.games);
-        console.log("USER ID:", userId);
-
-        const myGames = res.games.filter(
-          (g) => g.ownerId === userId
-        );
-
-        setGames(myGames);
+        setUploadedGames(normalize(uploadedRes));
+        setPurchasedGames(normalize(purchasedRes));
       } catch (err) {
         console.error("MyGameTab error:", err);
+        setError("Failed to fetch games");
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (userId) fetch();
+    if (userId) fetchData();
   }, [userId]);
 
+  // chọn list theo filter (KHÔNG cần filter lại)
+  const displayedGames = filter === "uploaded" ? uploadedGames : purchasedGames;
+
   return (
-    <div className="grid grid-cols-3 gap-6">
-      {games.length === 0 ? (
-        <p className="text-white">No games found</p>
+    <div>
+      {/* FILTER */}
+      <div className="mb-4 flex gap-2">
+        <button
+          onClick={() => setFilter("uploaded")}
+          className={`px-4 py-2 rounded-lg text-sm transition ${
+            filter === "uploaded"
+              ? "bg-blue-500 text-white"
+              : "bg-white/10 text-zinc-300 hover:bg-white/20"
+          }`}
+        >
+          My Uploads
+        </button>
+
+        <button
+          onClick={() => setFilter("purchased")}
+          className={`px-4 py-2 rounded-lg text-sm transition ${
+            filter === "purchased"
+              ? "bg-blue-500 text-white"
+              : "bg-white/10 text-zinc-300 hover:bg-white/20"
+          }`}
+        >
+          Purchased
+        </button>
+      </div>
+
+      {/* STATE */}
+      {loading && <p className="text-white">Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+
+      {/* LIST */}
+      {!loading && displayedGames.length === 0 ? (
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-center text-sm text-zinc-400">
+          Chưa có game nào.
+        </div>
       ) : (
-        games.map((game) => (
-          <GameCard key={game.id} game={game} />
-        ))
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {displayedGames.map((game) => (
+            <TrendingGameCard key={game.id} game={game} />
+          ))}
+        </div>
       )}
     </div>
   );
