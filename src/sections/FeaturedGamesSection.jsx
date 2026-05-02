@@ -1,7 +1,13 @@
 import React from "react";
-import GameCard from "../components/GameCard";
+import TrendingGameCard from "@/components/TrendingGameCard";
+import { useNavigate } from "react-router";
 
 export default function FeaturedGamesSection({ games = [] }) {
+  const navigate = useNavigate();
+
+  const handleClickView = () => {
+    navigate(`/games`);
+  };
   return (
     <section className="space-y-5">
       <div className="flex items-start justify-between gap-4">
@@ -14,16 +20,21 @@ export default function FeaturedGamesSection({ games = [] }) {
           </p>
         </div>
 
-        <button className="shrink-0 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm text-zinc-200 hover:bg-white/10">
+        <button
+          onClick={handleClickView}
+          className="shrink-0 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm text-zinc-200 hover:bg-white/10"
+        >
           Browse all
         </button>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        {games.map((game) => (
-          <GameCard
-            key={game.id}
-            game={game}
+        {games.map((item) => (
+          <TrendingGameCard
+            key={item.game.id}
+            game={item.game}
+            averageRating={item.averageRating}
+            totalRatings={item.totalRatings}
           />
         ))}
       </div>
