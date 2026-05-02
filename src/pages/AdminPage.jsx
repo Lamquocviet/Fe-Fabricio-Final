@@ -619,9 +619,10 @@ export default function AdminPage() {
       <div className="flex">
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-        <main className="flex-1 p-8 lg:p-14">
-          <div className="max-w-[1600px] mx-auto">
-            <header className="mb-16 flex flex-col xl:flex-row xl:items-end justify-between gap-10">
+        <main className="flex-1 px-4 lg:px-6">
+          <div className="min-h-screen bg-[#050505] text-white">
+            <div className="max-w-5xl mx-auto px-8 py-8">
+              <header className="mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-10">
               <div>
                 <p className="text-zinc-500 mt-5 text-xl font-medium tracking-tight">Hệ thống quản lý trung tâm FabricIO</p>
               </div>
@@ -653,6 +654,7 @@ export default function AdminPage() {
               {activeTab === "users" && renderUsers()}
               {activeTab === "games" && renderGames()}
               {activeTab === "posts" && renderPosts()}
+            </div>
             </div>
           </div>
         </main>

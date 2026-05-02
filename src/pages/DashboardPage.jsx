@@ -109,39 +109,41 @@ const DashboardPage = () => {
   return (
     <div className="min-h-screen bg-[#050505] text-white">
       <Header onOpenSidebar={() => setIsSidebarOpen(true)} />
-      <div className="flex me-4">
+      <div className="flex">
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
         
-        <main className="flex-1 p-6 md:p-8 h-screen overflow-y-auto custom-scrollbar">
-          <div className="max-w-7xl mx-auto space-y-8 pb-20">
-            {activeTab === "overview" ? (
-              <>
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
-                    <p className="text-zinc-400 mt-1">Quản lý và theo dõi các game bạn đã xuất bản.</p>
+        <main className="flex-1 px-4 lg:px-6">
+          <div className="min-h-screen bg-[#050505] text-white">
+            <div className="max-w-5xl mx-auto px-8 py-8 space-y-8 pb-20">
+              {activeTab === "overview" ? (
+                <>
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                      <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
+                      <p className="text-zinc-400 mt-1">Quản lý và theo dõi các game bạn đã xuất bản.</p>
+                    </div>
                   </div>
-                </div>
 
-                <StatsCards stats={stats} />
+                  <StatsCards stats={stats} />
 
-                {loading ? (
-                  <div className="flex justify-center py-12">
-                    <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                ) : (
-                  <MyGamesList games={games} onSelectGame={handleSelectGame} />
-                )}
-              </>
-            ) : (
-              <GameAnalyticsTab 
-                game={selectedGame} 
-                onBack={() => setActiveTab("overview")} 
-              />
-            )}
+                  {loading ? (
+                    <div className="flex justify-center py-12">
+                      <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  ) : (
+                    <MyGamesList games={games} onSelectGame={handleSelectGame} />
+                  )}
+                </>
+              ) : (
+                <GameAnalyticsTab 
+                  game={selectedGame} 
+                  onBack={() => setActiveTab("overview")} 
+                />
+              )}
+            </div>
           </div>
         </main>
       </div>
