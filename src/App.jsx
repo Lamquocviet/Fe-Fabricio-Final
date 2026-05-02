@@ -10,6 +10,8 @@ import ProfilePage from "./pages/ProfilePage";
 import DashboardPage from "./pages/DashboardPage";
 import GameDeatailPage from "./pages/GameDetailPage";
 import UploadGamePage from "./pages/UploadGamePage";
+import DashboardGameDetailPage from "./pages/DashboardGameDetailPage";
+import AdminPage from "./pages/AdminPage";
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
         <Route path="/uploadgame" element={<UploadGamePage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard/games/:id" element={<DashboardGameDetailPage />} />
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
 

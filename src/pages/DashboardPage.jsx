@@ -14,6 +14,7 @@ const DashboardPage = () => {
   const [games, setGames] = useState([]);
   const [stats, setStats] = useState({
     totalGames: 0,
+    totalPosts: 0,
     totalRatings: 0,
     avgRating: 0,
     totalComments: 0,
@@ -73,9 +74,18 @@ const DashboardPage = () => {
           })
         );
 
+        // Fetch post count
+        let totalPosts = 0;
+        try {
+          const postsData = await userService.getUserPosts(null, { page: 1, limit: 1 });
+          // API trả về { total, items, page, pageSize }
+          totalPosts = postsData?.total ?? postsData?.Total ?? 0;
+        } catch (e) { /* ignore */ }
+
         setGames(gamesWithStats);
         setStats({
           totalGames: myGames.length,
+          totalPosts,
           totalRatings: tRatings,
           avgRating: ratedGamesCount > 0 ? (sumAvgRating / ratedGamesCount).toFixed(1) : 0,
           totalComments: tComments,

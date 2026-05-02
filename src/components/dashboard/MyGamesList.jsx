@@ -1,14 +1,21 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Gamepad2, Star, MessageSquare, Heart, ChevronRight } from 'lucide-react';
 
 const MyGamesList = ({ games = [], onSelectGame }) => {
+  const navigate = useNavigate();
+
+  const handleDetail = (game) => {
+    navigate(`/dashboard/games/${game.id}`);
+  };
+
   return (
     <div className="bg-zinc-900/60 backdrop-blur-sm border border-white/5 rounded-2xl p-6">
       <div className="mb-6">
         <h3 className="text-lg font-bold text-white">Game của tôi</h3>
         <p className="text-sm text-zinc-400">Danh sách các game bạn đã xuất bản</p>
       </div>
-      
+
       <div className="space-y-4">
         {games.length === 0 ? (
           <div className="text-zinc-400 text-center py-8">Bạn chưa xuất bản game nào.</div>
@@ -33,9 +40,9 @@ const MyGamesList = ({ games = [], onSelectGame }) => {
                   </div>
                 </div>
               </div>
-              <button 
-                onClick={() => onSelectGame && onSelectGame(game)}
-                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
+              <button
+                onClick={() => handleDetail(game)}
+                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-violet-600 text-white rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
               >
                 Chi tiết
                 <ChevronRight className="w-4 h-4" />
@@ -49,3 +56,4 @@ const MyGamesList = ({ games = [], onSelectGame }) => {
 };
 
 export default MyGamesList;
+
