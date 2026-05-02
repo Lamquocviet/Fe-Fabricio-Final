@@ -26,7 +26,7 @@ const uploadAvatarRequest = async (file) => {
   assertAuthenticated();
 
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("imgFile", file);
 
   const res = await axiosInstance.patch("/Users/avatar", formData, {
     headers: {
