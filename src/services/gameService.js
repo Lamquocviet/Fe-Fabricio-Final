@@ -319,7 +319,7 @@ export const putGameRatings = async (gameId, value) => {
 
 export const purchaseGame = async (gameId, amount) => {
   const res = await axiosInstance.post(`/games/${gameId}/purchase`, {
-    amound: amount, // nếu backend đang dùng typo này thì giữ
+    Amound: amount, // nếu backend đang dùng typo này thì giữ
   });
   return res.data;
 };

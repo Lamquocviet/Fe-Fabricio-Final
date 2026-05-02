@@ -14,21 +14,9 @@ export default function GameCard({ game }) {
     navigate(`/games/${game.id}`);
   };
 
-  const handleClickPlay = async () => {
-    try {
-      const res = await getPlayUrl(game.id);
-      if (res?.data?.gameUrl) {
-        window.open(res.gameUrl, "_blank");
-      } else {
-        alert("Không lấy được link chơi game!");
-      }
-    } catch (err) {
-      alert("Không thể mở game!");
-    }
-  };
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-[22px] border border-white/10 bg-[#141517] shadow-[0_8px_24px_rgba(0,0,0,0.24)] transition hover:-translate-y-0.5 hover:border-white/15">
+    <article  onClick={handleClickView} className="flex h-full flex-col overflow-hidden rounded-[22px] border border-white/10 bg-[#141517] shadow-[0_8px_24px_rgba(0,0,0,0.24)] transition hover:-translate-y-0.5 hover:border-white/15">
       {/* Image */}
       <div className="relative overflow-hidden">
         <img
@@ -80,21 +68,14 @@ export default function GameCard({ game }) {
         </div>
 
         <div className="mt-auto grid grid-cols-2 gap-2 pt-2">
-          {!isPurchased ? (
+      
             <button
               onClick={handleClickView}
               className="rounded-xl bg-linear-to-r from-[#ff6a4a] to-[#ff4d61] px-4 py-2 text-sm font-semibold text-white cursor-pointer"
             >
               View
             </button>
-          ) : (
-            <button
-              onClick={handleClickPlay}
-              className="rounded-xl border border-green-500 bg-green-600 px-4 py-2 text-sm text-white"
-            >
-              Play
-            </button>
-          )}
+          
         </div>
       </div>
     </article>

@@ -4,26 +4,31 @@ import { getPurchaseHistory } from "@/services/gameService";
 export const usePurchase = () => {
   const [purchasedIds, setPurchasedIds] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const fetchPurchased = useCallback(async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const data = await getPurchaseHistory();
+      const data = await getPurchaseHistory();
 
-    console.log("PURCHASE RAW:", data);
+      // console.log("PURCHASE RAW:", data);
 
-    const ids = (data || []).map((g) => String(g.id)); 
-  
-    setPurchasedIds(ids);
+      const extractIdFromThumbnail = (url) => {
+        const match = url?.match(/game-assets\/([a-z0-9-]+)\//i);
+        return match ? match[1] : null;
+      };
 
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-}, []);
+      const ids = (data || []).map((g) =>
+        String(extractIdFromThumbnail(g.thumbnailUrl)),
+      );
 
+      setPurchasedIds(ids);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchPurchased();
