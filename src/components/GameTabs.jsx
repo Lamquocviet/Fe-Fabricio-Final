@@ -9,7 +9,7 @@ export default function GameTabs({ game }) {
   const tabs = [
     { id: 'description', label: 'Description' },
     { id: 'comments', label: 'Comments' },
-    { id: 'ratings', label: 'Ratings' },
+    // { id: 'ratings', label: 'Ratings' },
   ];
 
   return (
@@ -38,7 +38,7 @@ export default function GameTabs({ game }) {
       <div className="mt-8">
         {activeTab === 'description' && <DescriptionTab game={game} />}
         {activeTab === 'comments' && <CommentsTab  game = {game}/>}
-        {activeTab === 'ratings' && <RatingsTab game={game} />}
+        {/* {activeTab === 'ratings' && <RatingsTab game={game} />} */}
       </div>
     </div>
   );
