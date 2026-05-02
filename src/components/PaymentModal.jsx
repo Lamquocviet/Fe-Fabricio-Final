@@ -25,7 +25,6 @@ const handleConfirm = async () => {
 
     alert("Thanh toán thành công!");
 
-    //  chỉ báo lên cha
     onSuccess(game.id);
 
     onClose();
