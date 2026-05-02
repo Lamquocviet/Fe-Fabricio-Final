@@ -86,7 +86,7 @@ export default function useHomeFeed() {
 
         const mappedPosts = rawPosts.map((post) => mapPostWithAuthor(post));
 
-        setFeaturedGames(gamesData?.data || gamesData || []);
+        setFeaturedGames(gamesData?.game || gamesData || []);
         setTopRatedGames(topRatedGamesData?.data || topRatedGamesData || []);
         setPosts(mappedPosts);
       } catch (err) {
@@ -104,6 +104,7 @@ export default function useHomeFeed() {
     fetchHomeFeed();
   }, [fetchHomeFeed]);
 
+  console.log(topRatedGames);
   return {
     featuredGames,
     topRatedGames,

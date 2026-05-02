@@ -1,6 +1,6 @@
 import React from "react";
 import PostCard from "../components/PostCard";
-
+import { useNavigate } from "react-router";
 
 export default function LatestPostsSection({
   posts = [],
@@ -16,6 +16,11 @@ export default function LatestPostsSection({
 
   deleting = false,
 }) {
+  const navigate = useNavigate();
+
+  const handleClickOpenFeed = () => {
+    navigate(`/posts`);
+  };
   return (
     <section className="space-y-5">
       <div className="flex items-start justify-between gap-4">
@@ -29,7 +34,10 @@ export default function LatestPostsSection({
           </p>
         </div>
 
-        <button className="shrink-0 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm text-zinc-200 hover:bg-white/10">
+        <button
+          onClick={handleClickOpenFeed}
+          className="shrink-0 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm text-zinc-200 hover:bg-white/10"
+        >
           Open feed
         </button>
       </div>
