@@ -61,7 +61,7 @@ export default function FilterBar({ filters, setFilters }) {
         }
       />
 
-      {/* Ownership 👈 NEW */}
+      {/* Ownership*/}
       <Dropdown
         label="Ownership"
         value={filters.ownership}

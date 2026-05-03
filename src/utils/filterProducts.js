@@ -1,14 +1,14 @@
 export const filterProducts = (products, filters, purchasedIds = []) => {
   let result = [...products];
 
-  // ✅ PRICE
+
   if (filters.price === "Free") {
     result = result.filter((p) => p.price === 0);
   } else if (filters.price === "Paid") {
     result = result.filter((p) => p.price > 0);
   }
 
-  // ✅ TAG
+
   if (filters.tag) {
     result = result.filter((p) =>
       p.gameTags?.some(
@@ -18,7 +18,7 @@ export const filterProducts = (products, filters, purchasedIds = []) => {
     );
   }
 
-  // ✅ PURCHASE FILTER (🔥 cái bạn cần)
+
   if (filters.ownership === "Purchased") {
     result = result.filter((p) =>
       purchasedIds.includes(String(p.id))
@@ -31,7 +31,6 @@ export const filterProducts = (products, filters, purchasedIds = []) => {
     );
   }
 
-  // ✅ SORT
   if (filters.sort === "Price") {
     result = [...result].sort((a, b) => a.price - b.price);
   }
