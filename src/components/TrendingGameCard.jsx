@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { gameLibraryService } from "@/services/gameService";
 import { useFavorites } from "@/contexts/FavoriteContext";
+import { usePurchase } from "@/hooks/usePurchase";  
 
 const renderStars = (rating = 0) => {
   return Array.from({ length: 5 }, (_, i) => {
@@ -33,7 +34,9 @@ export default function TrendingGameCard({
 
   const { isFavorite, toggleFavorite } = useFavorites();
   const fav = isFavorite(game.id);
+  const { purchasedIds } = usePurchase();
 
+  const isPurchased = purchasedIds.includes(String(game.id));
 
   return (
     <article
@@ -63,11 +66,7 @@ export default function TrendingGameCard({
               toggleFavorite(game.id);
             }}
             className={`flex h-9 w-9 items-center justify-center rounded-[14px] border
-    ${
-      fav
-        ? "text-white"
-        : "border-red-500/25 bg-red-500/10 text-white"
-    }`}
+    ${fav ? "text-white" : "border-red-500/25 bg-red-500/10 text-white"}`}
           >
             {fav ? "❤️" : "♡"}
           </button>
@@ -85,13 +84,19 @@ export default function TrendingGameCard({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span
-            className={`text-2xl font-bold ${
-              game.price === "Free" ? "text-[#1ee59b]" : "text-[#ffb14a]"
-            }`}
-          >
-            ${game.price}
-          </span>
+          {!isPurchased ? (
+            <span
+              className={`text-2xl font-bold ${
+                game.price === "Free" ? "text-[#1ee59b]" : "text-[#ffb14a]"
+              }`}
+            >
+              ${game.price}
+            </span>
+          ) : (
+            <span className="absolute left-3 top-3 rounded-full bg-green-600 px-3 py-1 text-xs font-semibold text-white shadow">
+              ✔ Purchased
+            </span>
+          )}
 
           <span className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200">
             {renderStars(averageRating)}
