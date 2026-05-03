@@ -13,7 +13,7 @@ import { gameLibraryService } from "@/services/gameService";
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [favoriteIds, setFavoriteIds] = useState(new Set());
+
 
   const { user } = useAuth();
   
@@ -21,16 +21,7 @@ export default function Home() {
     useHomeFeed();
   
 
-  useEffect(() => {
-    if (user) {
-      gameLibraryService.getGameFavorites()
-        .then(favs => {
-          const ids = new Set(favs.map(g => g.id));
-          setFavoriteIds(ids);
-        })
-        .catch(err => console.error("Lỗi lấy danh sách yêu thích:", err));
-    }
-  }, [user]);
+
   const {
     comments,
     deleting,
@@ -95,7 +86,7 @@ export default function Home() {
 
             <FeaturedGamesSection games={topRatedGames.slice(0, 2)} />
 
-            <TrendingNowSection games={topRatedGames.slice(2, 6)}  favoriteIds={favoriteIds}/>
+            <TrendingNowSection games={topRatedGames.slice(2, 6)}/>
 
             <LatestPostsSection
               posts={posts}
