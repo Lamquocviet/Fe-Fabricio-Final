@@ -18,6 +18,8 @@ export default function GameLibrarySection({ games = [] }) {
           <TrendingGameCard
             key={game.id}
             game={game}
+            averageRating={game.averageRating}
+            totalRatings={game.totalRatings}
           />
         ))}
       </div>
