@@ -2,9 +2,13 @@
 import { useEffect, useState } from "react";
 import { gameLibraryService } from "@/services/gameService";
 import { filterProducts } from "../utils/filterProducts";
+import { getGameRatings } from "@/services/gameService";
+import { usePurchase } from "@/hooks/usePurchase";
 
 
 
+
+const BASE_URL = "http://localhost/";
 
 const normalizePrice = (price) => {
   if (price === null || price === undefined) return 0;
@@ -15,113 +19,103 @@ const normalizePrice = (price) => {
   return isNaN(num) ? 0 : num;
 };
 
-const formatPrice = (price) => {
-  if (price === 0) return "Free";
-  return `$${price.toFixed(2)}`;
-};
-
-
-// TRANSFORM DATA
-
+// ===== TRANSFORM =====
 const transformGameData = (apiGames) => {
   if (!Array.isArray(apiGames)) return [];
 
   return apiGames.map((game) => {
-    // TAGS
-    const tagsRaw =
-      game.gameTags || game.GameTags || game.tags || [];
-
-    const tags = Array.isArray(tagsRaw)
-      ? tagsRaw
-          .map((t) =>
-            typeof t === "string"
-              ? t
-              : t?.name || t?.Name || t?.tag?.name
-          )
-          .filter(Boolean)
-      : [];
-
-    //  PRICE
-    const rawPrice = normalizePrice(
-      game.price ?? game.Price
-    );
+    const rawPrice = normalizePrice(game.price);
 
     return {
-      id: game.id || game.Id,
-      title: game.title || game.Title || "Unknown",
-      studio: game.studio || "Unknown Studio",
-      type: game.gameType || "Unknown",
+      ...game,
+      thumbnailUrl: game?.thumbnailUrl
+        ? game.thumbnailUrl.startsWith("http")
+          ? game.thumbnailUrl
+          : `${BASE_URL}${game.thumbnailUrl}`
+        : "https://via.placeholder.com/400x300",
 
-      image:
-        game.image ||
-        game.thumbnailUrl ||
-        game.ThumbnailUrl ||
-        "https://via.placeholder.com/400x300",
 
-      tags,
-
-      rawPrice,                     
-      price: formatPrice(rawPrice),
-      isFree: rawPrice === 0,      
-
-      rating: game.rating || game.Rating || 0,
-      description:
-        game.description || game.Description || "",
+      price: rawPrice,
+      averageRating: game?.averageRating ?? 0,
+      totalRatings: game?.totalRatings ?? 0,
     };
   });
 };
 
-
-//HOOK
-
+// ===== HOOK =====
 export const useProducts = () => {
   const initialFilters = {
     price: "All",
     tag: "",
     sort: "Newest",
+    ownership: "All"
   };
+
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState(initialFilters);
-
-  const [filteredProducts, setFilteredProducts] =
-    useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const { purchasedIds } = usePurchase();
+  const resetFilters = () => setFilters(initialFilters);
 
-  const resetFilters = () => {
-    setFilters(initialFilters);
-  };
   const fetchData = async () => {
     try {
       setLoading(true);
 
-      const data =
-        await gameLibraryService.getGameLibrary();
+      const data = await gameLibraryService.getGameLibrary();
 
-      const gamesArray = data?.games || [];
+    
+      const gamesArray = Array.isArray(data)
+        ? data
+        : data?.items || [];
 
-      const transformed = transformGameData(gamesArray);
+      const gamesWithRatings = await Promise.all(
+        gamesArray.map(async (game) => {
+          try {
+            const ratingRes = await getGameRatings(game.id);
+
+            return {
+              ...game,
+              averageRating: ratingRes?.average ?? 0,
+              totalRatings: ratingRes?.total ?? 0,
+            };
+          } catch (err) {
+            console.warn("Rating error:", game.id);
+            return {
+              ...game,
+              averageRating: 0,
+              totalRatings: 0,
+            };
+          }
+        })
+      );
+
+      const transformed = transformGameData(gamesWithRatings);
 
       setProducts(transformed);
       setFilteredProducts(transformed);
-      setTotal(data?.GameTotal || transformed.length);
+      setTotal(transformed.length);
     } catch (error) {
       console.error("Error fetching games:", error);
       setProducts([]);
       setFilteredProducts([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
   };
 
+  // load lần đầu
   useEffect(() => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const result = filterProducts(products, filters);
-    setFilteredProducts(result);
-  }, [filters, products]);
+  // filter
+ useEffect(() => {
+  const result = filterProducts(products, filters, purchasedIds);
+  setFilteredProducts(result);
+}, [filters, products, purchasedIds]);
 
   return {
     filters,

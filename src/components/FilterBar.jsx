@@ -61,6 +61,16 @@ export default function FilterBar({ filters, setFilters }) {
         }
       />
 
+      {/* Ownership*/}
+      <Dropdown
+        label="Ownership"
+        value={filters.ownership}
+        options={["All", "Purchased", "NotPurchased"]}
+        onChange={(val) =>
+          setFilters((prev) => ({ ...prev, ownership: val }))
+        }
+      />
+
       {/* Sort */}
       <Dropdown
         label="Sort"

@@ -31,6 +31,7 @@ export default function TrendingGameCard({
   const handleClickView = () => {
     navigate(`/games/${game.id}`);
   };
+  console.log("trending game:", game.thumbnailUrl);
 
   const { isFavorite, toggleFavorite } = useFavorites();
   const fav = isFavorite(game.id);
@@ -86,12 +87,12 @@ export default function TrendingGameCard({
         <div className="flex flex-wrap items-center gap-2">
           {!isPurchased ? (
             <span
-              className={`text-2xl font-bold ${
-                game.price === "Free" ? "text-[#1ee59b]" : "text-[#ffb14a]"
-              }`}
-            >
-              ${game.price}
-            </span>
+  className={`text-2xl font-bold ${
+    game.price === 0 ? "text-green-400" : "text-[#ffb14a]"
+  }`}
+>
+  {game.price === 0 ? "Free" : `$${game.price}`}
+</span>
           ) : (
             <span className="absolute left-3 top-3 rounded-full bg-green-600 px-3 py-1 text-xs font-semibold text-white shadow">
               ✔ Purchased
