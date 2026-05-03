@@ -15,7 +15,7 @@ export default function GameLibrarySection({ games = [] }) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {games.map((game) => (
-          <GameCard
+          <TrendingGameCard
             key={game.id}
             game={game}
           />

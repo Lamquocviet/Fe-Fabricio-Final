@@ -3,6 +3,8 @@ import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { gameLibraryService } from "@/services/gameService";
+import { useFavorites } from "@/contexts/FavoriteContext";
+import { usePurchase } from "@/hooks/usePurchase";  
 
 const renderStars = (rating = 0) => {
   return Array.from({ length: 5 }, (_, i) => {
@@ -24,46 +26,18 @@ export default function TrendingGameCard({
   game,
   averageRating,
   totalRatings,
-  isFavorite: initialFavorite = false,
 }) {
   const navigate = useNavigate();
   const handleClickView = () => {
     navigate(`/games/${game.id}`);
   };
-  const [isFavorite, setIsFavorite] = useState(initialFavorite);
-  const [loadingFav, setLoadingFav] = useState(false);
 
-  const handleToggleFavorite = async (e) => {
-    e.stopPropagation();
-    if (loadingFav) return;
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const fav = isFavorite(game.id);
+  const { purchasedIds } = usePurchase();
 
-    try {
-      setLoadingFav(true);
-      if (isFavorite) {
-        await gameLibraryService.removeGameFavorite(game.id);
-        setIsFavorite(false);
-      } else {
-        await gameLibraryService.addGameFavorite(game.id);
-        setIsFavorite(true);
-      }
-    } catch (err) {
-      // Nếu Backend trả về lỗi 500 nhưng thực tế là do đã tồn tại (duplicate)
-      // Bạn có thể kiểm tra message từ server trả về
-      const errorMsg = err.response?.data?.message || err.message;
+  const isPurchased = purchasedIds.includes(String(game.id));
 
-      if (errorMsg.includes("duplicate") || err.response?.status === 500) {
-        // Giả định nếu lỗi 500 khi Add là do đã tồn tại
-        setIsFavorite(true);
-      } else {
-        alert("Phiên làm việc hết hạn hoặc lỗi hệ thống!");
-      }
-    } finally {
-      setLoadingFav(false);
-    }
-  };
-  useEffect(() => {
-    setIsFavorite(initialFavorite);
-  }, [initialFavorite]);
   return (
     <article
       onClick={handleClickView}
@@ -87,16 +61,14 @@ export default function TrendingGameCard({
           </div>
 
           <button
-            onClick={handleToggleFavorite}
-            disabled={loadingFav}
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] border transition
-    ${
-      isFavorite
-        ? "border-red-500 bg-red-500 text-white"
-        : "border-red-500/25 bg-red-500/10 text-white hover:bg-red-500/20"
-    }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFavorite(game.id);
+            }}
+            className={`flex h-9 w-9 items-center justify-center rounded-[14px] border
+    ${fav ? "text-white" : "border-red-500/25 bg-red-500/10 text-white"}`}
           >
-            {isFavorite ? "❤️" : "♡"}
+            {fav ? "❤️" : "♡"}
           </button>
         </div>
 
@@ -112,13 +84,19 @@ export default function TrendingGameCard({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span
-            className={`text-2xl font-bold ${
-              game.price === "Free" ? "text-[#1ee59b]" : "text-[#ffb14a]"
-            }`}
-          >
-            ${game.price}
-          </span>
+          {!isPurchased ? (
+            <span
+              className={`text-2xl font-bold ${
+                game.price === "Free" ? "text-[#1ee59b]" : "text-[#ffb14a]"
+              }`}
+            >
+              ${game.price}
+            </span>
+          ) : (
+            <span className="absolute left-3 top-3 rounded-full bg-green-600 px-3 py-1 text-xs font-semibold text-white shadow">
+              ✔ Purchased
+            </span>
+          )}
 
           <span className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200">
             {renderStars(averageRating)}

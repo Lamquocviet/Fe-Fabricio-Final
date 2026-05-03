@@ -4,7 +4,7 @@ import { gameLibraryService } from "@/services/gameService";
 import { filterProducts } from "../utils/filterProducts";
 
 
-// PRICE (QUAN TRỌNG)
+
 
 const normalizePrice = (price) => {
   if (price === null || price === undefined) return 0;

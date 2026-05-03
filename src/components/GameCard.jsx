@@ -30,19 +30,19 @@ export default function GameCard({ game }) {
           className="h-44 w-full object-cover"
         />
 
-        {/* ✅ Badge đã mua */}
+        {/* Badge đã mua */}
         {isPurchased && (
           <span className="absolute left-3 top-3 rounded-full bg-green-600 px-3 py-1 text-xs font-semibold text-white shadow">
-            ✔ Đã mua
+            ✔ Purchased
           </span>
         )}
 
-        <button
+        {/* <button
           onClick={(e) => e.stopPropagation()}
           className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-[14px] border border-red-500/25 bg-red-500/10 text-sm text-white"
         >
           ♡
-        </button>
+        </button> */}
       </div>
 
       {/* Content */}

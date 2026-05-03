@@ -42,22 +42,7 @@ export const getFeaturedGames = async () => {
   }
 };
 
-export const rateGame = async (gameId, rating) => {
-  try {
-    if (!gameId) throw new Error("gameId is required");
-    if (rating < 1 || rating > 5) {
-      throw new Error("rating must be between 1 and 5");
-    }
 
-    const res = await axiosInstance.put(`/games/${gameId}/ratings`, {
-      stars: rating,
-    });
-
-    return res.data;
-  } catch (error) {
-    throw new Error("Đánh giá game thất bại");
-  }
-};
 
 export const getTopRatedGames = async () => {
   try {
@@ -302,18 +287,24 @@ export const getGameRatings = async (gameId) => {
   }
 };
 
-export const putGameRatings = async (gameId, value) => {
+
+export const rateGame = async (gameId, rating) => {
   try {
     if (!gameId) throw new Error("gameId is required");
-    if (!value) throw new Error("rating value is required");
+    if (rating < 1 || rating > 5) {
+      throw new Error("rating must be between 1 and 5");
+    }
 
-    const res = await axiosInstance.put(`/games/${gameId}/ratings`, { value });
+    const res = await axiosInstance.put(`/games/${gameId}/ratings`, {
+      stars: rating,
+    });
 
     return res.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Đánh giá thất bại"));
+    throw new Error("Đánh giá game thất bại");
   }
 };
+
 
 export const purchaseGame = async (gameId, amount) => {
   const res = await axiosInstance.post(`/games/${gameId}/purchase`, {
