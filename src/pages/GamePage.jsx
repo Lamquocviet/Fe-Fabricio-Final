@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import useHomeFeed from "../hooks/useHomeFeed";
@@ -10,9 +12,28 @@ import { RotateCcw } from "lucide-react";
 
 export default function GamePage() {
   const { loading, error } = useHomeFeed();
+  const [searchParams] = useSearchParams(); 
+  const tagFromUrl = searchParams.get("tag");
+
 
   const { filters, setFilters, filteredProducts, resetFilters } = useProducts();
   const [page, setPage] = useState(1);
+
+
+  useEffect(() => {
+    if (tagFromUrl) {
+      setFilters((prev) => ({
+        ...prev,
+        tag: tagFromUrl,
+      }));
+    }
+  }, [tagFromUrl, setFilters]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters]);
+
+
 
   const pageSize = 12;
 

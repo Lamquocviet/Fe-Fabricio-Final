@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
 import { rateGame } from "@/services/gameService";
+
 
 export default function GameInfo({ game }) {
   const [showRating, setShowRating] = useState(false);
@@ -10,8 +11,22 @@ export default function GameInfo({ game }) {
 
   const [localRating, setLocalRating] = useState(game?.rating || 0);
   const [localTotal, setLocalTotal] = useState(game?.totalRatings || 0);
-  const [hasRated, setHasRated] = useState(false);
+  const [userRating, setUserRating] = useState(null);
 
+  useEffect(() => {
+  const fetchMyRating = async () => {
+    try {
+      const res = await rateGame (game.id);
+      if (res?.myRating) {
+        setUserRating(res.myRating);
+      }
+    } catch (err) {
+      console.error("Fetch my rating error:", err);
+    }
+  };
+
+  fetchMyRating();
+}, [game.id]);
   if (!game) {
     return (
       <div className="text-center text-zinc-400">
@@ -28,31 +43,42 @@ export default function GameInfo({ game }) {
     setHover(0);
     setShowRating(true);
   };
+  
 
   // submit rating
   const handleRate = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      await rateGame(game.id, stars);
+    await rateGame(game.id, stars);
 
-      const newTotal = localTotal + 1;
-      const newAvg = (localRating * localTotal + stars) / newTotal;
+    let newAvg = localRating;
+    let newTotal = localTotal;
 
-      setLocalTotal(newTotal);
-      setLocalRating(newAvg);
-
-      setHasRated(true);
-      setShowRating(false);
-
-      alert("🎉 Đánh giá thành công!");
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Rating thất bại!");
-    } finally {
-      setLoading(false);
+    if (userRating === null) {
+      // 👉 lần đầu
+      newTotal = localTotal + 1;
+      newAvg = (localRating * localTotal + stars) / newTotal;
+    } else {
+      // 👉 update rating
+      newAvg =
+        (localRating * localTotal - userRating + stars) / localTotal;
     }
-  };
+
+    setLocalTotal(newTotal);
+    setLocalRating(newAvg);
+
+    // ✅ lưu rating user
+    setUserRating(stars);
+    localStorage.setItem(`rating_${game.id}`, stars);
+
+    setShowRating(false);
+  } catch (err) {
+    alert(err.message || "Rating thất bại!");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div>
@@ -79,10 +105,10 @@ export default function GameInfo({ game }) {
 
         <button
           onClick={openRating}
-          disabled={hasRated}
+          disabled={false}
           className="bg-yellow-500 hover:bg-yellow-600 px-6 py-3 rounded-xl font-semibold disabled:opacity-50"
         >
-          {hasRated ? "✅ Already rated" : "⭐ Rate game"}
+          {userRating !== null ? "✅ Already rated" : "⭐ Rate game"}
         </button>
       </div>
 
@@ -160,7 +186,7 @@ export default function GameInfo({ game }) {
             <p className="text-center text-zinc-400 mb-4">
               {stars > 0
                 ? `You selected: ${stars} ⭐`
-                : "Chọn số sao"}
+                : "select your rating above"}
             </p>
 
             {/* ACTION */}
