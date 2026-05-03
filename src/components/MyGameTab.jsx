@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import TrendingGameCard from "./TrendingGameCard";
 import {
   gameLibraryService,
+  getGameRatings,
   getUserGamePurchases,
 } from "@/services/gameService";
 
@@ -11,8 +12,10 @@ export default function MyGameTab({ userId }) {
   const [filter, setFilter] = useState("uploaded"); // 'uploaded' | 'purchased'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [ratingsMap, setRatingsMap] = useState({});
 
-  const normalize = (res) => res?.games ?? res?.data ?? res ?? [];
+  const normalize = (res) =>
+    res?.games ?? res?.items ?? res?.data?.items ?? res?.data ?? res ?? [];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,6 +44,51 @@ export default function MyGameTab({ userId }) {
   // chọn list theo filter (KHÔNG cần filter lại)
   const displayedGames = filter === "uploaded" ? uploadedGames : purchasedGames;
 
+  useEffect(() => {
+    const fetchRatingsForGames = async () => {
+      try {
+        const games = filter === "uploaded" ? uploadedGames : purchasedGames;
+
+        if (!games || games.length === 0) return;
+
+        const results = await Promise.all(
+          games.map(async (g) => {
+            const gameId = g.id || g.gameId;
+
+            try {
+              const r = await getGameRatings(gameId);
+
+              return {
+                gameId,
+                average: r.average ?? 0,
+                total: r.total ?? 0,
+              };
+            } catch (err) {
+              console.error("Rating error:", gameId, err);
+              return {
+                gameId,
+                average: 0,
+                total: 0,
+              };
+            }
+          }),
+        );
+
+        const map = {};
+        results.forEach((r) => {
+          map[r.gameId] = r;
+        });
+
+        console.log("ratingsMap:", map); // 🔥 debug
+
+        setRatingsMap(map);
+      } catch (err) {
+        console.error("Fetch ratings list error:", err);
+      }
+    };
+
+    fetchRatingsForGames();
+  }, [uploadedGames, purchasedGames, filter]);
   return (
     <div>
       {/* FILTER */}
@@ -79,9 +127,21 @@ export default function MyGameTab({ userId }) {
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {displayedGames.map((game) => (
-            <TrendingGameCard key={game.id} game={game} />
-          ))}
+          {displayedGames.map((game) => {
+            const ratingData = ratingsMap[game.id] || {
+              average: 0,
+              total: 0,
+            };
+
+            return (
+              <TrendingGameCard
+                key={game.id}
+                game={game}
+                averageRating={ratingData.average}
+                totalRatings={ratingData.total}
+              />
+            );
+          })}
         </div>
       )}
     </div>
