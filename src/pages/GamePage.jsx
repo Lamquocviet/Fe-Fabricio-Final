@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useEffect } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import useHomeFeed from "../hooks/useHomeFeed";
@@ -8,17 +8,17 @@ import FilterBar from "../components/FilterBar";
 import { useProducts } from "@/hooks/useLibraryGame";
 import TaskPagination from "@/components/TaskPagination";
 import GameLibrarySection from "@/sections/GameLibrarySection";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, LibraryBig } from "lucide-react";
 
 export default function GamePage() {
   const { loading, error } = useHomeFeed();
-  const [searchParams] = useSearchParams(); 
+
+  const [searchParams, setSearchParams] = useSearchParams();
   const tagFromUrl = searchParams.get("tag");
 
-
   const { filters, setFilters, filteredProducts, resetFilters } = useProducts();
-  const [page, setPage] = useState(1);
 
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (tagFromUrl) {
@@ -33,8 +33,6 @@ export default function GamePage() {
     setPage(1);
   }, [filters]);
 
-
-
   const pageSize = 12;
 
   const totalPages = Math.ceil(filteredProducts.length / pageSize);
@@ -44,25 +42,66 @@ export default function GamePage() {
 
   const currentProducts = filteredProducts.slice(start, end);
 
-  const handleNext = () => setPage((prev) => prev + 1);
-  const handlePrev = () => setPage((prev) => prev - 1);
-  const handlePageChange = (p) => setPage(p);
+  const handleNext = () => {
+    setPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePrev = () => {
+    setPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handlePageChange = (p) => {
+    setPage(p);
+  };
+
+  const handleResetFilters = () => {
+    resetFilters();
+    setSearchParams({});
+    setPage(1);
+  };
 
   if (loading) {
     return (
-      <div className="space-y-6 bg-[#050505] px-4 py-6 text-white lg:px-6">
-        <div className="h-90 animate-pulse rounded-[30px] bg-white/5" />
-        <div className="h-105 animate-pulse rounded-[30px] bg-white/5" />
-        <div className="h-80 animate-pulse rounded-[30px] bg-white/5" />
+      <div className="min-h-screen bg-[#050505] text-white">
+        <Header />
+
+        <div className="flex me-4">
+          <Sidebar />
+
+          <main className="flex-1">
+            <div className="space-y-8 px-4 py-6 lg:p-0">
+              <div className="h-[260px] animate-pulse rounded-[32px] border border-white/10 bg-white/5" />
+              <div className="h-[80px] animate-pulse rounded-[24px] border border-white/10 bg-white/5" />
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="h-[300px] animate-pulse rounded-[28px] border border-white/10 bg-white/5"
+                  />
+                ))}
+              </div>
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-[#050505] px-4 py-6 text-white lg:px-6">
-        <div className="rounded-3xl border border-red-500/20 bg-red-500/10 p-5 text-red-200">
-          Failed to load home feed: {error}
+      <div className="min-h-screen bg-[#050505] text-white">
+        <Header />
+
+        <div className="flex me-4">
+          <Sidebar />
+
+          <main className="flex-1">
+            <div className="px-4 py-6 lg:p-0">
+              <div className="rounded-[28px] border border-red-500/20 bg-red-500/10 p-6 text-red-200">
+                Failed to load game library: {error}
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     );
@@ -71,46 +110,77 @@ export default function GamePage() {
   return (
     <div className="min-h-screen bg-[#050505] text-white">
       <Header />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1 px-4 py-6 lg:px-6">
-          <div className="min-h-screen bg-[#050505] text-white p-6">
-            <div className="flex flex-wrap items-center gap-4 mb-6">
-              <FilterBar filters={filters} setFilters={setFilters} />
 
-              {filters && (
+      <div className="flex me-4">
+        <Sidebar />
+
+        <main className="flex-1">
+          <div className="space-y-8 px-4 py-6 lg:p-0">
+            <section className="relative z-30 rounded-[28px] border border-white/10 bg-[#111113]/80 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6">
+              <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <h1 className="text-3xl font-extrabold text-white">Bộ lọc</h1>
+
+                  <p className="mt-2 text-sm text-zinc-400">
+                    Tinh chỉnh danh sách game theo nhu cầu của bạn.
+                  </p>
+                </div>
+
                 <button
-                  onClick={resetFilters}
-                  className="group flex items-center gap-2 px-4 py-2.5 
-                   bg-zinc-900/50 hover:bg-red-500/10 
-                   border border-zinc-800 hover:border-red-500/50 
-                   rounded-xl transition-all duration-300 ease-out"
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="group flex w-fit items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-zinc-300 transition hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-300"
                 >
                   <RotateCcw
                     size={16}
                     strokeWidth={2.5}
-                    className="text-zinc-500 group-hover:text-red-400 group-hover:rotate-[-180deg] transition-all duration-500"
+                    className="text-zinc-500 transition duration-500 group-hover:-rotate-180 group-hover:text-red-300"
                   />
-
-                  <span className="text-sm font-medium text-zinc-400 group-hover:text-red-400">
-                    Reset Filters
-                  </span>
+                  Reset Filters
                 </button>
-              )}
-            </div>
+              </div>
 
-            {/* Phần hiển thị danh sách Game */}
-            <div className="mt-6 space-y-2">
-              <GameLibrarySection games={currentProducts} />
-            </div>
+              <div className="flex flex-wrap items-center gap-4">
+                <FilterBar filters={filters} setFilters={setFilters} />
+              </div>
+            </section>
+
+            <section className="relative z-10 rounded-[28px] border border-white/10 bg-[#111113]/80 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6">
+              <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                {totalPages > 1 && (
+                  <span className="w-fit rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-zinc-400">
+                    Page {page} of {totalPages}
+                  </span>
+                )}
+              </div>
+
+              {currentProducts.length > 0 ? (
+                <GameLibrarySection games={currentProducts} />
+              ) : (
+                <div className="rounded-3xl border border-dashed border-white/10 bg-black/20 px-6 py-16 text-center">
+                  <p className="text-lg font-bold text-white">
+                    Không tìm thấy game phù hợp
+                  </p>
+
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Thử reset bộ lọc hoặc chọn tag khác.
+                  </p>
+                </div>
+              )}
+            </section>
+
+            {totalPages > 1 && (
+              <div className="rounded-[28px] border border-white/10 bg-[#111113]/80 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+                <TaskPagination
+                  handleNext={handleNext}
+                  handlePrev={handlePrev}
+                  handlePageChange={handlePageChange}
+                  page={page}
+                  totalPages={totalPages}
+                />
+              </div>
+            )}
           </div>
-          <TaskPagination
-            handleNext={handleNext}
-            handlePrev={handlePrev}
-            handlePageChange={handlePageChange}
-            page={page}
-            totalPages={totalPages}
-          />
         </main>
       </div>
     </div>

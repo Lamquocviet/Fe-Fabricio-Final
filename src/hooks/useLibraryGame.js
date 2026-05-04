@@ -1,25 +1,20 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { gameLibraryService } from "@/services/gameService";
 import { filterProducts } from "../utils/filterProducts";
 import { getGameRatings } from "@/services/gameService";
 import { usePurchase } from "@/hooks/usePurchase";
-
-
-
 
 const BASE_URL = "http://localhost/";
 
 const normalizePrice = (price) => {
   if (price === null || price === undefined) return 0;
 
-  const num =
-    typeof price === "string" ? parseFloat(price) : price;
+  const num = typeof price === "string" ? parseFloat(price) : price;
 
   return isNaN(num) ? 0 : num;
 };
 
-// ===== TRANSFORM =====
 const transformGameData = (apiGames) => {
   if (!Array.isArray(apiGames)) return [];
 
@@ -33,8 +28,6 @@ const transformGameData = (apiGames) => {
           ? game.thumbnailUrl
           : `${BASE_URL}${game.thumbnailUrl}`
         : "https://via.placeholder.com/400x300",
-
-
       price: rawPrice,
       averageRating: game?.averageRating ?? 0,
       totalRatings: game?.totalRatings ?? 0,
@@ -42,22 +35,28 @@ const transformGameData = (apiGames) => {
   });
 };
 
-// ===== HOOK =====
 export const useProducts = () => {
   const initialFilters = {
     price: "All",
     tag: "",
     sort: "Newest",
-    ownership: "All"
+    ownership: "All",
   };
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState(initialFilters);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+
   const { purchasedIds } = usePurchase();
-  const resetFilters = () => setFilters(initialFilters);
+
+  const resetFilters = () => {
+    setFilters(initialFilters);
+    setSearchParams({});
+  };
 
   const fetchData = async () => {
     try {
@@ -65,10 +64,7 @@ export const useProducts = () => {
 
       const data = await gameLibraryService.getGameLibrary();
 
-    
-      const gamesArray = Array.isArray(data)
-        ? data
-        : data?.items || [];
+      const gamesArray = Array.isArray(data) ? data : data?.items || [];
 
       const gamesWithRatings = await Promise.all(
         gamesArray.map(async (game) => {
@@ -88,7 +84,7 @@ export const useProducts = () => {
               totalRatings: 0,
             };
           }
-        })
+        }),
       );
 
       const transformed = transformGameData(gamesWithRatings);
@@ -106,16 +102,14 @@ export const useProducts = () => {
     }
   };
 
-  // load lần đầu
   useEffect(() => {
     fetchData();
   }, []);
 
-  // filter
- useEffect(() => {
-  const result = filterProducts(products, filters, purchasedIds);
-  setFilteredProducts(result);
-}, [filters, products, purchasedIds]);
+  useEffect(() => {
+    const result = filterProducts(products, filters, purchasedIds);
+    setFilteredProducts(result);
+  }, [filters, products, purchasedIds]);
 
   return {
     filters,

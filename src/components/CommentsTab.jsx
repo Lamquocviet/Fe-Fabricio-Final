@@ -1,24 +1,53 @@
 import { useEffect, useState } from "react";
 import { getGameComments, createGameComment } from "@/services/gameService";
-
 import useRequireAuth from "@/hooks/useRequireAuth";
+import useAuth from "@/contexts/AuthContext";
+
+const API_BASE_URL = "http://localhost/";
 
 export default function CommentsTab({ game }) {
   const [comments, setComments] = useState([]);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // normalize function
-  const normalizeComments = (data) => {
-    return (data.items || []).map((c) => ({
-      id: c.id,
-      content: c.comment?.content || "",
-      userName: c.commentator?.displayName || "Anonymous",
-      createdAt: c.createdAt,
-    }));
+  const { requireAuth } = useRequireAuth();
+  const { user } = useAuth();
+
+  const getAvatarUrl = (avatar, version = "") => {
+    if (!avatar) return `https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png`;
+
+    const src =
+      avatar.startsWith("http://") || avatar.startsWith("https://")
+        ? avatar
+        : `${API_BASE_URL}${avatar}`;
+
+    return version ? `${src}?v=${version}` : src;
   };
 
-  //  fetch comments
+  const normalizeComments = (data) => {
+    return (data.items || []).map((c) => {
+      const commentatorId =
+        c.commentator?.id ||
+        c.commentator?.userId ||
+        c.commentatorId ||
+        c.userId;
+
+      return {
+        id: c.id,
+        userId: commentatorId,
+        content: c.comment?.content || "",
+        userName:
+          c.commentator?.displayName || c.commentator?.username || "Anonymous",
+        avatarRaw: c.commentator?.avatarUrl || c.commentator?.avatar,
+        userAvatar: getAvatarUrl(
+          c.commentator?.avatarUrl || c.commentator?.avatar,
+        ),
+        userRole: c.commentator?.role || "user",
+        createdAt: c.createdAt,
+      };
+    });
+  };
+
   useEffect(() => {
     const fetchComments = async () => {
       if (!game?.id) return;
@@ -32,10 +61,19 @@ export default function CommentsTab({ game }) {
     };
 
     fetchComments();
-  }, [game?.id]);
+  }, [
+    game?.id,
+    user?.id,
+    user?.userId,
+    user?.avatarUrl,
+    user?.avatar,
+    user?.avatarVersion,
+    user?.updatedAt,
+  ]);
 
-  //  post comment
   const handlePost = async () => {
+    if (!requireAuth()) return;
+
     try {
       if (!content.trim()) return;
 
@@ -43,14 +81,35 @@ export default function CommentsTab({ game }) {
 
       const newComment = await createGameComment(game.id, content);
 
-      // thêm comment mới ngay lập tức (không cần reload)
-      const newItem = {
-        id: newComment.id || Date.now(),
-        content: newComment.comment?.content || content,
-        userName: newComment.commentator?.displayName || "You",
-        createdAt: new Date().toISOString(),
-      };
+      const currentUserAvatar = user?.avatarUrl || user?.avatar;
 
+      const newItem = {
+        id: newComment?.id || Date.now(),
+        userId:
+          newComment?.commentator?.id ||
+          newComment?.commentator?.userId ||
+          user?.id ||
+          user?.userId,
+        content: newComment?.comment?.content || content,
+        userName:
+          newComment?.commentator?.displayName ||
+          newComment?.commentator?.username ||
+          user?.displayName ||
+          user?.username ||
+          "You",
+        avatarRaw:
+          newComment?.commentator?.avatarUrl ||
+          newComment?.commentator?.avatar ||
+          currentUserAvatar,
+        userAvatar: getAvatarUrl(
+          newComment?.commentator?.avatarUrl ||
+            newComment?.commentator?.avatar ||
+            currentUserAvatar,
+          user?.avatarVersion || user?.updatedAt || Date.now(),
+        ),
+        userRole: newComment?.commentator?.role || user?.role || "user",
+        createdAt: newComment?.createdAt || new Date().toISOString(),
+      };
       setComments((prev) => [newItem, ...prev]);
 
       setContent("");
@@ -62,11 +121,26 @@ export default function CommentsTab({ game }) {
     }
   };
 
-  const { requireAuth } = useRequireAuth();
+  const getRenderedCommentAvatar = (comment) => {
+    const currentUserId = user?.id || user?.userId;
+
+    const isCurrentUserComment =
+      currentUserId &&
+      comment.userId &&
+      String(currentUserId) === String(comment.userId);
+
+    if (isCurrentUserComment) {
+      return getAvatarUrl(
+        user?.avatarUrl || user?.avatar || comment.avatarRaw,
+        user?.avatarVersion || user?.updatedAt || Date.now(),
+      );
+    }
+
+    return comment.userAvatar;
+  };
 
   return (
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 md:p-10">
-      {/* INPUT */}
       <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 mb-8">
         <textarea
           value={content}
@@ -76,7 +150,6 @@ export default function CommentsTab({ game }) {
         />
       </div>
 
-      {/* BUTTON */}
       <button
         onClick={handlePost}
         disabled={loading}
@@ -85,7 +158,6 @@ export default function CommentsTab({ game }) {
         {loading ? "Posting..." : "Post Comment"}
       </button>
 
-      {/* COMMENTS LIST */}
       <div className="mt-12 max-h-[500px] overflow-y-auto pr-2 space-y-6 custom-scrollbar">
         {comments.length > 0 ? (
           comments.map((c) => (
@@ -93,12 +165,14 @@ export default function CommentsTab({ game }) {
               key={c.id}
               className="flex gap-4 p-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900 transition-all duration-300"
             >
-              {/* Avatar */}
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
-                {c.userName?.charAt(0).toUpperCase()}
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg shrink-0 overflow-hidden">
+                <img
+                  src={getRenderedCommentAvatar(c)}
+                  alt={c.userName}
+                  className="w-full h-full object-cover rounded-full"
+                />
               </div>
 
-              {/* Content */}
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-white">
@@ -113,8 +187,6 @@ export default function CommentsTab({ game }) {
                 <p className="text-zinc-300 mt-2 leading-relaxed">
                   {c.content || "No content"}
                 </p>
-
-                
               </div>
             </div>
           ))

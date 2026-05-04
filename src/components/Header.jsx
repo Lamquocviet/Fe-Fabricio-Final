@@ -17,6 +17,18 @@ const Header = ({ onOpenSidebar }) => {
   const { user, handleLogout } = useAuth();
   const { requireAuth } = useRequireAuth();
 
+  const defaultAvatar =
+    "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png";
+
+  const rawAvatarSrc = user?.avatarUrl || user?.avatar;
+
+  const avatarVersion =
+    user?.avatarVersion || user?.avatarUpdatedAt || user?.updatedAt || "";
+
+  const avatarSrc = rawAvatarSrc
+    ? `${rawAvatarSrc}?v=${avatarVersion}`
+    : defaultAvatar;
+
   const handleNavClick = (event, item) => {
     if (item.requiresAuth && !requireAuth()) {
       event.preventDefault();
@@ -24,11 +36,11 @@ const Header = ({ onOpenSidebar }) => {
   };
 
   const handleSignOut = async () => {
+    navigate("/", { replace: true });
+
     await handleLogout();
 
     toast.success("Đăng xuất thành công!");
-
-    navigate("/");
   };
 
   return (
@@ -36,11 +48,11 @@ const Header = ({ onOpenSidebar }) => {
       <div className="flex h-16 w-full items-center gap-4 px-4 lg:h-21.5 lg:px-8">
         <Link to="/" className="flex shrink-0 items-center gap-3 min-w-0">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-linear-to-br from-[#ff6a5c] to-[#ff5a3d] text-lg font-bold text-white shadow-[0_0_30px_rgba(255,98,77,0.35)] lg:h-12 lg:w-12 lg:text-xl">
-            G
+            F
           </div>
 
           <span className="truncate text-[1.8rem] font-bold tracking-tight text-white lg:text-[2rem]">
-            GameStore
+            FabricIO
           </span>
         </Link>
 
@@ -100,10 +112,7 @@ const Header = ({ onOpenSidebar }) => {
                 className="ml-1 flex items-center gap-3 rounded-[20px] bg-linear-to-r from-[#ff6a5c] to-[#ff5a3d] px-4 py-3 text-white shadow-[0_0_30px_rgba(255,98,77,0.25)] transition hover:brightness-105"
               >
                 <img
-                  src={
-                    user?.avatarUrl ||
-                    "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png"
-                  }
+                  src={avatarSrc}
                   alt={user?.username || "user"}
                   className="h-10 w-10 rounded-full object-cover ring-2 ring-white/20"
                 />

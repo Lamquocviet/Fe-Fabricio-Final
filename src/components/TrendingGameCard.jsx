@@ -31,7 +31,6 @@ export default function TrendingGameCard({
   const handleClickView = () => {
     navigate(`/games/${game.id}`);
   };
-  console.log("trending game:", game.thumbnailUrl);
 
   const { isFavorite, toggleFavorite } = useFavorites();
   const fav = isFavorite(game.id);

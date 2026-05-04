@@ -16,9 +16,12 @@ const axiosInstance = axios.create({
 });
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
+  const user = localStorage.getItem("user");
 
-  if (token) {
+  if (token && user) {
     config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
   }
 
   return config;
@@ -29,18 +32,19 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const status = error?.response?.status;
     const requestUrl = error?.config?.url || "";
-    const isAuthRequest = /\/auth\/(login|register|signin|signout|logout)/i.test(
-      requestUrl,
-    );
+
+    const isAuthRequest =
+      /\/auth\/(login|register|signin|signout|logout)/i.test(requestUrl);
+
+    const hadAuth =
+      Boolean(localStorage.getItem("user")) ||
+      Boolean(localStorage.getItem("accessToken"));
 
     if (isAuthErrorStatus(status) && !isAuthRequest) {
       clearStoredAuth();
-      notifyAuthRequired(SESSION_EXPIRED_MESSAGE);
 
-      if (window.location.pathname !== "/signin") {
-        window.setTimeout(() => {
-          window.location.href = "/signin";
-        }, 300);
+      if (hadAuth) {
+        notifyAuthRequired(SESSION_EXPIRED_MESSAGE);
       }
     }
 
