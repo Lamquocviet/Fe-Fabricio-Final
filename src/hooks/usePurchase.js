@@ -1,43 +1,60 @@
 import { useEffect, useState, useCallback } from "react";
 import { getPurchaseHistory } from "@/services/gameService";
-// import { usePurchase } from "@/hooks/usePurchase";
+import useAuth from "@/contexts/AuthContext";
+import { isAuthenticatedUser } from "@/utils/authGuard";
 
 export const usePurchase = () => {
-  const [purchasedIds, setPurchasedIds] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth() || {};
 
-  
+  const [purchasedIds, setPurchasedIds] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const isAuthenticated = isAuthenticatedUser(user);
+
   const fetchPurchased = useCallback(async () => {
+    if (!isAuthenticated) {
+      setPurchasedIds([]);
+      setLoading(false);
+      return [];
+    }
+
     try {
       setLoading(true);
 
       const data = await getPurchaseHistory();
-
-      // console.log("PURCHASE RAW:", data);
 
       const extractIdFromThumbnail = (url) => {
         const match = url?.match(/game-assets\/([a-z0-9-]+)\//i);
         return match ? match[1] : null;
       };
 
-
-      const ids = (data || []).map((g) =>
-        String(extractIdFromThumbnail(g.thumbnailUrl)),
-      );
+      const ids = (data || [])
+        .map((g) => extractIdFromThumbnail(g.thumbnailUrl))
+        .filter(Boolean)
+        .map(String);
 
       setPurchasedIds(ids);
+
+      return ids;
     } catch (err) {
+      const status = err?.response?.status;
+
+      if (status === 401 || status === 403) {
+        setPurchasedIds([]);
+        return [];
+      }
+
       console.error(err);
+      return [];
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     fetchPurchased();
   }, [fetchPurchased]);
 
-  // update ngay UI sau khi mua
   const addPurchasedId = useCallback((gameId) => {
     setPurchasedIds((prev) => {
       const idStr = String(gameId);

@@ -1,7 +1,10 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+
+import useAuth from "@/contexts/AuthContext";
 
 import { useProfile } from "@/hooks/useProfile";
 import useRequireAuth from "@/hooks/useRequireAuth";
@@ -39,6 +42,8 @@ const ProfilePage = () => {
 
   const { user, loading, saving, message, updateProfile } = useProfile();
 
+  const { updateAuthUser, fetchMyProfile } = useAuth();
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [failedAvatarSrc, setFailedAvatarSrc] = useState("");
@@ -53,7 +58,9 @@ const ProfilePage = () => {
   const [avatarVersion, setAvatarVersion] = useState(0);
 
   const profileName = getProfileName(user);
-  const avatarSrc = (user?.avatarUrl || user?.avatar) + `?v=${avatarVersion}`;
+
+  const rawAvatarSrc = user?.avatarUrl || user?.avatar || "";
+  const avatarSrc = rawAvatarSrc ? `${rawAvatarSrc}?v=${avatarVersion}` : "";
 
   const shouldShowAvatarImage =
     Boolean(avatarSrc) && failedAvatarSrc !== avatarSrc;
@@ -80,7 +87,16 @@ const ProfilePage = () => {
       avatarFile: formData.avatarFile,
     });
 
-    setAvatarVersion((prev) => prev + 1);
+    const freshUser = await fetchMyProfile();
+
+    const newAvatarVersion = Date.now();
+
+    updateAuthUser({
+      ...freshUser,
+      avatarVersion: newAvatarVersion,
+    });
+
+    setAvatarVersion(newAvatarVersion);
     setFailedAvatarSrc("");
 
     setIsEditing(false);

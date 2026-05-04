@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* global Buffer, process */
 import axios from "axios";
 import path from "node:path";
@@ -71,6 +72,7 @@ const GAMES = [
     price: 0,
     tags: ["Racing", "Arcade", "Cyberpunk", "Browser"],
     theme: "#1d4ed8",
+    GameType: "Browser",
     Thumbnail: "../game files/games image/2048-game.png",
     GameFile: "../game files/games zip/2048-master.zip",
   },
@@ -82,6 +84,7 @@ const GAMES = [
     price: 4.99,
     tags: ["Cozy", "Simulation", "Casual", "Indie"],
     theme: "#15803d",
+    GameType: "Browser",
     Thumbnail: "../game files/games image/tetris-game.png",
     GameFile: "../game files/games zip/canvas-tetris-master.zip",
   },
@@ -93,6 +96,7 @@ const GAMES = [
     price: 2.99,
     tags: ["Sci-Fi", "Arcade", "Action", "Browser"],
     theme: "#7c3aed",
+    GameType: "Download",
     Thumbnail: "../game files/games image/clumsy-bird.png",
     GameFile: "../game files/games zip/clumsy-bird-master.zip",
   },
@@ -104,6 +108,7 @@ const GAMES = [
     price: 6.5,
     tags: ["RPG", "Fantasy", "Strategy", "Adventure"],
     theme: "#b45309",
+    GameType: "Download",
     Thumbnail: "../game files/games image/javascript-racer.jpg",
     GameFile: "../game files/games zip/javascript-racer-master.zip",
   },
@@ -115,6 +120,7 @@ const GAMES = [
     price: 1.99,
     tags: ["Puzzle", "Horror", "Indie", "Sci-Fi"],
     theme: "#374151",
+    GameType: "Download",
     Thumbnail: "../game files/games image/serenitrove.png",
     GameFile: "../game files/games zip/serenitrove.zip",
   },
@@ -126,6 +132,7 @@ const GAMES = [
     price: 5.0,
     tags: ["Simulation", "Strategy", "Indie"],
     theme: "#9d174d",
+    GameType: "Download",
     Thumbnail: "../game files/games image/Tower-Building-Game.jpg",
     GameFile: "../game files/games zip/tower_game-master.zip",
   },
@@ -356,7 +363,7 @@ const seedGames = async (publicClient, usersByUsername, tagsByName) => {
 
     formData.append("Title", game.title);
     formData.append("Description", game.description);
-    formData.append("GameType", "Browser");
+    formData.append("GameType", game.GameType);
     formData.append("Price", String(game.price));
     
     formData.append(

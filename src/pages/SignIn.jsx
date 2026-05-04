@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import useAuth from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -66,7 +67,6 @@ const Login = () => {
 
     return "";
   };
-
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -107,8 +107,23 @@ const Login = () => {
     }
   };
 
+  const onClick = () => {
+    navigate("/");
+  };
+
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(255,90,59,0.18),transparent_28%),radial-gradient(circle_at_top_right,rgba(255,90,59,0.12),transparent_22%),linear-gradient(180deg,#050505_0%,#0a0a0c_45%,#040404_100%)] px-4 py-6 md:px-6 flex items-center justify-center text-white">
+    <div className="relative min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(255,90,59,0.18),transparent_28%),radial-gradient(circle_at_top_right,rgba(255,90,59,0.12),transparent_22%),linear-gradient(180deg,#050505_0%,#0a0a0c_45%,#040404_100%)] px-4 py-6 md:px-6 flex items-center justify-center text-white">
+      <Link
+        to="/"
+        className="group absolute left-4 top-4 z-20 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2.5 text-sm font-semibold text-zinc-300 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition hover:border-orange-400/30 hover:bg-orange-400/10 hover:text-white md:left-6 md:top-6"
+      >
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 transition group-hover:bg-orange-400/20">
+          <ArrowLeft className="h-4 w-4 transition group-hover:-translate-x-0.5" />
+        </span>
+        <span>
+          Back to <span className="text-[#ff7a59]">FabricIO</span>
+        </span>
+      </Link>
       <div className="w-full max-w-7xl overflow-hidden rounded-[22px] md:rounded-[28px] border border-white/10 bg-[#141418]/70 backdrop-blur-md shadow-[0_20px_80px_rgba(0,0,0,0.45)] grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="order-2 lg:order-1 px-4 py-5 sm:px-6 md:px-8 lg:px-9 flex items-center justify-center bg-linear-to-b from-white/2 to-white/1">
           <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0a0a0c]/80 p-5 sm:p-6 md:p-8 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
@@ -218,8 +233,11 @@ const Login = () => {
         </div>
 
         <div className="order-1 lg:order-2 border-b lg:border-b-0 lg:border-l border-white/10 px-5 py-8 sm:px-8 md:px-10 lg:px-12 lg:py-14 bg-[radial-gradient(circle_at_top_right,rgba(255,95,65,0.18),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] flex flex-col justify-center">
-          <span className="inline-block rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-sm font-semibold text-orange-300 w-fit">
-            Back to GameStore
+          <span
+            onClick={() => navigate("/")}
+            className="inline-block rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-sm font-semibold text-orange-300 w-fit cursor-pointer transition hover:bg-orange-400/20"
+          >
+            Back to FabricIO
           </span>
 
           <h1 className="mt-5 text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight text-zinc-100">

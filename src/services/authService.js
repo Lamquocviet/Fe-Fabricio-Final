@@ -32,7 +32,7 @@ export const getMyProfile = async () => {
       localStorage.setItem("user", JSON.stringify(res.data.user));
     }
 
-    return res.data;
+    return res;
   } catch (error) {
     throw new Error(
       error?.response?.data?.message || "Không lấy được thông tin cá nhân",

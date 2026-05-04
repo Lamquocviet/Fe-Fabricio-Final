@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import FeaturedDropSection from "../sections/FeaturedDropSection";
@@ -9,62 +9,88 @@ import useHomeFeed from "../hooks/useHomeFeed";
 import usePosts from "../hooks/usePost";
 import useAuth from "@/contexts/AuthContext";
 
-import { gameLibraryService } from "@/services/gameService";
-
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-
   const { user } = useAuth();
-  
-  const { featuredGames, topRatedGames, posts, loading, error, refetch } =
-    useHomeFeed();
-  
 
+  const { featuredGames, topRatedGames, loading, error, refetch } =
+    useHomeFeed();
 
   const {
+    trendingPosts,
     comments,
     deleting,
     updatePost,
     deletePost,
+    getTrendingPosts,
     getPostComments,
     createComment,
     createReaction,
     removeReaction,
   } = usePosts({ page: 1, limit: 10 });
 
-  
+  useEffect(() => {
+    getTrendingPosts();
+  }, [getTrendingPosts]);
 
   const handleUpdatePost = async (postId, payload) => {
     await updatePost(postId, payload);
-    await refetch({ silent: true });
+    await getTrendingPosts();
   };
 
   const handleDeletePost = async (postId) => {
     await deletePost(postId);
-    await refetch({ silent: true });
+    await getTrendingPosts();
   };
 
   const handleCreateComment = async (postId, payload) => {
     await createComment(postId, payload);
     await getPostComments(postId, 1, 5);
+    await getTrendingPosts();
   };
 
   if (loading) {
     return (
-      <div className="space-y-6 bg-[#050505] px-4 py-6 text-white lg:px-6">
-        <div className="h-90 animate-pulse rounded-[30px] bg-white/5" />
-        <div className="h-105 animate-pulse rounded-[30px] bg-white/5" />
-        <div className="h-80 animate-pulse rounded-[30px] bg-white/5" />
+      <div className="min-h-screen bg-[#050505] text-white">
+        <Header onOpenSidebar={() => setIsSidebarOpen(true)} />
+
+        <div className="flex me-4">
+          <Sidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+          />
+
+          <main className="flex-1">
+            <div className="space-y-8 px-4 py-6 lg:p-0">
+              <div className="h-90 animate-pulse rounded-[30px] bg-white/5" />
+              <div className="h-105 animate-pulse rounded-[30px] bg-white/5" />
+              <div className="h-80 animate-pulse rounded-[30px] bg-white/5" />
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-[#050505] px-4 py-6 text-white lg:px-6">
-        <div className="rounded-3xl border border-red-500/20 bg-red-500/10 p-5 text-red-200">
-          Failed to load home feed: {error}
+      <div className="min-h-screen bg-[#050505] text-white">
+        <Header onOpenSidebar={() => setIsSidebarOpen(true)} />
+
+        <div className="flex me-4">
+          <Sidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+          />
+
+          <main className="flex-1">
+            <div className="px-4 py-6 lg:p-0">
+              <div className="rounded-3xl border border-red-500/20 bg-red-500/10 p-5 text-red-200">
+                Failed to load home feed: {error}
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     );
@@ -86,10 +112,10 @@ export default function Home() {
 
             <FeaturedGamesSection games={topRatedGames.slice(0, 2)} />
 
-            <TrendingNowSection games={topRatedGames.slice(2, 6)}/>
+            <TrendingNowSection games={topRatedGames.slice(2, 6)} />
 
             <LatestPostsSection
-              posts={posts}
+              posts={trendingPosts || []}
               currentUser={user}
               comments={comments}
               onUpdatePost={handleUpdatePost}

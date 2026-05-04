@@ -78,8 +78,6 @@ export const gameLibraryService = {
 
       const res = await axiosInstance.get("/Games", { params });
 
-      console.log("API response:", res.data);
-
       return res.data;
     } catch (error) {
       console.error("API ERROR:", error);

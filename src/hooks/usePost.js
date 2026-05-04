@@ -9,13 +9,16 @@ import {
   createComment,
   createReaction,
   removeReaction,
+  getTrendingPosts as getTrendingPostsApi,
 } from "../services/postService";
+
 import useRequireAuth from "@/hooks/useRequireAuth";
 
 export default function usePosts({ page = 1, limit = 10 } = {}) {
   const { ensureAuth } = useRequireAuth();
 
   const [posts, setPosts] = useState([]);
+  const [trendingPosts, setTrendingPosts] = useState([]);
   const [comments, setComments] = useState({});
   const [pagination, setPagination] = useState(null);
 
@@ -33,16 +36,19 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
         ...post,
 
         name: author?.displayName || "Unknown User",
-        avatar:
-          author?.avatarUrl ||
-          "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png",
+
+        avatar: author?.avatarUrl
+          ? author.avatarUrl.startsWith("http")
+            ? author.avatarUrl
+            : `http://localhost/${author.avatarUrl}`
+          : "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png",
+
         role: author?.role || "user",
 
         time: post.createdAt
           ? new Date(post.createdAt).toLocaleString("vi-VN")
           : "",
 
-        // ✅ FIX QUAN TRỌNG: giữ lại object { id, mediaUrl }
         media:
           post.media
             ?.map((item) => {
@@ -51,7 +57,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
               let url = item.mediaUrl;
 
               if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                url = `http://${url}`;
+                url = `http://localhost/${url}`;
               }
 
               return {
@@ -71,7 +77,8 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
         ...post,
 
         name: "Unknown User",
-        avatar: "/default-avatar.png",
+        avatar:
+          "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png",
 
         time: post?.createdAt
           ? new Date(post.createdAt).toLocaleString("vi-VN")
@@ -85,7 +92,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
               let url = item.mediaUrl;
 
               if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                url = `http://${url}`;
+                url = `http://localhost/${url}`;
               }
 
               return {
@@ -103,6 +110,29 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
     }
   }, []);
 
+  const fetchTrendingPosts = useCallback(async () => {
+    try {
+      setError("");
+
+      const res = await getTrendingPostsApi();
+
+      const rawTrendingPosts = Array.isArray(res)
+        ? res
+        : res?.items || res?.data || [];
+
+      const trendingPostsWithAuthor = rawTrendingPosts.map((post) =>
+        mapPostWithAuthor(post),
+      );
+
+      setTrendingPosts(trendingPostsWithAuthor);
+
+      return trendingPostsWithAuthor;
+    } catch (err) {
+      setError(err.message || "Không lấy được bài viết thịnh hành");
+      throw err;
+    }
+  }, [mapPostWithAuthor]);
+
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
@@ -110,20 +140,20 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
       const res = await getPosts({ page, limit });
 
-      const rawPosts = res?.items || [];
+      const rawPosts = res?.items || res?.data || [];
 
-      const postsWithAuthor = await Promise.all(
-        rawPosts.map((post) => mapPostWithAuthor(post)),
-      );
+      const postsWithAuthor = rawPosts.map((post) => mapPostWithAuthor(post));
 
       setPosts(postsWithAuthor);
       setPagination(res?.page || null);
+
+      await fetchTrendingPosts();
     } catch (err) {
       setError(err.message || "Không lấy được danh sách bài viết");
     } finally {
       setLoading(false);
     }
-  }, [page, limit, mapPostWithAuthor]);
+  }, [page, limit, mapPostWithAuthor, fetchTrendingPosts]);
 
   const handleCreatePost = async (payload) => {
     try {
@@ -131,13 +161,14 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
       setCreating(true);
       setError("");
 
-      console.log("Created post response:", payload);
-
       const res = await createPost(payload);
 
-      const newPost = await mapPostWithAuthor(res.data);
+      const createdPost = res?.data || res;
+      const newPost = mapPostWithAuthor(createdPost);
 
       setPosts((prevPosts) => [newPost, ...prevPosts]);
+
+      await fetchTrendingPosts();
 
       return res;
     } catch (err) {
@@ -155,6 +186,8 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
       setError("");
 
       await updatePost(postId, payload);
+
+      await fetchPosts();
     } catch (err) {
       setError(err.message || "Cập nhật bài viết thất bại");
       throw err;
@@ -172,6 +205,9 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
       await deletePost(postId);
 
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+      setTrendingPosts((prevPosts) =>
+        prevPosts.filter((post) => post.id !== postId),
+      );
     } catch (err) {
       setError(err.message || "Xóa bài viết thất bại");
       throw err;
@@ -183,17 +219,23 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
   const handleCreateReaction = async (postId, type) => {
     try {
       ensureAuth();
+
       await createReaction(postId, type);
+
+      await fetchTrendingPosts();
     } catch (err) {
       setError(err.message || "Thêm phản ứng thất bại");
       throw err;
     }
   };
 
-  const handleRemoveReaction = async (postId, type) => {
+  const handleRemoveReaction = async (postId) => {
     try {
       ensureAuth();
+
       await removeReaction(postId);
+
+      await fetchTrendingPosts();
     } catch (err) {
       setError(err.message || "Xoá phản ứng thất bại");
       throw err;
@@ -229,6 +271,8 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
       setError("");
 
       await createComment(postId, { content });
+
+      await fetchTrendingPosts();
     } catch (err) {
       setError(err.message || "Tạo bình luận thất bại");
       throw err;
@@ -243,6 +287,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
   return {
     posts,
+    trendingPosts,
     comments,
     pagination,
 
@@ -252,6 +297,8 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
     error,
 
     refetch: fetchPosts,
+    getTrendingPosts: fetchTrendingPosts,
+
     createPost: handleCreatePost,
     updatePost: handleUpdatePost,
     deletePost: handleDeletePost,

@@ -27,7 +27,7 @@ const normalizeMediaUrl = (url) => {
     return url;
   }
 
-  return `http://${url}`;
+  return `http://localhost/${url}`;
 };
 
 const getItemsFromResponse = (response) => {
@@ -78,6 +78,8 @@ export default function ProfileTab({ user }) {
     return <p className="text-white">Loading profile...</p>;
   }
 
+  console.log(posts);
+
   const mapPostWithAuthor = useCallback(
     (post) => {
       const author = post?.author || {};
@@ -97,7 +99,7 @@ export default function ProfileTab({ user }) {
           user?.username ||
           "Unknown User",
         username,
-        avatar: author?.avatarUrl || user?.avatarUrl || user?.avatar || DEFAULT_AVATAR,
+        avatar: ("http://localhost/" + (author?.avatarUrl || DEFAULT_AVATAR)),
         role: author?.role || user?.role || "user",
         time: post?.createdAt
           ? new Date(post.createdAt).toLocaleString("vi-VN")

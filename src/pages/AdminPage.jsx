@@ -41,58 +41,112 @@ import useRequireAuth from "@/hooks/useRequireAuth";
 
 /* ─────────────── Sub-components ─────────────── */
 
+const DEFAULT_AVATAR =
+  "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png";
+
+const getUserAvatarUrl = (user) => {
+  const avatarUrl = user?.avatarUrl;
+
+  if (!avatarUrl) {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      user?.username || user?.displayName || "User",
+    )}`;
+  }
+
+  if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) {
+    return avatarUrl;
+  }
+
+  return `http://localhost/${avatarUrl}`;
+};
+
 const StatCard = ({ title, value, icon: Icon, color, trend }) => (
-  <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[32px] p-8 hover:border-white/10 transition-all group relative overflow-hidden">
-    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl -mr-16 -mt-16 group-hover:bg-white/10 transition-colors" />
-    <div className="flex items-start justify-between relative z-10">
-      <div className={`p-4 rounded-2xl ${color} bg-opacity-10 group-hover:scale-110 transition-transform duration-500`}>
-        <Icon className={`w-7 h-7 ${color.replace('bg-', 'text-')}`} />
+  <div className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.035] p-6 transition-all hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.055]">
+    <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-white/5 blur-3xl transition group-hover:bg-white/10" />
+
+    <div className="relative z-10 flex items-start justify-between gap-4">
+      <div
+        className={`flex h-13 w-13 items-center justify-center rounded-2xl ${color} bg-opacity-10`}
+      >
+        <Icon className={`h-6 w-6 ${color.replace("bg-", "text-")}`} />
       </div>
+
       {trend && (
-        <span className="flex items-center gap-1.5 text-xs font-black text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
-          <TrendingUp className="w-3 h-3" />
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-400">
+          <TrendingUp className="h-3 w-3" />
           {trend}
         </span>
       )}
     </div>
-    <div className="mt-8 relative z-10">
-      <h3 className="text-zinc-500 text-sm font-black uppercase tracking-widest">{title}</h3>
-      <p className="text-4xl font-black text-white mt-2 tracking-tight">{value}</p>
+
+    <div className="relative z-10 mt-6">
+      <h3 className="text-xs font-black uppercase tracking-[0.18em] text-zinc-500">
+        {title}
+      </h3>
+
+      <p className="mt-2 text-4xl font-black tracking-tight text-white">
+        {value}
+      </p>
     </div>
   </div>
 );
 
-const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText = "Xác nhận", type = "danger" }) => {
+const ConfirmationModal = ({
+  isOpen,
+  title,
+  message,
+  onConfirm,
+  onCancel,
+  confirmText = "Xác nhận",
+  type = "danger",
+}) => {
   if (!isOpen) return null;
 
   const getStyles = () => {
     switch (type) {
-      case 'warning': return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
-      case 'info': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
-      case 'success': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
-      default: return 'bg-rose-500/10 text-rose-500 border-rose-500/20';
+      case "warning":
+        return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+      case "info":
+        return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+      case "success":
+        return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+      default:
+        return "bg-rose-500/10 text-rose-500 border-rose-500/20";
     }
   };
 
   const getBtnStyles = () => {
     switch (type) {
-      case 'warning': return 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/20';
-      case 'info': return 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/20';
-      case 'success': return 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20';
-      default: return 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/20';
+      case "warning":
+        return "bg-amber-600 hover:bg-amber-500 shadow-amber-600/20";
+      case "info":
+        return "bg-blue-600 hover:bg-blue-500 shadow-blue-600/20";
+      case "success":
+        return "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20";
+      default:
+        return "bg-rose-600 hover:bg-rose-500 shadow-rose-600/20";
     }
   };
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
       <div className="w-full max-w-md bg-zinc-950 border border-white/10 rounded-[40px] p-10 shadow-2xl animate-in zoom-in-95 duration-300">
-        <div className={`w-20 h-20 rounded-3xl mb-8 flex items-center justify-center border ${getStyles()}`}>
+        <div
+          className={`w-20 h-20 rounded-3xl mb-8 flex items-center justify-center border ${getStyles()}`}
+        >
           <AlertCircle className="w-10 h-10" />
         </div>
-        <h3 className="text-3xl font-black text-white mb-4 tracking-tight">{title}</h3>
-        <p className="text-zinc-400 leading-relaxed mb-10 text-lg font-medium">{message}</p>
+        <h3 className="text-3xl font-black text-white mb-4 tracking-tight">
+          {title}
+        </h3>
+        <p className="text-zinc-400 leading-relaxed mb-10 text-lg font-medium">
+          {message}
+        </p>
         <div className="flex gap-4">
-          <button onClick={onCancel} className="flex-1 py-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl font-black transition-all border border-white/5 active:scale-95">
+          <button
+            onClick={onCancel}
+            className="flex-1 py-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl font-black transition-all border border-white/5 active:scale-95"
+          >
             Hủy bỏ
           </button>
           <button
@@ -123,10 +177,20 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [detailTab, setDetailTab] = useState("info");
-  const [userContent, setUserContent] = useState({ games: [], posts: [], loading: false });
+  const [userContent, setUserContent] = useState({
+    games: [],
+    posts: [],
+    loading: false,
+  });
 
   // Confirmation state
-  const [confirmData, setConfirmData] = useState({ isOpen: false, action: null, title: "", message: "", type: "danger" });
+  const [confirmData, setConfirmData] = useState({
+    isOpen: false,
+    action: null,
+    title: "",
+    message: "",
+    type: "danger",
+  });
 
   // Role Protection
   useEffect(() => {
@@ -149,7 +213,7 @@ export default function AdminPage() {
       totalUsers: users.length,
       totalGames: games.length,
       totalPosts: posts.length,
-      activeUsers: users.filter(u => !u.isBanned).length,
+      activeUsers: users.filter((u) => !u.isBanned).length,
     };
   }, [users, games, posts]);
 
@@ -160,20 +224,22 @@ export default function AdminPage() {
       const [usersRes, gamesRes, postsRes] = await Promise.allSettled([
         adminService.getAllUsers(),
         adminService.getAllGames(),
-        adminService.getAllPosts(1, 1000)
+        adminService.getAllPosts(1, 1000),
       ]);
 
       if (usersRes.status === "fulfilled") setUsers(usersRes.value || []);
 
       if (gamesRes.status === "fulfilled") {
         const gData = gamesRes.value;
-        const gamesList = gData?.games || gData?.Games || (Array.isArray(gData) ? gData : []);
+        const gamesList =
+          gData?.games || gData?.Games || (Array.isArray(gData) ? gData : []);
         setGames(gamesList);
       }
 
       if (postsRes.status === "fulfilled") {
         const pData = postsRes.value;
-        const postsList = pData?.items || pData?.Items || (Array.isArray(pData) ? pData : []);
+        const postsList =
+          pData?.items || pData?.Items || (Array.isArray(pData) ? pData : []);
         setPosts(postsList);
       }
     } catch (err) {
@@ -191,23 +257,37 @@ export default function AdminPage() {
   useEffect(() => {
     if (selectedUser && detailTab !== "info") {
       const fetchUserContent = async () => {
-        setUserContent(prev => ({ ...prev, loading: true }));
+        setUserContent((prev) => ({ ...prev, loading: true }));
         try {
           const userId = selectedUser.id || selectedUser.Id;
 
           // Fetch Games and filter by OwnerId
           const gamesRes = await adminService.getAllGames();
-          const allGames = gamesRes?.games || gamesRes?.Games || (Array.isArray(gamesRes) ? gamesRes : []);
-          const userGames = allGames.filter(g => (g.ownerId || g.OwnerId) === userId);
+          const allGames =
+            gamesRes?.games ||
+            gamesRes?.Games ||
+            (Array.isArray(gamesRes) ? gamesRes : []);
+          const userGames = allGames.filter(
+            (g) => (g.ownerId || g.OwnerId) === userId,
+          );
 
           // Fetch Posts using user-specific API
-          const postsRes = await userService.getUserPosts(userId, { limit: 100 });
-          const userPosts = postsRes?.items || postsRes?.Items || (Array.isArray(postsRes) ? postsRes : []);
+          const postsRes = await userService.getUserPosts(userId, {
+            limit: 100,
+          });
+          const userPosts =
+            postsRes?.items ||
+            postsRes?.Items ||
+            (Array.isArray(postsRes) ? postsRes : []);
 
-          setUserContent({ games: userGames, posts: userPosts, loading: false });
+          setUserContent({
+            games: userGames,
+            posts: userPosts,
+            loading: false,
+          });
         } catch (err) {
           console.error("Error fetching user content:", err);
-          setUserContent(prev => ({ ...prev, loading: false }));
+          setUserContent((prev) => ({ ...prev, loading: false }));
         }
       };
       fetchUserContent();
@@ -222,13 +302,16 @@ export default function AdminPage() {
   const handleUpdateGameBan = async (userId, currentStatus) => {
     try {
       await adminService.updateGameBan(userId, !currentStatus);
-      toast.success(!currentStatus ? "Đã cấm upload game" : "Đã gỡ cấm upload game");
+      toast.success(
+        !currentStatus ? "Đã cấm upload game" : "Đã gỡ cấm upload game",
+      );
       loadAllData();
-      if (selectedUser?.id === userId) setSelectedUser(prev => ({ ...prev, isGameBanned: !currentStatus }));
+      if (selectedUser?.id === userId)
+        setSelectedUser((prev) => ({ ...prev, isGameBanned: !currentStatus }));
     } catch (err) {
       toast.error("Thao tác thất bại");
     } finally {
-      setConfirmData(prev => ({ ...prev, isOpen: false }));
+      setConfirmData((prev) => ({ ...prev, isOpen: false }));
     }
   };
 
@@ -237,24 +320,28 @@ export default function AdminPage() {
       await adminService.updatePostBan(userId, !currentStatus);
       toast.success(!currentStatus ? "Đã cấm đăng bài" : "Đã gỡ cấm đăng bài");
       loadAllData();
-      if (selectedUser?.id === userId) setSelectedUser(prev => ({ ...prev, isPostBanned: !currentStatus }));
+      if (selectedUser?.id === userId)
+        setSelectedUser((prev) => ({ ...prev, isPostBanned: !currentStatus }));
     } catch (err) {
       toast.error("Thao tác thất bại");
     } finally {
-      setConfirmData(prev => ({ ...prev, isOpen: false }));
+      setConfirmData((prev) => ({ ...prev, isOpen: false }));
     }
   };
 
   const handleUpdateAccountBan = async (userId, currentStatus) => {
     try {
       await adminService.updateAccountBan(userId, !currentStatus);
-      toast.success(!currentStatus ? "Đã khóa tài khoản" : "Đã mở khóa tài khoản");
+      toast.success(
+        !currentStatus ? "Đã khóa tài khoản" : "Đã mở khóa tài khoản",
+      );
       loadAllData();
-      if (selectedUser?.id === userId) setSelectedUser(prev => ({ ...prev, isBanned: !currentStatus }));
+      if (selectedUser?.id === userId)
+        setSelectedUser((prev) => ({ ...prev, isBanned: !currentStatus }));
     } catch (err) {
       toast.error("Thao tác thất bại");
     } finally {
-      setConfirmData(prev => ({ ...prev, isOpen: false }));
+      setConfirmData((prev) => ({ ...prev, isOpen: false }));
     }
   };
 
@@ -262,11 +349,11 @@ export default function AdminPage() {
     try {
       await adminService.deleteGame(gameId);
       toast.success("Đã xóa game vĩnh viễn");
-      setGames(prev => prev.filter(g => g.id !== gameId));
+      setGames((prev) => prev.filter((g) => g.id !== gameId));
     } catch (err) {
       toast.error("Xóa game thất bại");
     } finally {
-      setConfirmData(prev => ({ ...prev, isOpen: false }));
+      setConfirmData((prev) => ({ ...prev, isOpen: false }));
     }
   };
 
@@ -274,30 +361,59 @@ export default function AdminPage() {
     try {
       await adminService.deletePost(postId);
       toast.success("Đã xóa bài viết");
-      setPosts(prev => prev.filter(p => p.id !== postId));
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
     } catch (err) {
       toast.error("Xóa bài viết thất bại");
     } finally {
-      setConfirmData(prev => ({ ...prev, isOpen: false }));
+      setConfirmData((prev) => ({ ...prev, isOpen: false }));
     }
   };
 
   /* ────────── Render Views ────────── */
 
   const renderDashboard = () => {
-    const chartData = posts.slice(0, 10).map((p, i) => ({
-      name: new Date(p.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
-      posts: Math.floor(Math.random() * 20) + 5,
-      users: Math.floor(Math.random() * 10) + 2,
-    })).reverse();
+    const chartData = posts
+      .slice(0, 10)
+      .map((p, i) => ({
+        name: new Date(p.createdAt).toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+        }),
+        posts: Math.floor(Math.random() * 20) + 5,
+        users: Math.floor(Math.random() * 10) + 2,
+      }))
+      .reverse();
 
     return (
       <div className="space-y-10 animate-in fade-in duration-700">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <StatCard title="Người dùng" value={stats.totalUsers} icon={Users} color="bg-blue-500" trend="+12%" />
-          <StatCard title="Tổng Game" value={stats.totalGames} icon={Gamepad2} color="bg-violet-500" trend="+5%" />
-          <StatCard title="Bài viết" value={stats.totalPosts} icon={FileText} color="bg-emerald-500" trend="+18%" />
-          <StatCard title="Đang hoạt động" value={stats.activeUsers} icon={Zap} color="bg-amber-500" />
+          <StatCard
+            title="Người dùng"
+            value={stats.totalUsers}
+            icon={Users}
+            color="bg-blue-500"
+            trend="+12%"
+          />
+          <StatCard
+            title="Tổng Game"
+            value={stats.totalGames}
+            icon={Gamepad2}
+            color="bg-violet-500"
+            trend="+5%"
+          />
+          <StatCard
+            title="Bài viết"
+            value={stats.totalPosts}
+            icon={FileText}
+            color="bg-emerald-500"
+            trend="+18%"
+          />
+          <StatCard
+            title="Đang hoạt động"
+            value={stats.activeUsers}
+            icon={Zap}
+            color="bg-amber-500"
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -315,14 +431,42 @@ export default function AdminPage() {
                       <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
-                  <XAxis dataKey="name" stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#09090b', border: '1px solid #27272a', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', padding: '16px' }}
-                    itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#27272a"
+                    vertical={false}
                   />
-                  <Area type="monotone" dataKey="posts" stroke="#8b5cf6" strokeWidth={5} fillOpacity={1} fill="url(#colorPosts)" />
+                  <XAxis
+                    dataKey="name"
+                    stroke="#71717a"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    stroke="#71717a"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#09090b",
+                      border: "1px solid #27272a",
+                      borderRadius: "24px",
+                      boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+                      padding: "16px",
+                    }}
+                    itemStyle={{ color: "#fff", fontWeight: "bold" }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="posts"
+                    stroke="#8b5cf6"
+                    strokeWidth={5}
+                    fillOpacity={1}
+                    fill="url(#colorPosts)"
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -334,15 +478,22 @@ export default function AdminPage() {
               Báo cáo mới
             </h3>
             <div className="space-y-6">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="flex gap-6 p-5 rounded-[28px] bg-white/5 hover:bg-white/10 transition-all border border-white/0 hover:border-white/5 group relative overflow-hidden">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="flex gap-6 p-5 rounded-[28px] bg-white/5 hover:bg-white/10 transition-all border border-white/0 hover:border-white/5 group relative overflow-hidden"
+                >
                   <div className="absolute top-0 right-0 w-1 bg-amber-500 h-0 group-hover:h-full transition-all duration-500" />
                   <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
                     <AlertCircle className="w-7 h-7 text-amber-500" />
                   </div>
                   <div>
-                    <p className="text-base text-white font-black">Vi phạm cộng đồng</p>
-                    <p className="text-sm text-zinc-500 mt-1 line-clamp-1 font-medium">Người dùng bị báo cáo do ngôn từ...</p>
+                    <p className="text-base text-white font-black">
+                      Vi phạm cộng đồng
+                    </p>
+                    <p className="text-sm text-zinc-500 mt-1 line-clamp-1 font-medium">
+                      Người dùng bị báo cáo do ngôn từ...
+                    </p>
                   </div>
                 </div>
               ))}
@@ -354,9 +505,10 @@ export default function AdminPage() {
   };
 
   const renderUsers = () => {
-    const filtered = users.filter(u =>
-      u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.displayName?.toLowerCase().includes(searchQuery.toLowerCase())
+    const filtered = users.filter(
+      (u) =>
+        u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.displayName?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     return (
@@ -375,30 +527,50 @@ export default function AdminPage() {
           <table className="w-full text-left text-sm">
             <thead className="bg-white/5 text-zinc-500 font-black uppercase tracking-[0.2em] text-[11px]">
               <tr>
-                <th className="px-10 py-7">Hồ sơ</th>
-                <th className="px-10 py-7">Phân quyền</th>
-                <th className="px-10 py-7">Trạng thái khóa</th>
+                <th className="px-6 py-5">Hồ sơ</th>
+                <th className="px-6 py-5">Phân quyền</th>
+                <th className="px-6 py-5">Trạng thái khóa</th>
                 <th className="px-10 py-7 text-right">Hành động</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {filtered.map(user => (
-                <tr key={user.id} className="group hover:bg-white/[0.03] transition-all">
-                  <td className="px-10 py-7 whitespace-nowrap">
+              {filtered.map((user) => (
+                <tr
+                  key={user.id}
+                  className="group hover:bg-white/[0.03] transition-all"
+                >
+                  <td className="px-6 py-5 whitespace-nowrap">
                     <div className="flex items-center gap-5">
                       <div className="relative">
-                        <img src={user.avatarUrl || `https://ui-avatars.com/api/?name=${user.username}`} className="w-14 h-14 rounded-[24px] object-cover border-2 border-white/10 group-hover:border-violet-500 transition-all duration-500" />
-                        <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-4 border-zinc-900 ${user.isBanned ? 'bg-rose-500' : 'bg-emerald-500'}`} />
+                        <img
+                          src={getUserAvatarUrl(user)}
+                          alt={user.displayName || user.username || "User"}
+                          className="w-14 h-14 rounded-[24px] object-cover border-2 border-white/10 group-hover:border-violet-500 transition-all duration-500"
+                        />
+
+                        <div
+                          className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-4 border-zinc-900 ${
+                            user.isBanned ? "bg-rose-500" : "bg-emerald-500"
+                          }`}
+                        />
                       </div>
                       <div>
-                        <p className="font-black text-white text-lg tracking-tight">{user.displayName}</p>
-                        <p className="text-xs text-zinc-500 font-bold uppercase tracking-wider">@{user.username}</p>
+                        <p className="font-black text-white text-lg tracking-tight">
+                          {user.displayName}
+                        </p>
+                        <p className="text-xs text-zinc-500 font-bold uppercase tracking-wider">
+                          @{user.username}
+                        </p>
                       </div>
                     </div>
                   </td>
                   <td className="px-10 py-7 whitespace-nowrap">
-                    <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg ${user.role === 'Admin' || user.role === '1' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
-                      {user.role === 'Admin' || user.role === '1' ? 'Administrator' : 'Standard User'}
+                    <span
+                      className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg ${user.role === "Admin" || user.role === "1" ? "bg-rose-500/10 text-rose-500 border border-rose-500/20" : "bg-blue-500/10 text-blue-500 border border-blue-500/20"}`}
+                    >
+                      {user.role === "Admin" || user.role === "1"
+                        ? "Administrator"
+                        : "Standard User"}
                     </span>
                   </td>
                   <td className="px-10 py-7 whitespace-nowrap">
@@ -418,16 +590,21 @@ export default function AdminPage() {
                           <MessageSquareOff className="w-3.5 h-3.5" /> Chặn Post
                         </span>
                       )}
-                      {!user.isBanned && !user.isGameBanned && !user.isPostBanned && (
-                        <span className="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter border border-emerald-400/20">
-                          <ShieldCheck className="w-3.5 h-3.5" /> An toàn
-                        </span>
-                      )}
+                      {!user.isBanned &&
+                        !user.isGameBanned &&
+                        !user.isPostBanned && (
+                          <span className="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter border border-emerald-400/20">
+                            <ShieldCheck className="w-3.5 h-3.5" /> An toàn
+                          </span>
+                        )}
                     </div>
                   </td>
-                  <td className="px-10 py-7 text-right whitespace-nowrap">
+                  <td className="px-6 py-5 text-right whitespace-nowrap">
                     <button
-                      onClick={() => { setSelectedUser(user); setDetailTab("info"); }}
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setDetailTab("info");
+                      }}
                       className="p-4 bg-zinc-800 hover:bg-violet-600 text-white rounded-[20px] transition-all hover:scale-110 hover:rotate-3 shadow-xl"
                     >
                       <Eye className="w-6 h-6" />
@@ -443,7 +620,9 @@ export default function AdminPage() {
   };
 
   const renderGames = () => {
-    const filtered = games.filter(g => g.title?.toLowerCase().includes(searchQuery.toLowerCase()));
+    const filtered = games.filter((g) =>
+      g.title?.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
 
     return (
       <div className="space-y-8 animate-in fade-in duration-500">
@@ -457,79 +636,97 @@ export default function AdminPage() {
           />
         </div>
 
-        <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[40px] overflow-hidden shadow-2xl">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-white/5 text-zinc-500 font-black uppercase tracking-[0.2em] text-[11px]">
-              <tr>
-                <th className="px-10 py-7">Sản phẩm</th>
-                <th className="px-10 py-7">Giá bán</th>
-                <th className="px-10 py-7">Thể loại</th>
-                <th className="px-10 py-7 text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {filtered.map(game => (
-                <tr key={game.id} className="group hover:bg-white/[0.03] transition-all">
-                  <td className="px-10 py-7">
-                    <div className="flex items-center gap-5">
-                      <img src={game.thumbnailUrl} className="w-16 h-16 rounded-[24px] object-cover border border-white/10 group-hover:scale-110 transition-transform duration-500" />
-                      <div>
-                        <p className="font-black text-white text-lg tracking-tight">{game.title}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-10 py-7">
-                    <span className="text-emerald-400 font-black text-xl tracking-tighter">
-                      {game.price > 0 ? `$${game.price}` : 'FREE'}
-                    </span>
-                  </td>
-                  <td className="px-10 py-7">
-                    <div className="flex flex-wrap gap-1.5 max-w-[200px]">
-                      {game.tags && game.tags.length > 0 ? (
-                        game.tags.map(tag => (
-                          <span key={tag.id} className="px-2 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] text-zinc-400 font-bold">
-                            {tag.name}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-zinc-600 text-[10px] italic">No tags</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-10 py-7 text-right">
-                    <div className="flex items-center justify-end gap-4">
-                      <button
-                        onClick={() => navigate(`/games/${game.id}`)}
-                        className="p-4 bg-zinc-800 hover:bg-white/10 text-white rounded-[20px] transition-all"
-                      >
-                        <Eye className="w-6 h-6" />
-                      </button>
-                      <button
-                        onClick={() => triggerConfirm(
-                          () => handleDeleteGame(game.id),
-                          "Xóa sản phẩm?",
-                          `Hành động này sẽ gỡ bỏ "${game.title}" vĩnh viễn khỏi hệ thống.`,
-                          "danger"
-                        )}
-                        className="p-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-[20px] transition-all shadow-lg hover:shadow-rose-500/20"
-                      >
-                        <Trash2 className="w-6 h-6" />
-                      </button>
-                    </div>
-                  </td>
+        <div className="overflow-hidden rounded-[30px] border border-white/10 bg-zinc-950/40 shadow-2xl">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-white/5 text-zinc-500 font-black uppercase tracking-[0.2em] text-[11px]">
+                <tr>
+                  <th className="px-6 py-5">Sản phẩm</th>
+                  <th className="px-6 py-5">Giá bán</th>
+                  <th className="px-6 py-5">Thể loại</th>
+                  <th className="px-6 py-5 text-right">Thao tác</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {filtered.map((game) => (
+                  <tr
+                    key={game.id}
+                    className="group hover:bg-white/[0.03] transition-all"
+                  >
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-5">
+                        <img
+                          src={game.thumbnailUrl}
+                          className="w-16 h-16 rounded-[24px] object-cover border border-white/10 group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div>
+                          <p className="font-black text-white text-lg tracking-tight">
+                            {game.title}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <span className="text-emerald-400 font-black text-xl tracking-tighter">
+                        {game.price > 0 ? `$${game.price}` : "FREE"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                        {game.tags && game.tags.length > 0 ? (
+                          game.tags.map((tag) => (
+                            <span
+                              key={tag.id}
+                              className="px-2 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] text-zinc-400 font-bold"
+                            >
+                              {tag.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-zinc-600 text-[10px] italic">
+                            No tags
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-10 py-7 text-right">
+                      <div className="flex items-center justify-end gap-4">
+                        <button
+                          onClick={() => navigate(`/games/${game.id}`)}
+                          className="p-4 bg-zinc-800 hover:bg-white/10 text-white rounded-[20px] transition-all"
+                        >
+                          <Eye className="w-6 h-6" />
+                        </button>
+                        <button
+                          onClick={() =>
+                            triggerConfirm(
+                              () => handleDeleteGame(game.id),
+                              "Xóa sản phẩm?",
+                              `Hành động này sẽ gỡ bỏ "${game.title}" vĩnh viễn khỏi hệ thống.`,
+                              "danger",
+                            )
+                          }
+                          className="p-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-[20px] transition-all shadow-lg hover:shadow-rose-500/20"
+                        >
+                          <Trash2 className="w-6 h-6" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
   };
 
   const renderPosts = () => {
-    const filtered = posts.filter(p =>
-      p.author?.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.title?.toLowerCase().includes(searchQuery.toLowerCase())
+    const filtered = posts.filter(
+      (p) =>
+        p.author?.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.title?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     return (
@@ -548,31 +745,38 @@ export default function AdminPage() {
           <table className="w-full text-left text-sm">
             <thead className="bg-white/5 text-zinc-500 font-black uppercase tracking-[0.2em] text-[11px]">
               <tr>
-                <th className="px-10 py-7">Nội dung</th>
-                <th className="px-10 py-7">Tác giả</th>
-                <th className="px-10 py-7">Ngày đăng</th>
+                <th className="px-6 py-5">Nội dung</th>
+                <th className="px-6 py-5">Tác giả</th>
+                <th className="px-6 py-5">Ngày đăng</th>
                 <th className="px-10 py-7 text-right">Hành động</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {filtered.map(post => (
-                <tr key={post.id} className="group hover:bg-white/[0.03] transition-all">
-                  <td className="px-10 py-7">
+              {filtered.map((post) => (
+                <tr
+                  key={post.id}
+                  className="group hover:bg-white/[0.03] transition-all"
+                >
+                  <td className="px-6 py-5">
                     <div className="flex items-center gap-5">
                       <div className="w-14 h-14 rounded-[24px] bg-violet-500/10 flex items-center justify-center border border-violet-500/20 group-hover:rotate-12 transition-all">
                         <FileText className="w-7 h-7 text-violet-400" />
                       </div>
-                      <p className="font-black text-white text-lg truncate max-w-md tracking-tight">{post.title}</p>
+                      <p className="font-black text-white text-lg truncate max-w-md tracking-tight">
+                        {post.title}
+                      </p>
                     </div>
                   </td>
-                  <td className="px-10 py-7">
+                  <td className="px-6 py-5">
                     <div className="flex items-center gap-3">
                       <Users className="w-5 h-5 text-zinc-500" />
-                      <span className="text-zinc-200 font-black tracking-tight">{post.author?.displayName}</span>
+                      <span className="text-zinc-200 font-black tracking-tight">
+                        {post.author?.displayName}
+                      </span>
                     </div>
                   </td>
                   <td className="px-10 py-7 text-zinc-500 font-bold uppercase text-[11px] tracking-widest">
-                    {new Date(post.createdAt).toLocaleDateString('vi-VN')}
+                    {new Date(post.createdAt).toLocaleDateString("vi-VN")}
                   </td>
                   <td className="px-10 py-7 text-right">
                     <div className="flex items-center justify-end gap-4">
@@ -583,12 +787,14 @@ export default function AdminPage() {
                         <Eye className="w-6 h-6" />
                       </button>
                       <button
-                        onClick={() => triggerConfirm(
-                          () => handleDeletePost(post.id),
-                          "Xóa bài viết?",
-                          "Bài viết này sẽ không thể khôi phục sau khi xóa.",
-                          "danger"
-                        )}
+                        onClick={() =>
+                          triggerConfirm(
+                            () => handleDeletePost(post.id),
+                            "Xóa bài viết?",
+                            "Bài viết này sẽ không thể khôi phục sau khi xóa.",
+                            "danger",
+                          )
+                        }
                         className="p-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-[20px] transition-all shadow-lg hover:shadow-rose-500/20"
                       >
                         <Trash2 className="w-6 h-6" />
@@ -616,53 +822,91 @@ export default function AdminPage() {
     <div className="min-h-screen bg-[#050505] text-white selection:bg-violet-500/30">
       <Header onOpenSidebar={() => setIsSidebarOpen(true)} />
 
-      <div className="flex">
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <div className="flex me-4">
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
 
-        <main className="flex-1 px-4 lg:px-6">
-          <div className="min-h-screen bg-[#050505] text-white">
-            <div className="max-w-5xl mx-auto px-8 py-8">
-              <header className="mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-10">
-              <div>
-                <p className="text-zinc-500 mt-5 text-xl font-medium tracking-tight">Hệ thống quản lý trung tâm FabricIO</p>
+        <main className="flex-1 min-w-0">
+          <div className="space-y-8 px-4 py-6 lg:p-0">
+            {/* TOP ADMIN PANEL */}
+            <section className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[#101011] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] md:p-8 xl:p-10">
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.22),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(255,106,92,0.12),transparent_34%)]" />
+
+              <div className="relative flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between">
+                <div className="max-w-2xl">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-4 py-2 text-xs font-black uppercase tracking-[0.28em] text-violet-300">
+                    <ShieldCheck className="h-4 w-4" />
+                    Admin Center
+                  </span>
+
+                  <h1 className="mt-5 text-4xl font-black tracking-tight text-white md:text-5xl">
+                    Quản trị FabricIO
+                  </h1>
+
+                  <p className="mt-4 max-w-xl text-base font-medium leading-7 text-zinc-400 md:text-lg">
+                    Hệ thống quản lý tài khoản, game, bài viết và trạng thái
+                    kiểm duyệt.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-end">
+                  {[
+                    {
+                      id: "dashboard",
+                      label: "Tổng quan",
+                      icon: LayoutDashboard,
+                    },
+                    { id: "users", label: "Tài khoản", icon: Users },
+                    { id: "games", label: "Game", icon: Gamepad2 },
+                    { id: "posts", label: "Bài viết", icon: FileText },
+                  ].map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.id;
+
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          setSearchQuery("");
+                        }}
+                        className={[
+                          "flex min-w-[145px] items-center justify-center gap-2.5 rounded-2xl px-5 py-4 text-sm font-black uppercase tracking-wider transition-all duration-300",
+                          isActive
+                            ? "bg-violet-600 text-white shadow-[0_18px_48px_rgba(124,58,237,0.38)]"
+                            : "border border-white/10 bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-white",
+                        ].join(" ")}
+                      >
+                        <Icon
+                          className={
+                            isActive ? "h-4 w-4 animate-pulse" : "h-4 w-4"
+                          }
+                        />
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+            </section>
 
-              <div className="flex bg-zinc-900/50 p-2.5 rounded-[32px] border border-white/5 backdrop-blur-2xl shadow-2xl">
-                {[
-                  { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
-                  { id: "users", label: "Tài khoản", icon: Users },
-                  { id: "games", label: "Game", icon: Gamepad2 },
-                  { id: "posts", label: "Bài viết", icon: FileText },
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => { setActiveTab(tab.id); setSearchQuery(""); }}
-                    className={`flex items-center gap-3.5 px-10 py-5 rounded-[24px] text-sm font-black uppercase tracking-widest transition-all duration-500 ${activeTab === tab.id
-                      ? "bg-violet-600 text-white shadow-[0_15px_40px_rgba(124,58,237,0.4)] scale-105"
-                      : "text-zinc-500 hover:text-white hover:bg-white/5"
-                      }`}
-                  >
-                    <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'animate-pulse' : ''}`} />
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </header>
-
-            <div className="min-h-[700px]">
+            {/* MAIN CONTENT */}
+            <section className="min-h-[700px] rounded-[32px] border border-white/10 bg-[#101011] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)] md:p-7 xl:p-8">
               {activeTab === "dashboard" && renderDashboard()}
               {activeTab === "users" && renderUsers()}
               {activeTab === "games" && renderGames()}
               {activeTab === "posts" && renderPosts()}
-            </div>
-            </div>
+            </section>
           </div>
         </main>
       </div>
 
       <ConfirmationModal
         {...confirmData}
-        onCancel={() => setConfirmData(prev => ({ ...prev, isOpen: false }))}
+        onCancel={() => setConfirmData((prev) => ({ ...prev, isOpen: false }))}
         onConfirm={confirmData.action}
       />
 
@@ -672,7 +916,10 @@ export default function AdminPage() {
             <div className="shrink-0">
               <div className="h-48 bg-gradient-to-br from-violet-900/60 via-zinc-900 to-zinc-950 relative border-b border-white/5">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.2),transparent)]" />
-                <button onClick={() => setSelectedUser(null)} className="absolute top-8 right-8 w-14 h-14 rounded-2xl bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-md border border-white/10 transition-all hover:scale-110 z-20">
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="absolute top-8 right-8 w-14 h-14 rounded-2xl bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-md border border-white/10 transition-all hover:scale-110 z-20"
+                >
                   <XCircle className="w-7 h-7" />
                 </button>
               </div>
@@ -681,55 +928,105 @@ export default function AdminPage() {
                 <div className="flex flex-col md:flex-row gap-10 -mt-20 items-end">
                   <div className="relative shrink-0 group">
                     <img
-                      src={selectedUser.avatarUrl || `https://ui-avatars.com/api/?name=${selectedUser.username}`}
+                      src={getUserAvatarUrl(selectedUser)}
+                      alt={
+                        selectedUser.displayName ||
+                        selectedUser.username ||
+                        "User"
+                      }
                       className="w-40 h-40 rounded-[40px] object-cover border-[10px] border-zinc-950 shadow-2xl group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className={`absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl border-4 border-zinc-950 shadow-xl ${selectedUser.isBanned ? 'bg-rose-500' : 'bg-emerald-500'}`} />
+                    <div
+                      className={`absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl border-4 border-zinc-950 shadow-xl ${selectedUser.isBanned ? "bg-rose-500" : "bg-emerald-500"}`}
+                    />
                   </div>
                   <div className="pb-4 flex-1">
                     <div className="flex items-center justify-between flex-wrap gap-6">
                       <div>
-                        <h3 className="text-4xl font-black text-white tracking-tight">{selectedUser.displayName}</h3>
-                        <p className="text-zinc-500 font-bold text-xl mt-1 uppercase tracking-widest">@{selectedUser.username}</p>
+                        <h3 className="text-4xl font-black text-white tracking-tight">
+                          {selectedUser.displayName}
+                        </h3>
+                        <p className="text-zinc-500 font-bold text-xl mt-1 uppercase tracking-widest">
+                          @{selectedUser.username}
+                        </p>
                       </div>
                       <div className="flex flex-wrap gap-3">
                         <button
-                          onClick={() => triggerConfirm(
-                            () => handleUpdateAccountBan(selectedUser.id, selectedUser.isBanned),
-                            selectedUser.isBanned ? "Mở khóa Login?" : "Khóa đăng nhập?",
-                            selectedUser.isBanned ? `Người dùng @${selectedUser.username} sẽ có thể đăng nhập lại.` : `Người dùng @${selectedUser.username} sẽ bị chặn truy cập hệ thống.`,
-                            selectedUser.isBanned ? 'success' : 'danger'
-                          )}
-                          className={`px-6 py-3.5 rounded-[20px] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl active:scale-95 ${selectedUser.isBanned ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-rose-600 text-white hover:bg-rose-500'
-                            }`}
+                          onClick={() =>
+                            triggerConfirm(
+                              () =>
+                                handleUpdateAccountBan(
+                                  selectedUser.id,
+                                  selectedUser.isBanned,
+                                ),
+                              selectedUser.isBanned
+                                ? "Mở khóa Login?"
+                                : "Khóa đăng nhập?",
+                              selectedUser.isBanned
+                                ? `Người dùng @${selectedUser.username} sẽ có thể đăng nhập lại.`
+                                : `Người dùng @${selectedUser.username} sẽ bị chặn truy cập hệ thống.`,
+                              selectedUser.isBanned ? "success" : "danger",
+                            )
+                          }
+                          className={`px-6 py-3.5 rounded-[20px] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl active:scale-95 ${
+                            selectedUser.isBanned
+                              ? "bg-emerald-600 text-white hover:bg-emerald-500"
+                              : "bg-rose-600 text-white hover:bg-rose-500"
+                          }`}
                         >
-                          {selectedUser.isBanned ? <Unlock className="w-4 h-4" /> : <UserX className="w-4 h-4" />}
+                          {selectedUser.isBanned ? (
+                            <Unlock className="w-4 h-4" />
+                          ) : (
+                            <UserX className="w-4 h-4" />
+                          )}
                           {selectedUser.isBanned ? "Mở Khóa" : "Khóa Acc"}
                         </button>
 
                         <button
-                          onClick={() => triggerConfirm(
-                            () => handleUpdateGameBan(selectedUser.id, selectedUser.isGameBanned),
-                            selectedUser.isGameBanned ? "Gỡ chặn đăng Game?" : "Chặn đăng Game?",
-                            `Xác nhận thay đổi quyền upload game của @${selectedUser.username}.`,
-                            selectedUser.isGameBanned ? 'info' : 'warning'
-                          )}
-                          className={`px-6 py-3.5 rounded-[20px] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl active:scale-95 ${selectedUser.isGameBanned ? 'bg-emerald-600 text-white' : 'bg-amber-600 text-white'
-                            }`}
+                          onClick={() =>
+                            triggerConfirm(
+                              () =>
+                                handleUpdateGameBan(
+                                  selectedUser.id,
+                                  selectedUser.isGameBanned,
+                                ),
+                              selectedUser.isGameBanned
+                                ? "Gỡ chặn đăng Game?"
+                                : "Chặn đăng Game?",
+                              `Xác nhận thay đổi quyền upload game của @${selectedUser.username}.`,
+                              selectedUser.isGameBanned ? "info" : "warning",
+                            )
+                          }
+                          className={`px-6 py-3.5 rounded-[20px] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl active:scale-95 ${
+                            selectedUser.isGameBanned
+                              ? "bg-emerald-600 text-white"
+                              : "bg-amber-600 text-white"
+                          }`}
                         >
                           <Ban className="w-4 h-4" />
                           {selectedUser.isGameBanned ? "Mở Game" : "Cấm Game"}
                         </button>
 
                         <button
-                          onClick={() => triggerConfirm(
-                            () => handleUpdatePostBan(selectedUser.id, selectedUser.isPostBanned),
-                            selectedUser.isPostBanned ? "Gỡ chặn Bài viết?" : "Chặn đăng Bài viết?",
-                            `Người dùng @${selectedUser.username} sẽ ${selectedUser.isPostBanned ? 'được' : 'bị'} đăng bài cộng đồng.`,
-                            selectedUser.isPostBanned ? 'info' : 'info'
-                          )}
-                          className={`px-6 py-3.5 rounded-[20px] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl active:scale-95 ${selectedUser.isPostBanned ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'
-                            }`}
+                          onClick={() =>
+                            triggerConfirm(
+                              () =>
+                                handleUpdatePostBan(
+                                  selectedUser.id,
+                                  selectedUser.isPostBanned,
+                                ),
+                              selectedUser.isPostBanned
+                                ? "Gỡ chặn Bài viết?"
+                                : "Chặn đăng Bài viết?",
+                              `Người dùng @${selectedUser.username} sẽ ${selectedUser.isPostBanned ? "được" : "bị"} đăng bài cộng đồng.`,
+                              selectedUser.isPostBanned ? "info" : "info",
+                            )
+                          }
+                          className={`px-6 py-3.5 rounded-[20px] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl active:scale-95 ${
+                            selectedUser.isPostBanned
+                              ? "bg-emerald-600 text-white"
+                              : "bg-blue-600 text-white"
+                          }`}
                         >
                           <MessageSquareOff className="w-4 h-4" />
                           {selectedUser.isPostBanned ? "Mở Post" : "Cấm Post"}
@@ -743,15 +1040,24 @@ export default function AdminPage() {
 
             <div className="px-14 pb-14 flex-1 overflow-y-auto custom-scrollbar mt-12">
               <div className="flex border-b border-white/5 gap-12 mb-12">
-                {["info", "games", "posts"].map(t => (
+                {["info", "games", "posts"].map((t) => (
                   <button
                     key={t}
                     onClick={() => setDetailTab(t)}
-                    className={`pb-5 text-sm font-black uppercase tracking-[0.2em] transition-all relative ${detailTab === t ? "text-white" : "text-zinc-500 hover:text-white"
-                      }`}
+                    className={`pb-5 text-sm font-black uppercase tracking-[0.2em] transition-all relative ${
+                      detailTab === t
+                        ? "text-white"
+                        : "text-zinc-500 hover:text-white"
+                    }`}
                   >
-                    {t === 'info' ? 'Thông tin' : t === 'games' ? 'Game' : 'Post'}
-                    {detailTab === t && <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-violet-500 rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)]" />}
+                    {t === "info"
+                      ? "Thông tin"
+                      : t === "games"
+                        ? "Game"
+                        : "Post"}
+                    {detailTab === t && (
+                      <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-violet-500 rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)]" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -761,22 +1067,31 @@ export default function AdminPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in slide-in-from-bottom-6 duration-700">
                     <div className="bg-white/3 rounded-[32px] p-8 border border-white/5 hover:border-white/10 transition-colors">
                       <p className="text-[11px] text-zinc-500 uppercase font-black tracking-widest mb-3 flex items-center gap-2">
-                        <MessageSquareOff className="w-3.5 h-3.5" /> Email Address
+                        <MessageSquareOff className="w-3.5 h-3.5" /> Email
+                        Address
                       </p>
-                      <p className="text-white text-xl font-bold tracking-tight">{selectedUser.email}</p>
+                      <p className="text-white text-xl font-bold tracking-tight">
+                        {selectedUser.email}
+                      </p>
                     </div>
                     <div className="bg-white/3 rounded-[32px] p-8 border border-white/5 hover:border-white/10 transition-colors">
                       <p className="text-[11px] text-zinc-500 uppercase font-black tracking-widest mb-3 flex items-center gap-2">
                         <Clock className="w-3.5 h-3.5" /> Security Level
                       </p>
                       <p className="text-white text-xl font-bold tracking-tight uppercase">
-                        {selectedUser.role === '1' || selectedUser.role === 'Admin' ? 'System Administrator' : 'Verified Member'}
+                        {selectedUser.role === "1" ||
+                        selectedUser.role === "Admin"
+                          ? "System Administrator"
+                          : "Verified Member"}
                       </p>
                     </div>
                     <div className="bg-white/3 rounded-[32px] p-8 border border-white/5 md:col-span-2 hover:border-white/10 transition-colors">
-                      <p className="text-[11px] text-zinc-500 uppercase font-black tracking-widest mb-3">Biography</p>
+                      <p className="text-[11px] text-zinc-500 uppercase font-black tracking-widest mb-3">
+                        Biography
+                      </p>
                       <p className="text-white text-lg leading-relaxed font-medium">
-                        {selectedUser.bio || "Người dùng này chưa cập nhật tiểu sử cá nhân."}
+                        {selectedUser.bio ||
+                          "Người dùng này chưa cập nhật tiểu sử cá nhân."}
                       </p>
                     </div>
                   </div>
@@ -785,22 +1100,39 @@ export default function AdminPage() {
                 {detailTab === "games" && (
                   <div className="space-y-5 animate-in slide-in-from-bottom-6 duration-700">
                     {userContent.loading ? (
-                      <div className="flex justify-center py-20"><div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" /></div>
+                      <div className="flex justify-center py-20">
+                        <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                      </div>
                     ) : userContent.games.length > 0 ? (
-                      userContent.games.map(g => (
-                        <div key={g.id} className="flex items-center gap-6 p-6 bg-white/3 rounded-[28px] border border-white/5 hover:border-violet-500/30 transition-all group">
-                          <img src={g.thumbnailUrl} className="w-20 h-20 rounded-[20px] object-cover border border-white/10 group-hover:scale-105 transition-transform" />
+                      userContent.games.map((g) => (
+                        <div
+                          key={g.id}
+                          className="flex items-center gap-6 p-6 bg-white/3 rounded-[28px] border border-white/5 hover:border-violet-500/30 transition-all group"
+                        >
+                          <img
+                            src={g.thumbnailUrl}
+                            className="w-20 h-20 rounded-[20px] object-cover border border-white/10 group-hover:scale-105 transition-transform"
+                          />
                           <div className="flex-1 min-w-0">
-                            <p className="text-white text-lg font-black tracking-tight truncate">{g.title}</p>
-                            <p className="text-sm text-emerald-400 font-black mt-1">{g.price > 0 ? `$${g.price}` : 'FREE CONTENT'}</p>
+                            <p className="text-white text-lg font-black tracking-tight truncate">
+                              {g.title}
+                            </p>
+                            <p className="text-sm text-emerald-400 font-black mt-1">
+                              {g.price > 0 ? `$${g.price}` : "FREE CONTENT"}
+                            </p>
                           </div>
-                          <button onClick={() => navigate(`/games/${g.id}`)} className="p-4 hover:bg-white/5 rounded-2xl text-zinc-400 hover:text-white transition-colors">
+                          <button
+                            onClick={() => navigate(`/games/${g.id}`)}
+                            className="p-4 hover:bg-white/5 rounded-2xl text-zinc-400 hover:text-white transition-colors"
+                          >
                             <Eye className="w-6 h-6" />
                           </button>
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-20 text-zinc-600 font-black uppercase tracking-widest opacity-50">Empty Archive</div>
+                      <div className="text-center py-20 text-zinc-600 font-black uppercase tracking-widest opacity-50">
+                        Empty Archive
+                      </div>
                     )}
                   </div>
                 )}
@@ -808,38 +1140,66 @@ export default function AdminPage() {
                 {detailTab === "posts" && (
                   <div className="space-y-5 animate-in slide-in-from-bottom-6 duration-700">
                     {userContent.loading ? (
-                      <div className="flex justify-center py-20"><div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" /></div>
+                      <div className="flex justify-center py-20">
+                        <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                      </div>
                     ) : userContent.posts.length > 0 ? (
-                      userContent.posts.map(p => (
-                        <div key={p.id} className="p-6 bg-white/3 rounded-[28px] border border-white/5 hover:border-violet-500/30 transition-all flex items-center justify-between gap-6 group">
+                      userContent.posts.map((p) => (
+                        <div
+                          key={p.id}
+                          className="p-6 bg-white/3 rounded-[28px] border border-white/5 hover:border-violet-500/30 transition-all flex items-center justify-between gap-6 group"
+                        >
                           <div className="flex-1 min-w-0">
-                            <p className="text-white text-lg font-black tracking-tight truncate group-hover:text-violet-400 transition-colors">{p.title}</p>
-                            <p className="text-[10px] text-zinc-500 mt-2 font-black uppercase tracking-widest">{new Date(p.createdAt).toLocaleDateString()}</p>
+                            <p className="text-white text-lg font-black tracking-tight truncate group-hover:text-violet-400 transition-colors">
+                              {p.title}
+                            </p>
+                            <p className="text-[10px] text-zinc-500 mt-2 font-black uppercase tracking-widest">
+                              {new Date(p.createdAt).toLocaleDateString()}
+                            </p>
                           </div>
-                          <button onClick={() => triggerConfirm(() => handleDeletePost(p.id), "Xóa bài viết?", "Bài viết sẽ bị gỡ bỏ vĩnh viễn.")} className="p-4 text-zinc-600 hover:text-rose-500 transition-colors">
+                          <button
+                            onClick={() =>
+                              triggerConfirm(
+                                () => handleDeletePost(p.id),
+                                "Xóa bài viết?",
+                                "Bài viết sẽ bị gỡ bỏ vĩnh viễn.",
+                              )
+                            }
+                            className="p-4 text-zinc-600 hover:text-rose-500 transition-colors"
+                          >
                             <Trash2 className="w-6 h-6" />
                           </button>
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-20 text-zinc-600 font-black uppercase tracking-widest opacity-50">Khong co thong tin</div>
+                      <div className="text-center py-20 text-zinc-600 font-black uppercase tracking-widest opacity-50">
+                        Khong co thong tin
+                      </div>
                     )}
                   </div>
                 )}
               </div>
-              <button onClick={() => setSelectedUser(null)} className="w-full mt-10 py-5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-[32px] font-black uppercase tracking-widest transition-all border border-white/5 shadow-2xl">Close Profile</button>
+              <button
+                onClick={() => setSelectedUser(null)}
+                className="w-full mt-10 py-5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-[32px] font-black uppercase tracking-widest transition-all border border-white/5 shadow-2xl"
+              >
+                Close Profile
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .custom-scrollbar::-webkit-scrollbar { width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 20px; border: 2px solid #09090b; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
-      `}} />
+      `,
+        }}
+      />
     </div>
   );
 }

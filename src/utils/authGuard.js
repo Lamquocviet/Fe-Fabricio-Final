@@ -42,10 +42,7 @@ export const notifyAuthRequired = (message = LOGIN_REQUIRED_MESSAGE) => {
   toast.error(message);
 };
 
-export const assertAuthenticated = (
-  user,
-  message = LOGIN_REQUIRED_MESSAGE,
-) => {
+export const assertAuthenticated = (user, message = LOGIN_REQUIRED_MESSAGE) => {
   const authenticated =
     user === undefined ? hasStoredUser() : isAuthenticatedUser(user);
 
@@ -57,6 +54,9 @@ export const assertAuthenticated = (
 
 export const clearStoredAuth = () => {
   localStorage.removeItem("user");
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+
   window.dispatchEvent(new Event(AUTH_SESSION_CLEARED_EVENT));
 };
 

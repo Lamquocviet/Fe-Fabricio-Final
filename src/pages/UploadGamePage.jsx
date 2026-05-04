@@ -36,131 +36,188 @@ export default function UploadGamePage() {
 
   const { tags } = useTag();
 
-
   const gameFile = watch("GameFile");
   const thumbnail = watch("Thumbnail");
+  const selectedTagIds = watch("TagIds") || [];
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
       <Header />
-      <div className="flex">
+
+      <div className="flex me-4">
         <Sidebar />
-        <main className="flex-1 px-4 lg:px-6">
-          <div className="min-h-screen bg-[#050505] text-white">
-            <div className="max-w-5xl mx-auto px-8">
-              {/* HEADER */}
-              <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2 mt-0 !text-white">
-                  🎮 Đăng game mới lên cửa hàng
-                </h1>
-                <p className="text-gray-400 text-sm">
-                  Tải build cho Windows, Android hoặc WebGL, thêm ảnh đại diện,
-                  ảnh show game, video YouTube, tag và giá bán.
-                </p>
+
+        <main className="flex-1">
+          <div className="space-y-8 px-4 py-6 lg:p-0">
+            <section className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.035] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-8 lg:p-10">
+              <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#ff6a4a]/10 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-28 left-1/3 h-72 w-72 rounded-full bg-violet-500/10 blur-3xl" />
+
+              <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <span className="inline-flex items-center rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-orange-300">
+                    Upload Center
+                  </span>
+
+                  <h1 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+                    Đăng game mới
+                  </h1>
+
+                  <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-400">
+                    Tải build cho Browser hoặc Download, thêm thumbnail, mô tả,
+                    tag và giá bán để đưa game của bạn lên FabricIO.
+                  </p>
+                </div>
+
+                <div className="rounded-3xl border border-white/10 bg-white/5 px-5 py-4">
+                  <p className="text-sm font-semibold text-zinc-300">
+                    Publishing status
+                  </p>
+                  <p className="mt-1 text-2xl font-black text-white">
+                    {isSubmitting ? "Uploading..." : "Ready"}
+                  </p>
+                </div>
               </div>
+            </section>
 
-              <form
-                onSubmit={handleSubmit}
-                className="space-y-6 bg-[#12141f] p-6 rounded-2xl border border-[#1f2130] shadow-xl mb-8"
-              >
-                {/* BASIC INFO */}
-                <Section>
-                  <div className="grid grid-cols-3 gap-4">
-                    {/* Hàng 1 */}
-                    <Input label="Tên game" error={errors.Title?.message}>
-                      <input
-                        {...register("Title")}
-                        placeholder="Cozy Circuit"
-                        className={inputCls}
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[#111113]/80 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6">
+                <SectionHeader
+                  title="Thông tin cơ bản"
+                  description="Nhập tên game, mô tả, loại game và giá bán."
+                />
+
+                <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+                  <Input label="Tên game" error={errors.Title?.message}>
+                    <input
+                      {...register("Title")}
+                      placeholder="Cozy Circuit"
+                      className={inputCls}
+                    />
+                  </Input>
+
+                  <Input label="Giá ($)" error={errors.Price?.message}>
+                    <input
+                      type="number"
+                      step="0.01"
+                      {...register("Price")}
+                      placeholder="0.00"
+                      className={inputCls}
+                    />
+                  </Input>
+
+                  <Input label="Game Type" error={errors.GameType?.message}>
+                    <select {...register("GameType")} className={inputCls}>
+                      <option value="Browser">Browser</option>
+                      <option value="Download">Download</option>
+                    </select>
+                  </Input>
+
+                  <div className="lg:col-span-3">
+                    <Input label="Mô tả" error={errors.Description?.message}>
+                      <textarea
+                        {...register("Description")}
+                        rows={5}
+                        placeholder="Mô tả gameplay, điểm nổi bật, controls hoặc thông tin phát hành..."
+                        className={textareaCls}
                       />
                     </Input>
-
-                    <Input label="Giá ($)" error={errors.Price?.message}>
-                      <input
-                        type="number"
-                        step="0.01"
-                        {...register("Price")}
-                        className={inputCls}
-                      />
-                    </Input>
-
-                    <Input label="Game Type" error={errors.GameType?.message}>
-                      <select {...register("GameType")} className={inputCls}>
-                        <option value="Browser">Browser</option>
-                        <option value="Download">Download</option>
-                      </select>
-                    </Input>
-
-                    {/* Hàng 2 - span full */}
-                    <div className="col-span-3">
-                      <Input label="Mô tả" error={errors.Description?.message}>
-                        <textarea
-                          {...register("Description")}
-                          rows={4}
-                          className={textareaCls}
-                        />
-                      </Input>
-                    </div>
                   </div>
-                </Section>
+                </div>
+              </section>
 
-                <Section title="File game">
-                  <UploadBox
-                    onChange={handleGameFile}
-                    file={gameFile}
-                    label="Click hoặc kéo file game"
+              <section className="grid grid-cols-1 gap-8 xl:grid-cols-2">
+                <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#111113]/80 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6">
+                  <SectionHeader
+                    title="File game"
+                    description="Upload build game hoặc file package của bạn."
                   />
-                  {errors.GameFile && <Error text={errors.GameFile.message} />}
-                </Section>
 
-                <Section title="Thumbnail">
-                  <UploadBox
-                    onChange={handleThumbnail}
-                    file={thumbnail}
-                    label="Click hoặc kéo thumbnail"
-                    preview
-                  />
-                  {errors.Thumbnail && (
-                    <Error text={errors.Thumbnail.message} />
-                  )}
-                </Section>
-
-                {/* TAGS */}
-                <Section title="Tags">
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map((tag) => {
-                      const active = watch("TagIds").includes(tag.id);
-
-                      return (
-                        <button
-                          key={tag.id}
-                          type="button"
-                          onClick={() => handleTagIds(tag.id)}
-                          className={`px-3 py-1.5 text-sm rounded-full border transition ${
-                            active
-                              ? "bg-gradient-to-br from-[#ff6a5c] to-[#ff5a3d] text-white shadow-lg shadow-[#ff5a3d]/30"
-                              : "bg-[#1a1c28] border border-[#2a2d3d] text-gray-400 hover:border-orange-400 hover:text-white"
-                          }`}
-                        >
-                          {tag.name}
-                        </button>
-                      );
-                    })}
+                  <div className="mt-6">
+                    <UploadBox
+                      onChange={handleGameFile}
+                      file={gameFile}
+                      label="Click để chọn file game"
+                    />
+                    {errors.GameFile && (
+                      <div className="mt-3">
+                        <Error text={errors.GameFile.message} />
+                      </div>
+                    )}
                   </div>
-                </Section>
+                </div>
 
-                {/* SUBMIT */}
-                <div className="flex justify-end pt-4 border-t border-[#1f2130]">
+                <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#111113]/80 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6">
+                  <SectionHeader
+                    title="Thumbnail"
+                    description="Ảnh đại diện sẽ xuất hiện trong danh sách game."
+                  />
+
+                  <div className="mt-6">
+                    <UploadBox
+                      onChange={handleThumbnail}
+                      file={thumbnail}
+                      label="Click để chọn thumbnail"
+                      preview
+                    />
+                    {errors.Thumbnail && (
+                      <div className="mt-3">
+                        <Error text={errors.Thumbnail.message} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[#111113]/80 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6">
+                <SectionHeader
+                  title="Tags"
+                  description="Chọn các tag phù hợp để người chơi dễ tìm game của bạn."
+                />
+
+                <div className="mt-6 flex flex-wrap gap-2.5">
+                  {tags.map((tag) => {
+                    const active = selectedTagIds.includes(tag.id);
+
+                    return (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => handleTagIds(tag.id)}
+                        className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                          active
+                            ? "border-orange-400/30 bg-linear-to-r from-[#ff6a4a] to-[#ff5a3b] text-white shadow-[0_10px_24px_rgba(255,90,59,0.22)]"
+                            : "border-white/10 bg-white/5 text-zinc-400 hover:border-orange-400/30 hover:bg-orange-400/10 hover:text-white"
+                        }`}
+                      >
+                        {tag.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section className="sticky bottom-4 z-20 rounded-[28px] border border-white/10 bg-[#111113]/90 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-white">
+                      Sẵn sàng đăng game?
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-500">
+                      Kiểm tra lại thông tin trước khi submit.
+                    </p>
+                  </div>
+
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 rounded-lg font-semibold bg-linear-to-br from-[#ff6a5c] to-[#ff5a3d] hover:from-[#ff5a3d] hover:to-[#ff6a5c] disabled:bg-gray-700 transition-all shadow-lg hover:shadow-purple-500/20 active:scale-95"
+                    className="rounded-2xl bg-linear-to-r from-[#ff6a4a] to-[#ff5a3b] px-6 py-3 text-sm font-bold text-white shadow-[0_12px_30px_rgba(255,90,59,0.24)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {isSubmitting ? "Uploading..." : "🚀 Đăng game"}
+                    {isSubmitting ? "Uploading..." : "Đăng game"}
                   </button>
                 </div>
-              </form>
-            </div>
+              </section>
+            </form>
           </div>
         </main>
       </div>
@@ -169,25 +226,30 @@ export default function UploadGamePage() {
 }
 
 //////////////////////////////////////////////////////////
-
-function Section({ title, children }) {
+function SectionHeader({ title, description }) {
   return (
-    <div>
-      <h2 className="text-sm uppercase !text-white mb-3 tracking-wider">
-        {title}
-      </h2>
-      <div className="space-y-3">{children}</div>
+    <div className="flex flex-col gap-1">
+      <h2 className="text-xl font-extrabold text-white">{title}</h2>
+      {description && (
+        <p className="text-sm leading-6 text-zinc-400">{description}</p>
+      )}
     </div>
   );
 }
 
 function Input({ label, error, children }) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-sm text-gray-400">{label}</span>
+    <label className="block">
+      <span className="mb-2 block text-sm font-semibold text-zinc-300">
+        {label}
+      </span>
       {children}
-      {error && <Error text={error} />}
-    </div>
+      {error && (
+        <span className="mt-2 block">
+          <Error text={error} />
+        </span>
+      )}
+    </label>
   );
 }
 
@@ -199,9 +261,13 @@ function UploadBox({
   preview = false,
 }) {
   const selectedFile = Array.isArray(file) ? file[0] : file;
+  const previewUrl =
+    preview && selectedFile instanceof File
+      ? URL.createObjectURL(selectedFile)
+      : "";
 
   return (
-    <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#2a2d3d] hover:border-purple-500 rounded-xl p-6 cursor-pointer transition">
+    <label className="group flex min-h-[230px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-[24px] border border-dashed border-white/15 bg-black/25 p-6 text-center transition hover:border-orange-400/40 hover:bg-orange-400/5">
       <input
         type="file"
         className="hidden"
@@ -210,37 +276,52 @@ function UploadBox({
       />
 
       {selectedFile ? (
-        <div className="flex flex-col items-center gap-3 text-center">
-          {preview && selectedFile instanceof File && (
+        <div className="flex w-full flex-col items-center gap-4">
+          {preview && previewUrl ? (
             <img
-              src={URL.createObjectURL(selectedFile)}
+              src={previewUrl}
               alt={selectedFile.name}
-              className="h-32 w-56 rounded-lg object-cover border border-[#2a2d3d]"
+              className="h-36 w-full max-w-sm rounded-2xl border border-white/10 object-cover shadow-[0_14px_40px_rgba(0,0,0,0.35)]"
             />
+          ) : (
+            <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-orange-400/20 bg-orange-400/10 text-3xl">
+              🎮
+            </div>
           )}
 
-          <span className="text-sm text-green-400">
-            Đã chọn: {selectedFile.name}
-          </span>
-
-          <span className="text-xs text-gray-500">Click để đổi file khác</span>
+          <div>
+            <p className="text-sm font-bold text-emerald-300">Đã chọn file</p>
+            <p className="mt-1 max-w-md truncate text-sm text-zinc-300">
+              {selectedFile.name}
+            </p>
+            <p className="mt-1 text-xs text-zinc-500">Click để đổi file khác</p>
+          </div>
         </div>
       ) : (
-        <span className="text-sm text-gray-400">
-          {label || "Click hoặc kéo file"}
-        </span>
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-white/10 bg-white/5 text-2xl transition group-hover:border-orange-400/30 group-hover:bg-orange-400/10">
+            +
+          </div>
+
+          <div>
+            <p className="text-sm font-bold text-white">
+              {label || "Click hoặc kéo file"}
+            </p>
+            <p className="mt-1 text-xs text-zinc-500">
+              File sẽ được lưu sau khi bạn submit form.
+            </p>
+          </div>
+        </div>
       )}
-    </label>  
+    </label>
   );
 }
 
 function Error({ text }) {
-  return <p className="text-red-400 text-xs">{text}</p>;
+  return <p className="text-xs font-medium text-red-300">{text}</p>;
 }
 
-//////////////////////////////////////////////////////////
-
 const inputCls =
-  "w-full bg-[#1a1c28] border border-[#2a2d3d] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-500";
+  "w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-400/40 focus:bg-black/35";
 
-const textareaCls = inputCls + " resize-none";
+const textareaCls = `${inputCls} resize-none`;

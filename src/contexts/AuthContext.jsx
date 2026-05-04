@@ -88,13 +88,33 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updateAuthUser = (newUserData = {}) => {
+    setUser((prev) => {
+      const cleanedNewUserData = Object.fromEntries(
+        Object.entries(newUserData).filter(([, value]) => value !== undefined),
+      );
+
+      const updatedUser = {
+        ...prev,
+        ...cleanedNewUserData,
+      };
+
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      return updatedUser;
+    });
+  };
+
   const handleLogout = async () => {
     try {
       await logoutUser();
     } finally {
       setUser(null);
       setError("");
+
       localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
     }
   };
 
@@ -141,6 +161,7 @@ export function AuthProvider({ children }) {
         setUser: saveUser,
         handleRegister,
         handleLogin,
+        updateAuthUser,
         fetchMyProfile,
         handleLogout,
       }}
