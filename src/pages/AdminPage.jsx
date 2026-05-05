@@ -183,6 +183,12 @@ export default function AdminPage() {
     loading: false,
   });
 
+  const [userFilters, setUserFilters] = useState({
+    loginBanned: false,
+    gameBanned: false,
+    postBanned: false,
+  });
+
   // Confirmation state
   const [confirmData, setConfirmData] = useState({
     isOpen: false,
@@ -232,7 +238,11 @@ export default function AdminPage() {
       if (gamesRes.status === "fulfilled") {
         const gData = gamesRes.value;
         const gamesList =
-          gData?.games || gData?.Games || (Array.isArray(gData) ? gData : []);
+          gData?.items ||
+          gData?.Items ||
+          gData?.games ||
+          gData?.Games ||
+          (Array.isArray(gData) ? gData : []);
         setGames(gamesList);
       }
 
@@ -349,7 +359,7 @@ export default function AdminPage() {
     try {
       await adminService.deleteGame(gameId);
       toast.success("Đã xóa game vĩnh viễn");
-      setGames((prev) => prev.filter((g) => g.id !== gameId));
+      setGames((prev) => prev.filter((g) => (g.id || g.Id) !== gameId));
     } catch (err) {
       toast.error("Xóa game thất bại");
     } finally {
@@ -505,22 +515,69 @@ export default function AdminPage() {
   };
 
   const renderUsers = () => {
-    const filtered = users.filter(
-      (u) =>
+    const filtered = users.filter((u) => {
+      const matchesSearch =
         u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.displayName?.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
+        u.displayName?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesLogin = !userFilters.loginBanned || u.isBanned;
+      const matchesGame = !userFilters.gameBanned || u.isGameBanned;
+      const matchesPost = !userFilters.postBanned || u.isPostBanned;
+
+      return matchesSearch && matchesLogin && matchesGame && matchesPost;
+    });
 
     return (
       <div className="space-y-8 animate-in fade-in duration-500">
-        <div className="relative max-w-xl group">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-zinc-500 group-focus-within:text-violet-500 transition-colors" />
-          <input
-            className="w-full bg-zinc-900 border border-white/10 rounded-[28px] py-5 pl-16 pr-6 text-base text-white focus:outline-none focus:ring-4 focus:ring-violet-500/20 transition-all shadow-2xl"
-            placeholder="Tìm kiếm tài khoản..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center justify-between">
+          <div className="relative max-w-xl w-full group">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-zinc-500 group-focus-within:text-violet-500 transition-colors" />
+            <input
+              className="w-full bg-zinc-900 border border-white/10 rounded-[28px] py-5 pl-16 pr-6 text-base text-white focus:outline-none focus:ring-4 focus:ring-violet-500/20 transition-all shadow-2xl"
+              placeholder="Tìm kiếm tài khoản..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {[
+              { key: "loginBanned", label: "Bị Khóa", icon: UserX, color: "rose" },
+              { key: "gameBanned", label: "Cấm Game", icon: Gamepad2, color: "amber" },
+              { key: "postBanned", label: "Cấm Post", icon: FileText, color: "blue" },
+            ].map((f) => (
+              <button
+                key={f.key}
+                onClick={() =>
+                  setUserFilters((prev) => ({ ...prev, [f.key]: !prev[f.key] }))
+                }
+                className={`flex items-center gap-3 px-6 py-3.5 rounded-[22px] text-xs font-black uppercase tracking-widest transition-all border shadow-lg active:scale-95 ${
+                  userFilters[f.key]
+                    ? `bg-${f.color}-600 border-transparent text-white ring-4 ring-${f.color}-500/20 scale-105`
+                    : "bg-zinc-900/50 border-white/5 text-zinc-500 hover:text-white hover:border-white/20"
+                }`}
+              >
+                <f.icon className="w-4 h-4" />
+                {f.label}
+              </button>
+            ))}
+            {(userFilters.loginBanned ||
+              userFilters.gameBanned ||
+              userFilters.postBanned) && (
+              <button
+                onClick={() =>
+                  setUserFilters({
+                    loginBanned: false,
+                    gameBanned: false,
+                    postBanned: false,
+                  })
+                }
+                className="px-6 py-3.5 rounded-[22px] text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-white transition-all underline underline-offset-8 decoration-violet-500/50"
+              >
+                Xóa lọc
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[40px] overflow-hidden shadow-2xl">
@@ -648,11 +705,13 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {filtered.map((game) => (
-                  <tr
-                    key={game.id}
-                    className="group hover:bg-white/[0.03] transition-all"
-                  >
+                {filtered.map((game) => {
+                  const gid = game.id || game.Id;
+                  return (
+                    <tr
+                      key={gid}
+                      className="group hover:bg-white/[0.03] transition-all"
+                    >
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-5">
                         <img
@@ -692,7 +751,7 @@ export default function AdminPage() {
                     <td className="px-10 py-7 text-right">
                       <div className="flex items-center justify-end gap-4">
                         <button
-                          onClick={() => navigate(`/games/${game.id}`)}
+                          onClick={() => navigate(`/games/${gid}`)}
                           className="p-4 bg-zinc-800 hover:bg-white/10 text-white rounded-[20px] transition-all"
                         >
                           <Eye className="w-6 h-6" />
@@ -700,7 +759,7 @@ export default function AdminPage() {
                         <button
                           onClick={() =>
                             triggerConfirm(
-                              () => handleDeleteGame(game.id),
+                              () => handleDeleteGame(gid),
                               "Xóa sản phẩm?",
                               `Hành động này sẽ gỡ bỏ "${game.title}" vĩnh viễn khỏi hệ thống.`,
                               "danger",
@@ -713,8 +772,9 @@ export default function AdminPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
+                );
+              })}
+            </tbody>
             </table>
           </div>
         </div>
