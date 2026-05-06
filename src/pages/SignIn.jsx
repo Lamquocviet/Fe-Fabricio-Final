@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShieldAlert, Phone } from "lucide-react";
 import useAuth from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -41,6 +41,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isBanned, setIsBanned] = useState(false);
 
   const handleChange = (field) => (e) => {
     const value = field === "rememberMe" ? e.target.checked : e.target.value;
@@ -102,6 +103,10 @@ const Login = () => {
         err?.message ||
         "Đăng nhập thất bại";
 
+      if (message.toLowerCase().includes("khóa")) {
+        setIsBanned(true);
+      }
+
       setError(message);
       toast.error(message);
     }
@@ -110,6 +115,54 @@ const Login = () => {
   const onClick = () => {
     navigate("/");
   };
+
+  if (isBanned) {
+    return (
+      <div className="relative min-h-screen bg-[#050505] flex items-center justify-center p-4 selection:bg-rose-500/30">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(225,29,72,0.15),transparent_70%)]" />
+        
+        <Link
+          to="/"
+          className="absolute left-6 top-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2.5 text-sm font-semibold text-zinc-300 backdrop-blur-md transition hover:bg-white/5"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Quay lại trang chủ</span>
+        </Link>
+
+        <div className="max-w-xl w-full bg-zinc-900/50 border border-white/10 rounded-[40px] p-12 text-center backdrop-blur-2xl shadow-2xl relative overflow-hidden group animate-in fade-in zoom-in duration-500">
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-rose-600 shadow-[0_0_20px_rgba(225,29,72,0.4)]" />
+          
+          <div className="relative z-10">
+            <div className="w-24 h-24 bg-rose-600/10 border border-rose-600/20 rounded-[32px] flex items-center justify-center mx-auto mb-8 group-hover:rotate-12 transition-transform duration-500">
+              <ShieldAlert className="w-12 h-12 text-rose-500" />
+            </div>
+            
+            <h1 className="text-3xl font-black mb-4 tracking-tight text-white uppercase">Truy cập bị từ chối</h1>
+            <p className="text-zinc-400 text-lg leading-relaxed mb-10">
+              Tài khoản của bạn đã bị <span className="text-rose-400 font-bold">khóa vĩnh viễn</span> do vi phạm chính sách cộng đồng.
+            </p>
+            
+            <div className="bg-white/5 border border-white/5 rounded-3xl p-6 flex items-center justify-center gap-6 group/btn hover:bg-white/10 transition-all cursor-default">
+              <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
+                <Phone className="w-7 h-7 text-emerald-500" />
+              </div>
+              <div className="text-left">
+                <p className="text-xs text-zinc-500 font-black uppercase tracking-widest mb-1">Liên hệ Admin giải quyết</p>
+                <p className="text-3xl font-black text-white tracking-tighter">0123 456 789</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsBanned(false)}
+              className="mt-10 text-sm font-bold text-zinc-500 hover:text-white transition-colors underline underline-offset-8 decoration-white/10 hover:decoration-white/30"
+            >
+              Thử lại bằng tài khoản khác
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(255,90,59,0.18),transparent_28%),radial-gradient(circle_at_top_right,rgba(255,90,59,0.12),transparent_22%),linear-gradient(180deg,#050505_0%,#0a0a0c_45%,#040404_100%)] px-4 py-6 md:px-6 flex items-center justify-center text-white">

@@ -63,6 +63,8 @@ export default function DashboardGameDetailPage() {
   const [newThumbnail, setNewThumbnail] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const thumbnailRef = useRef(null);
+  const [newGameFile, setNewGameFile] = useState(null);
+  const gameFileRef = useRef(null);
 
   /* delete modal state */
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -140,6 +142,7 @@ export default function DashboardGameDetailPage() {
     setIsEditing(true);
     setNewThumbnail(null);
     setThumbnailPreview(null);
+    setNewGameFile(null);
     setForm({
       Title: game.title ?? "",
       Description: game.description ?? "",
@@ -153,6 +156,7 @@ export default function DashboardGameDetailPage() {
     setIsEditing(false);
     setNewThumbnail(null);
     setThumbnailPreview(null);
+    setNewGameFile(null);
   };
 
   const handleThumbnailChange = (e) => {
@@ -185,6 +189,7 @@ export default function DashboardGameDetailPage() {
         TagIds: selectedTagIds,
       };
       if (newThumbnail) payload.Thumbnail = newThumbnail;
+      if (newGameFile) payload.GameFile = newGameFile;
 
       const cleanId = id.split(":")[0];
       await updateGame(cleanId, payload);
@@ -196,6 +201,7 @@ export default function DashboardGameDetailPage() {
       setIsEditing(false);
       setNewThumbnail(null);
       setThumbnailPreview(null);
+      setNewGameFile(null);
     } catch (err) {
       toast.error(err.message || "Cập nhật thất bại");
     } finally {
@@ -410,16 +416,7 @@ export default function DashboardGameDetailPage() {
                   {/* Fields */}
                   {isEditing ? (
                     <div className="space-y-4">
-                      {/* Backend Warning */}
-                      <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 mb-4 flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                        <p className="text-[11px] text-amber-200/80 leading-relaxed">
-                          Lưu ý: Backend hiện chưa hỗ trợ API cập nhật thông tin
-                          game (Lỗi 405). Việc nhấn "Lưu" có thể thất bại cho
-                          đến khi backend được cập nhật.
-                        </p>
-                      </div>
-
+                      {/* Title */}
                       <div>
                         <label className="text-sm text-zinc-400 mb-1 block">
                           Tên game
@@ -485,6 +482,34 @@ export default function DashboardGameDetailPage() {
                           placeholder="Mô tả game..."
                         />
                       </div>
+
+                      {/* Game File (Build) */}
+                      <div>
+                        <label className="text-sm text-zinc-400 mb-1 block">
+                          Cập nhật Game Build (Zip file)
+                        </label>
+                        <div
+                          onClick={() => gameFileRef.current?.click()}
+                          className="w-full bg-zinc-900 border-2 border-dashed border-white/10 hover:border-violet-500/50 rounded-xl p-4 flex items-center justify-center gap-3 cursor-pointer transition-all group"
+                        >
+                          <div className="w-10 h-10 bg-violet-500/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <UploadCloud className="w-5 h-5 text-violet-400" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-sm font-medium text-white">
+                              {newGameFile ? newGameFile.name : "Chọn file game mới (để trống nếu không đổi)"}
+                            </p>
+                            <p className="text-xs text-zinc-500">Hỗ trợ .zip, .rar (Tối đa 500MB)</p>
+                          </div>
+                        </div>
+                        <input
+                          ref={gameFileRef}
+                          type="file"
+                          accept=".zip,.rar,.7z"
+                          className="hidden"
+                          onChange={(e) => setNewGameFile(e.target.files?.[0])}
+                        />
+                      </div>
                       {/* Tags */}
                       <div>
                         <label className="text-sm text-zinc-400 mb-2 block">
@@ -498,11 +523,10 @@ export default function DashboardGameDetailPage() {
                                 key={tag.id}
                                 type="button"
                                 onClick={() => toggleTag(tag.id)}
-                                className={`px-3 py-1.5 text-xs rounded-full border transition-all ${
-                                  active
-                                    ? "bg-gradient-to-br from-violet-600 to-violet-500 text-white border-transparent shadow-lg shadow-violet-500/25"
-                                    : "bg-[#1a1c28] border-[#2a2d3d] text-zinc-400 hover:border-violet-400 hover:text-white"
-                                }`}
+                                className={`px-3 py-1.5 text-xs rounded-full border transition-all ${active
+                                  ? "bg-gradient-to-br from-violet-600 to-violet-500 text-white border-transparent shadow-lg shadow-violet-500/25"
+                                  : "bg-[#1a1c28] border-[#2a2d3d] text-zinc-400 hover:border-violet-400 hover:text-white"
+                                  }`}
                               >
                                 {tag.name}
                               </button>
@@ -556,23 +580,6 @@ export default function DashboardGameDetailPage() {
                   {/* ── Game file section (always visible) ── */}
                   <div className="pt-4 border-t border-white/5">
                     <div className="flex items-center justify-between mb-3">
-                      <p className="text-sm font-medium text-white flex items-center gap-2">
-                        <FileArchive className="w-4 h-4 text-amber-400" />
-                        File Game (ZIP)
-                      </p>
-                    </div>
-                    {/* Backend chưa có API update game nên chỉ upload mới khi cần */}
-                    <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 flex items-start gap-3">
-                      <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                      <div className="text-xs text-amber-200/80 leading-relaxed">
-                        <p className="font-semibold text-amber-300 mb-1">
-                          Chức năng đổi file ZIP chưa khả dụng
-                        </p>
-                        <p>
-                          {" "}
-                          Hiện đang trong giai đoạn beta, vui lòng chờ thêm!
-                        </p>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -644,8 +651,8 @@ export default function DashboardGameDetailPage() {
                                   <span className="text-xs text-zinc-500">
                                     {comment.createdAt
                                       ? new Date(
-                                          comment.createdAt,
-                                        ).toLocaleDateString("vi-VN")
+                                        comment.createdAt,
+                                      ).toLocaleDateString("vi-VN")
                                       : ""}
                                   </span>
                                 </div>
