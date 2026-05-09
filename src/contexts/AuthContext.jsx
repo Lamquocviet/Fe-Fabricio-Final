@@ -56,6 +56,16 @@ export function AuthProvider({ children }) {
         loginUserData = profileRes?.user || profileRes?.data || profileRes;
       }
 
+      if (loginUserData?.isBanned || loginUserData?.IsBanned) {
+        await logoutUser();
+        localStorage.removeItem("user");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        throw new Error(
+          "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin để biết thêm chi tiết.",
+        );
+      }
+
       saveUser(loginUserData);
 
       return res;

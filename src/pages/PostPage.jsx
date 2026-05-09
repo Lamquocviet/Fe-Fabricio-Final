@@ -6,6 +6,7 @@ import CreatePostBox from "@/components/CreatePostBox";
 import PostCard from "../components/PostCard";
 import useAuth from "@/contexts/AuthContext";
 import usePosts from "../hooks/usePost";
+import { ShieldAlert, Phone } from "lucide-react";
 
 const PostPage = () => {
   const {
@@ -110,12 +111,37 @@ const PostPage = () => {
                 </span>
               </div>
 
-              <CreatePostBox
-                user={user}
-                onPostCreated={handleCreatePost}
-                loading={creating}
-                error={error}
-              />
+              {user?.isPostBanned || user?.IsPostBanned ? (
+                <div className="relative overflow-hidden rounded-3xl border border-rose-500/20 bg-rose-500/5 p-10 text-center backdrop-blur-xl group">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-rose-600/50 shadow-[0_0_20px_rgba(225,29,72,0.2)]" />
+                  <div className="relative z-10 flex flex-col items-center">
+                    <div className="w-20 h-20 bg-rose-600/10 border border-rose-600/20 rounded-[28px] flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform duration-500">
+                      <ShieldAlert className="w-10 h-10 text-rose-500" />
+                    </div>
+                    <h3 className="text-2xl font-black mb-3 tracking-tight text-white">Tính năng bị hạn chế</h3>
+                    <p className="text-zinc-400 text-sm leading-relaxed mb-8 max-w-md mx-auto">
+                      Tài khoản của bạn đã bị <span className="text-rose-400 font-bold">chặn quyền đăng bài viết</span>. Vui lòng liên hệ Admin qua số điện thoại để mở lại tính năng này.
+                    </p>
+                    
+                    <div className="inline-flex items-center gap-4 bg-white/5 border border-white/5 rounded-2xl px-6 py-4 transition-all">
+                      <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+                        <Phone className="w-5 h-5 text-emerald-500" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Hỗ trợ</p>
+                        <p className="text-xl font-black text-white tracking-tighter">0123 456 789</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <CreatePostBox
+                  user={user}
+                  onPostCreated={handleCreatePost}
+                  loading={creating}
+                  error={error}
+                />
+              )}
             </section>
 
             {error && (

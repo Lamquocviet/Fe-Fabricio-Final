@@ -214,23 +214,22 @@ export const updateGame = async (gameId, payload) => {
       formData.append("Thumbnail", payload.Thumbnail);
     }
 
+    if (payload.GameFile instanceof File) {
+      formData.append("GameFile", payload.GameFile);
+    }
+
     if (payload.TagIds) {
       payload.TagIds.forEach((tagId) => {
         formData.append("TagIds", tagId);
       });
     }
 
-    const res = await axiosInstance.put(`/Games/${gameId}`, formData, {
+    const res = await axiosInstance.patch(`/Games/${gameId}`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
     return res.data;
   } catch (error) {
-    if (error.response?.status === 405) {
-      throw new Error(
-        "Backend hiện chưa hỗ trợ cập nhật game (API PUT 405). Vui lòng thử lại sau.",
-      );
-    }
     throw new Error(getErrorMessage(error, "Cập nhật game thất bại"));
   }
 };
