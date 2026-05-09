@@ -54,7 +54,7 @@ export default function FeaturedDropSection({ featuredDrop }) {
             </h3>
             <div className="mt-3 flex items-center gap-3">
               <span className="text-xl font-semibold text-[#ffb14a]">
-                ${featuredDrop?.price || "14.99"}
+                {featuredDrop.price === 0 ? "Free" : `$${featuredDrop.price.toFixed(2)}`}
               </span>
               <span className="rounded-full border border-orange-400/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-orange-200">
                 {featuredDrop.gameTags?.map((tag) => tag.name).join(", ") ||
