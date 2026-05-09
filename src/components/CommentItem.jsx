@@ -18,7 +18,7 @@ function formatTimeAgo(input) {
 
 export default function CommentItem({ comment, authorId }) {
   console.log("CommentItem render", { comment, authorId });
-  const authorComment = comment.commentator || "Unknown";
+  const authorComment = comment.commentator || {};
   const isAuthor = authorComment.id === authorId;
   const avatarUrl = authorComment?.avatarUrl
     ? authorComment.avatarUrl.startsWith("http")
@@ -41,11 +41,7 @@ export default function CommentItem({ comment, authorId }) {
             <span
               className={`font-semibold ${isAuthor ? "text-red-400" : "text-sky-200"}`}
             >
-              {authorComment.id === authorId
-                ? "You"
-                : authorComment.displayName ||
-                  authorComment.username ||
-                  "Unknown"}
+              {authorComment.displayName || authorComment.username || "Unknown"}
             </span>
             <span className="text-sm text-zinc-500">
               {formatTimeAgo(comment.createdAt)} -{" "}
