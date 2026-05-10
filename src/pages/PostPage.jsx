@@ -1,5 +1,4 @@
-/* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import CreatePostBox from "@/components/CreatePostBox";
@@ -7,8 +6,13 @@ import PostCard from "../components/PostCard";
 import useAuth from "@/contexts/AuthContext";
 import usePosts from "../hooks/usePost";
 import { ShieldAlert, Phone } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const PostPage = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const targetPostId = searchParams.get("postId");
+
   const {
     posts,
     comments,
@@ -25,9 +29,27 @@ const PostPage = () => {
     createReaction,
     removeReaction,
     refetch,
-  } = usePosts({ page: 1, limit: 10 });
+  } = usePosts({ page: 1, limit: 100 }); // Increased limit to ensure target post is likely loaded
 
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (!loading && targetPostId && posts.length > 0) {
+      // Small timeout to ensure DOM is fully rendered
+      const timer = setTimeout(() => {
+        const element = document.getElementById(`post-${targetPostId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+          // Highlight effect
+          element.classList.add("ring-2", "ring-violet-500", "ring-offset-4", "ring-offset-black");
+          setTimeout(() => {
+            element.classList.remove("ring-2", "ring-violet-500", "ring-offset-4", "ring-offset-black");
+          }, 3000);
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, targetPostId, posts]);
 
   const handleCreatePost = async (payload) => {
     await createPost({

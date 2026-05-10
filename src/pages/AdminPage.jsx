@@ -841,7 +841,7 @@ export default function AdminPage() {
                   <td className="px-10 py-7 text-right">
                     <div className="flex items-center justify-end gap-4">
                       <button
-                        onClick={() => navigate(`/posts`)}
+                        onClick={() => navigate(`/posts?postId=${post.id}`)}
                         className="p-4 bg-zinc-800 hover:bg-white/10 text-white rounded-[20px] transition-all"
                       >
                         <Eye className="w-6 h-6" />
