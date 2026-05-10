@@ -1,12 +1,14 @@
 import { useState } from "react";
 import {
   purchaseGame,
-  getPlayUrl,
-  getDownloadUrl,
 } from "@/services/gameService";
+
+import { toast } from "sonner";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 export default function PaymentModal({ game, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
+  const { requireAuth } = useRequireAuth();
 
   // const savePurchased = (gameId) => {
   //   const data = localStorage.getItem("purchasedGames");
@@ -18,19 +20,21 @@ export default function PaymentModal({ game, onClose, onSuccess }) {
   //   }
   // };
 const handleConfirm = async () => {
+  if (!requireAuth("Vui lòng đăng nhập để mua game.")) return;
+
   try {
     setLoading(true);
 
     await purchaseGame(game.id, game.rawPrice);
 
-    alert("Thanh toán thành công!");
+    toast.success("Thanh toán thành công!");
 
     onSuccess(game.id);
 
     onClose();
   } catch (err) {
     console.error(err);
-    alert("Thanh toán thất bại!");
+    toast.error(err.message || "Thanh toán thất bại!");
   } finally {
     setLoading(false);
   }

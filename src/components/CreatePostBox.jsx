@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import { toast } from "sonner";
+import { getUserAvatarUrl } from "@/utils/userProfile";
 
 export default function CreatePostBox({
   user = {},
@@ -30,7 +32,7 @@ export default function CreatePostBox({
   };
 
   const handleSelectImages = (e) => {
-    if (!requireAuth()) {
+    if (!requireAuth("Vui lòng đăng nhập để đăng bài.")) {
       e.target.value = "";
       return;
     }
@@ -46,15 +48,19 @@ export default function CreatePostBox({
   };
 
   const handleSubmit = async () => {
-    if (!requireAuth()) return;
+    if (!requireAuth("Vui lòng đăng nhập để đăng bài.")) return;
 
     if (!title.trim()) {
-      setFormError("Title is required");
+      const message = "Tiêu đề bài viết không được để trống.";
+      setFormError(message);
+      toast.error(message);
       return;
     }
 
     if (!content.trim()) {
-      setFormError("Content is required");
+      const message = "Nội dung bài viết không được để trống.";
+      setFormError(message);
+      toast.error(message);
       return;
     }
 
@@ -75,10 +81,7 @@ export default function CreatePostBox({
     <div className="mt-6 rounded-3xl border border-white/10 bg-[#0d0d0d] p-4 md:p-6">
       <div className="flex items-center gap-3">
         <img
-          src={
-            user?.avatarUrl ||
-            "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png"
-          }
+          src={getUserAvatarUrl(user)}
           alt="avatar"
           className="h-10 w-10 rounded-full object-cover"
         />

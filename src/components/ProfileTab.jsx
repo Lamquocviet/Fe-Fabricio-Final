@@ -1,10 +1,10 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import MyGameTab from "./MyGameTab";
-import { userService } from "@/services/userService";
+/* eslint-disable no-unused-vars */
 import { useCallback, useEffect, useState } from "react";
-import PostCard from "@/components/PostCard";
+import MyGameTab from "./MyGameTab";
 import MyGameFavoriteTab from "./MyGameFavoriteTab";
+import PostCard from "@/components/PostCard";
 
+import { userService } from "@/services/userService";
 import {
   createComment,
   createReaction,
@@ -13,22 +13,11 @@ import {
   removeReaction,
   updatePost,
 } from "@/services/postService";
-import useRequireAuth from "@/hooks/useRequireAuth";
 
-const DEFAULT_AVATAR =
-  "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png";
+import useRequireAuth from "@/hooks/useRequireAuth";
+import { getImageUrl, getUserAvatarUrl } from "@/utils/userProfile";
 
 const getUserId = (user) => user?.id || user?.Id || "";
-
-const normalizeMediaUrl = (url) => {
-  if (!url) return "";
-
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
-  }
-
-  return `http://localhost/${url}`;
-};
 
 const getItemsFromResponse = (response) => {
   if (Array.isArray(response)) return response;
@@ -48,7 +37,6 @@ export default function ProfileTab({ user }) {
   const [postsLoading, setPostsLoading] = useState(false);
   const [postsError, setPostsError] = useState("");
   const [deleting, setDeleting] = useState(false);
-  const [users, setUser] = useState(null);
 
   const userId = getUserId(user);
 
@@ -58,49 +46,58 @@ export default function ProfileTab({ user }) {
     { id: "My games", label: "My games" },
   ];
 
-
-  // 🔥 fetch user
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const data = await userService.getCurrentUser();
-        setUser(data);
-      } catch (err) {
-        console.error("GetMe error:", err);
-      }
-    };
-
-    fetchUser();
-  }, []);
-  
-  
-  if (!user) {
-    return <p className="text-white">Loading profile...</p>;
-  }
-
-  console.log(posts);
-
   const mapPostWithAuthor = useCallback(
     (post) => {
       const author = post?.author || {};
-      const rawUsername = author.username || user?.username || "";
+      const authorId = post?.authorId || author?.id || author?.Id || userId;
+
+      const isCurrentUserPost =
+        authorId && userId && String(authorId) === String(userId);
+
+      /**
+       * Nếu bài viết là của user hiện tại:
+       * - Ưu tiên dữ liệu user mới nhất sau khi update avatar/profile.
+       * - Giữ lại author cũ để không mất field phụ nếu user không có.
+       */
+      const displayAuthor = isCurrentUserPost
+        ? {
+            ...author,
+            ...user,
+          }
+        : author;
+
+      const rawUsername =
+        displayAuthor?.username ||
+        displayAuthor?.Username ||
+        user?.username ||
+        user?.Username ||
+        "";
+
       const username = rawUsername
         ? `@${rawUsername.toString().replace(/^@/, "")}`
         : user?.email
           ? `@${user.email.split("@")[0]}`
           : "";
 
+      const displayName =
+        displayAuthor?.displayName ||
+        displayAuthor?.DisplayName ||
+        displayAuthor?.fullName ||
+        displayAuthor?.name ||
+        user?.displayName ||
+        user?.DisplayName ||
+        user?.username ||
+        user?.Username ||
+        "Unknown User";
+
       return {
         ...post,
-        authorId: post?.authorId || author?.id || userId,
-        name:
-          author?.displayName ||
-          user?.displayName ||
-          user?.username ||
-          "Unknown User",
+        authorId,
+        name: displayName,
         username,
-        avatar: ("http://localhost/" + (author?.avatarUrl || DEFAULT_AVATAR)),
-        role: author?.role || user?.role || "user",
+        avatar: getUserAvatarUrl(displayAuthor),
+        role:
+          displayAuthor?.role || displayAuthor?.Role || user?.role || "user",
         time: post?.createdAt
           ? new Date(post.createdAt).toLocaleString("vi-VN")
           : "",
@@ -111,7 +108,7 @@ export default function ProfileTab({ user }) {
 
               return {
                 id: item.id,
-                mediaUrl: normalizeMediaUrl(item.mediaUrl),
+                mediaUrl: getImageUrl(item.mediaUrl),
               };
             })
             .filter(Boolean) || [],
@@ -125,15 +122,7 @@ export default function ProfileTab({ user }) {
         },
       };
     },
-    [
-      user?.avatar,
-      user?.avatarUrl,
-      user?.displayName,
-      user?.email,
-      user?.role,
-      user?.username,
-      userId,
-    ],
+    [user, userId],
   );
 
   const fetchUserPosts = useCallback(
@@ -152,7 +141,8 @@ export default function ProfileTab({ user }) {
           limit: 20,
         });
 
-        const mappedPosts = getItemsFromResponse(response).map(mapPostWithAuthor);
+        const mappedPosts =
+          getItemsFromResponse(response).map(mapPostWithAuthor);
         setPosts(mappedPosts);
       } catch (error) {
         setPosts([]);
@@ -166,6 +156,9 @@ export default function ProfileTab({ user }) {
     [mapPostWithAuthor, userId],
   );
 
+  /**
+   * Fetch bài viết khi vào tab My Posts.
+   */
   useEffect(() => {
     if (activeTab !== "Posts") return;
 
@@ -177,10 +170,37 @@ export default function ProfileTab({ user }) {
     fetchUserPosts();
   }, [activeTab, fetchUserPosts, userId]);
 
+  /**
+   * Khi user/avatar/profile thay đổi, remap lại posts hiện có.
+   * Trường hợp này xử lý lỗi:
+   * - Avatar trên profile đã đổi.
+   * - Nhưng avatar trong tab My Posts vẫn là avatar cũ.
+   */
+  useEffect(() => {
+    if (activeTab !== "Posts") return;
+    if (!userId) return;
+
+    setPosts((prevPosts) => prevPosts.map(mapPostWithAuthor));
+  }, [
+    activeTab,
+    userId,
+    mapPostWithAuthor,
+    user?.avatar,
+    user?.avatarUrl,
+    user?.imageUrl,
+    user?.image,
+    user?.photoURL,
+    user?.profilePicture,
+    user?.avatarVersion,
+    user?.avatarUpdatedAt,
+    user?.updatedAt,
+  ]);
+
   const handleUpdatePost = async (postId, payload) => {
     try {
       setPostsError("");
       ensureAuth();
+
       await updatePost(postId, payload);
       await fetchUserPosts({ silent: true });
     } catch (error) {
@@ -231,7 +251,9 @@ export default function ProfileTab({ user }) {
     try {
       setPostsError("");
       ensureAuth();
+
       await createComment(postId, { content });
+      await handleGetPostComments(postId);
     } catch (error) {
       setPostsError(error.message || "Tạo bình luận thất bại");
       throw error;
@@ -242,7 +264,9 @@ export default function ProfileTab({ user }) {
     try {
       setPostsError("");
       ensureAuth();
+
       await createReaction(postId, reactionType);
+      await fetchUserPosts({ silent: true });
     } catch (error) {
       setPostsError(error.message || "Tương tác thất bại");
       throw error;
@@ -253,7 +277,9 @@ export default function ProfileTab({ user }) {
     try {
       setPostsError("");
       ensureAuth();
+
       await removeReaction(postId);
+      await fetchUserPosts({ silent: true });
     } catch (error) {
       setPostsError(error.message || "Xóa tương tác thất bại");
       throw error;
@@ -310,21 +336,23 @@ export default function ProfileTab({ user }) {
     );
   };
 
+  if (!user) {
+    return <p className="text-white">Loading profile...</p>;
+  }
 
   return (
     <div className="mt-16 max-w-7xl mx-auto px-6">
-      {/* Tab Navigation */}
       <div className="flex border-b border-zinc-800">
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            type="button"
             onClick={() => setActiveTab(tab.id)}
-            className={`px-8 py-4 text-lg font-medium transition-all relative
-              ${
-                activeTab === tab.id
-                  ? "text-white"
-                  : "text-zinc-400 hover:text-zinc-200"
-              }`}
+            className={`relative px-8 py-4 text-lg font-medium transition-all ${
+              activeTab === tab.id
+                ? "text-white"
+                : "text-zinc-400 hover:text-zinc-200"
+            }`}
           >
             {tab.label}
             {activeTab === tab.id && (
@@ -333,24 +361,14 @@ export default function ProfileTab({ user }) {
           </button>
         ))}
       </div>
-      
 
-      {/* Tab Content */}
+      <div className="mt-8">
+        {activeTab === "Games" && <MyGameFavoriteTab />}
 
-       <div className="mt-8">
+        {activeTab === "Posts" && renderPosts()}
 
-        {activeTab === "Games" && (
-          <MyGameFavoriteTab />
-        )}
-
-         {activeTab === "Posts" && renderPosts()}
-
-        {activeTab === "My games" && (
-          <MyGameTab userId={users.id} />
-        )}
-
+        {activeTab === "My games" && <MyGameTab userId={userId} />}
       </div>
     </div>
-
   );
 }

@@ -1,4 +1,6 @@
 import React from "react";
+import { getUserAvatarUrl } from "@/utils/userProfile";
+import useAuth from "@/contexts/AuthContext";
 
 function formatTimeAgo(input) {
   if (!input) return "Now";
@@ -17,21 +19,30 @@ function formatTimeAgo(input) {
 }
 
 export default function CommentItem({ comment, authorId }) {
-  console.log("CommentItem render", { comment, authorId });
+  const { user } = useAuth() || {};
   const authorComment = comment.commentator || {};
-  const isAuthor = authorComment.id === authorId;
-  const avatarUrl = authorComment?.avatarUrl
-    ? authorComment.avatarUrl.startsWith("http")
-      ? authorComment.avatarUrl
-      : `http://localhost/${authorComment.avatarUrl}`
-    : "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png";
+  const commentatorId =
+    authorComment.id || authorComment.userId || comment.commentatorId || comment.userId;
+  const currentUserId = user?.id || user?.userId;
+  const isCurrentUserComment =
+    commentatorId &&
+    currentUserId &&
+    String(commentatorId) === String(currentUserId);
+  const displayCommentator = isCurrentUserComment
+    ? { ...authorComment, ...user }
+    : authorComment;
+  const isAuthor =
+    commentatorId && authorId && String(commentatorId) === String(authorId);
+  const avatarUrl = getUserAvatarUrl(displayCommentator);
   return (
     <div className="rounded-[22px] border border-white/8 bg-[#111214] px-4 py-3">
       <div className="flex items-start gap-3">
         <img
           src={avatarUrl}
           alt={
-            authorComment.displayName || authorComment.username || "User Avatar"
+            displayCommentator.displayName ||
+            displayCommentator.username ||
+            "User Avatar"
           }
           className="h-9 w-9 rounded-full object-cover ring-1 ring-white/10"
         />
@@ -41,7 +52,7 @@ export default function CommentItem({ comment, authorId }) {
             <span
               className={`font-semibold ${isAuthor ? "text-red-400" : "text-sky-200"}`}
             >
-              {authorComment.displayName || authorComment.username || "Unknown"}
+              {displayCommentator.displayName || displayCommentator.username || "Unknown"}
             </span>
             <span className="text-sm text-zinc-500">
               {formatTimeAgo(comment.createdAt)} -{" "}

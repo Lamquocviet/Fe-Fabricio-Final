@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowLeft, Star, Heart, MessageSquare } from 'lucide-react';
+import { getUserAvatarUrl } from '@/utils/userProfile';
 
 const GameAnalyticsTab = ({ game, onBack }) => {
   if (!game) return null;
@@ -56,8 +57,8 @@ const GameAnalyticsTab = ({ game, onBack }) => {
           <div className="space-y-6">
             {comments.map((comment, idx) => (
               <div key={idx} className="flex gap-4 p-4 rounded-xl bg-black/40 border border-white/5">
-                {comment.commentator?.avatarUrl ? (
-                  <img src={comment.commentator.avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full object-cover" />
+                {comment.commentator?.avatarUrl || comment.commentator?.avatar ? (
+                  <img src={getUserAvatarUrl(comment.commentator)} alt="Avatar" className="w-10 h-10 rounded-full object-cover" />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-violet-600 flex items-center justify-center font-bold text-white uppercase">
                     {comment.commentator?.displayName?.charAt(0) || '?'}

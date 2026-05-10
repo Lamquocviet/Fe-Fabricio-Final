@@ -4,6 +4,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import useAuth from "@/contexts/AuthContext";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import { getUserAvatarUrl } from "@/utils/userProfile";
 
 const pages = [
   { label: "Home", path: "/" },
@@ -17,17 +18,7 @@ const Header = ({ onOpenSidebar }) => {
   const { user, handleLogout } = useAuth();
   const { requireAuth } = useRequireAuth();
 
-  const defaultAvatar =
-    "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png";
-
-  const rawAvatarSrc = user?.avatarUrl || user?.avatar;
-
-  const avatarVersion =
-    user?.avatarVersion || user?.avatarUpdatedAt || user?.updatedAt || "";
-
-  const avatarSrc = rawAvatarSrc
-    ? `${rawAvatarSrc}?v=${avatarVersion}`
-    : defaultAvatar;
+  const avatarSrc = getUserAvatarUrl(user);
 
   const handleNavClick = (event, item) => {
     if (item.requiresAuth && !requireAuth()) {

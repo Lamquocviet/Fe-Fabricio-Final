@@ -5,6 +5,7 @@ import { getTags } from "@/services/tagService";
 import { useEffect, useState } from "react";
 import usePosts from "@/hooks/usePost";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import { getUserAvatarUrl } from "@/utils/userProfile";
 
 const mainNavItems = [
   { label: "Home", path: "/" },
@@ -92,10 +93,7 @@ const SidebarContent = ({ onClose }) => {
             className="flex items-center gap-3 rounded-3xl border border-white/10 bg-white/3 px-4 py-4 transition hover:bg-white/5"
           >
             <img
-              src={
-                user?.avatarUrl ||
-                "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png"
-              }
+              src={getUserAvatarUrl(user)}
               alt={user?.username || "user"}
               className="h-12 w-12 rounded-full object-cover ring-2 ring-white/20"
             />

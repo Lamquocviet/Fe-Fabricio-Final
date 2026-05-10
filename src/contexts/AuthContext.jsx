@@ -7,6 +7,7 @@ import {
   logoutUser,
 } from "../services/authService";
 import { AUTH_SESSION_CLEARED_EVENT } from "@/utils/authGuard";
+import { normalizeUser } from "@/utils/userProfile";
 
 const AuthContext = createContext(null);
 
@@ -14,7 +15,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
       const rawUser = localStorage.getItem("user");
-      return rawUser ? JSON.parse(rawUser) : null;
+      return rawUser ? normalizeUser(JSON.parse(rawUser)) : null;
     } catch {
       return null;
     }
@@ -24,8 +25,12 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState("");
 
   const saveUser = (userData) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    const normalizedUser = normalizeUser(userData);
+
+    setUser(normalizedUser);
+    localStorage.setItem("user", JSON.stringify(normalizedUser));
+
+    return normalizedUser;
   };
 
   const handleRegister = async (formData) => {
@@ -49,11 +54,15 @@ export function AuthProvider({ children }) {
 
       const res = await loginUser(formData);
 
-      let loginUserData = res?.user;
+      let loginUserData = res?.user
+        ? normalizeUser(res.user)
+        : res?.data?.user
+          ? normalizeUser(res.data.user)
+          : null;
 
       if (!loginUserData) {
         const profileRes = await getMyProfile();
-        loginUserData = profileRes?.user || profileRes?.data || profileRes;
+        loginUserData = normalizeUser(profileRes?.user || profileRes?.data || profileRes);
       }
 
       if (loginUserData?.isBanned || loginUserData?.IsBanned) {
@@ -83,7 +92,7 @@ export function AuthProvider({ children }) {
       setError("");
 
       const res = await getMyProfile();
-      const profileUser = res?.user || res?.data || res;
+      const profileUser = normalizeUser(res?.user || res?.data || res);
 
       saveUser(profileUser);
 
@@ -104,10 +113,7 @@ export function AuthProvider({ children }) {
         Object.entries(newUserData).filter(([, value]) => value !== undefined),
       );
 
-      const updatedUser = {
-        ...prev,
-        ...cleanedNewUserData,
-      };
+      const updatedUser = normalizeUser(cleanedNewUserData, prev);
 
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
@@ -137,7 +143,7 @@ export function AuthProvider({ children }) {
           return;
         }
 
-        const parsedUser = JSON.parse(localUser);
+        const parsedUser = normalizeUser(JSON.parse(localUser));
         setUser(parsedUser);
       } catch (error) {
         console.error("Error parsing user from localStorage:", error);

@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { getGameComments, createGameComment } from "@/services/gameService";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import useAuth from "@/contexts/AuthContext";
-
-const API_BASE_URL = "http://localhost/";
+import { toast } from "sonner";
+import { getUserAvatarUrl } from "@/utils/userProfile";
 
 export default function CommentsTab({ game }) {
   const [comments, setComments] = useState([]);
@@ -12,17 +12,6 @@ export default function CommentsTab({ game }) {
 
   const { requireAuth } = useRequireAuth();
   const { user } = useAuth();
-
-  const getAvatarUrl = (avatar, version = "") => {
-    if (!avatar) return `https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png`;
-
-    const src =
-      avatar.startsWith("http://") || avatar.startsWith("https://")
-        ? avatar
-        : `${API_BASE_URL}${avatar}`;
-
-    return version ? `${src}?v=${version}` : src;
-  };
 
   const normalizeComments = (data) => {
     return (data.items || []).map((c) => {
@@ -39,9 +28,7 @@ export default function CommentsTab({ game }) {
         userName:
           c.commentator?.displayName || c.commentator?.username || "Anonymous",
         avatarRaw: c.commentator?.avatarUrl || c.commentator?.avatar,
-        userAvatar: getAvatarUrl(
-          c.commentator?.avatarUrl || c.commentator?.avatar,
-        ),
+        userAvatar: getUserAvatarUrl(c.commentator),
         userRole: c.commentator?.role || "user",
         createdAt: c.createdAt,
       };
@@ -72,10 +59,13 @@ export default function CommentsTab({ game }) {
   ]);
 
   const handlePost = async () => {
-    if (!requireAuth()) return;
+    if (!requireAuth("Vui lòng đăng nhập để bình luận game.")) return;
 
     try {
-      if (!content.trim()) return;
+      if (!content.trim()) {
+        toast.error("Nội dung bình luận không được để trống.");
+        return;
+      }
 
       setLoading(true);
 
@@ -101,21 +91,25 @@ export default function CommentsTab({ game }) {
           newComment?.commentator?.avatarUrl ||
           newComment?.commentator?.avatar ||
           currentUserAvatar,
-        userAvatar: getAvatarUrl(
-          newComment?.commentator?.avatarUrl ||
+        userAvatar: getUserAvatarUrl({
+          ...user,
+          ...newComment?.commentator,
+          avatarUrl:
+            newComment?.commentator?.avatarUrl ||
             newComment?.commentator?.avatar ||
             currentUserAvatar,
-          user?.avatarVersion || user?.updatedAt || Date.now(),
-        ),
+          avatarVersion: user?.avatarVersion || user?.updatedAt || Date.now(),
+        }),
         userRole: newComment?.commentator?.role || user?.role || "user",
         createdAt: newComment?.createdAt || new Date().toISOString(),
       };
       setComments((prev) => [newItem, ...prev]);
 
       setContent("");
+      toast.success("Đăng bình luận thành công!");
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      toast.error(err.message || "Đăng bình luận thất bại!");
     } finally {
       setLoading(false);
     }
@@ -130,10 +124,10 @@ export default function CommentsTab({ game }) {
       String(currentUserId) === String(comment.userId);
 
     if (isCurrentUserComment) {
-      return getAvatarUrl(
-        user?.avatarUrl || user?.avatar || comment.avatarRaw,
-        user?.avatarVersion || user?.updatedAt || Date.now(),
-      );
+      return getUserAvatarUrl({
+        ...user,
+        avatarUrl: user?.avatarUrl || user?.avatar || comment.avatarRaw,
+      });
     }
 
     return comment.userAvatar;

@@ -1,6 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { gameLibraryService } from "@/services/gameService";
 import useAuth from "@/contexts/AuthContext";
+import {
+  isAuthenticatedUser,
+  notifyAuthRequired,
+} from "@/utils/authGuard";
+import { toast } from "sonner";
 
 const FavoriteContext = createContext();
 
@@ -39,6 +44,11 @@ export function FavoriteProvider({ children }) {
   }, [user]);
 
  const toggleFavorite = async (gameId) => {
+  if (!isAuthenticatedUser(user)) {
+    notifyAuthRequired("Vui lòng đăng nhập để yêu thích game.");
+    return false;
+  }
+
   const isFav = favoriteIds.has(gameId);
   const newSet = new Set(favoriteIds);
 
@@ -59,6 +69,10 @@ export function FavoriteProvider({ children }) {
     } else {
       await gameLibraryService.addGameFavorite(gameId);
     }
+
+    toast.success(
+      isFav ? "Đã bỏ game khỏi yêu thích." : "Đã thêm game vào yêu thích.",
+    );
   } catch (err) {
     console.error("Toggle favorite error:", err);
 
@@ -74,8 +88,11 @@ export function FavoriteProvider({ children }) {
     setFavoriteIds(rollbackSet);
     localStorage.setItem("favorites", JSON.stringify([...rollbackSet]));
 
-    alert("Có lỗi xảy ra, đã hoàn tác!");
+    toast.error("Có lỗi xảy ra, đã hoàn tác!");
+    return false;
   }
+
+  return true;
 };
 
   const isFavorite = (gameId) => favoriteIds.has(gameId);

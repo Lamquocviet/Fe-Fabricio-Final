@@ -38,26 +38,18 @@ import Sidebar from "@/components/Sidebar";
 import { adminService } from "@/services/adminService";
 import { userService } from "@/services/userService";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import { getUserAvatarUrl as getNormalizedUserAvatarUrl } from "@/utils/userProfile";
 
 /* ─────────────── Sub-components ─────────────── */
 
-const DEFAULT_AVATAR =
-  "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png";
-
 const getUserAvatarUrl = (user) => {
-  const avatarUrl = user?.avatarUrl;
-
-  if (!avatarUrl) {
+  if (!user?.avatarUrl && !user?.avatar) {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(
       user?.username || user?.displayName || "User",
     )}`;
   }
 
-  if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) {
-    return avatarUrl;
-  }
-
-  return `http://localhost/${avatarUrl}`;
+  return getNormalizedUserAvatarUrl(user);
 };
 
 const StatCard = ({ title, value, icon: Icon, color, trend }) => (

@@ -38,8 +38,6 @@ const Login = () => {
     password: "",
   });
 
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isBanned, setIsBanned] = useState(false);
 
@@ -50,9 +48,6 @@ const Login = () => {
       ...prev,
       [field]: value,
     }));
-
-    if (error) setError("");
-    if (successMessage) setSuccessMessage("");
   };
 
   const validateForm = () => {
@@ -69,48 +64,40 @@ const Login = () => {
     return "";
   };
   const onSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
-      toast.error(validationError);
-      return;
+  const validationError = validateForm();
+  if (validationError) {
+    toast.error(validationError);
+    return;
+  }
+
+  try {
+    await handleLogin(formData);
+
+    toast.success("Đăng nhập thành công!");
+
+    setTimeout(() => {
+      navigate("/");
+    }, 800);
+  } catch (err) {
+    const data = err?.response?.data;
+
+    const message =
+      data?.message ||
+      data?.title ||
+      data?.error ||
+      (typeof data === "string" ? data : "") ||
+      err?.message ||
+      "Đăng nhập thất bại";
+
+    if (message.toLowerCase().includes("khóa")) {
+      setIsBanned(true);
     }
 
-    try {
-      setError("");
-      setSuccessMessage("");
-
-      await handleLogin(formData);
-
-      const successText = "Đăng nhập thành công!";
-
-      setSuccessMessage(successText);
-      toast.success(successText);
-
-      setTimeout(() => {
-        navigate("/");
-      }, 800);
-    } catch (err) {
-      const data = err?.response?.data;
-
-      const message =
-        data?.message ||
-        data?.title ||
-        data?.error ||
-        (typeof data === "string" ? data : "") ||
-        err?.message ||
-        "Đăng nhập thất bại";
-
-      if (message.toLowerCase().includes("khóa")) {
-        setIsBanned(true);
-      }
-
-      setError(message);
-      toast.error(message);
-    }
-  };
+    toast.error(message);
+  }
+};
 
   const onClick = () => {
     navigate("/");
@@ -188,18 +175,6 @@ const Login = () => {
               Log in to continue your journey, track your favorite games, and
               join the latest player discussions.
             </p>
-
-            {error && (
-              <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-300">
-                {error}
-              </div>
-            )}
-
-            {successMessage && (
-              <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-300">
-                {successMessage}
-              </div>
-            )}
 
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
               <FormField

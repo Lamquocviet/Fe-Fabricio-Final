@@ -287,6 +287,8 @@ export const getGameRatings = async (gameId) => {
 
 export const rateGame = async (gameId, rating) => {
   try {
+    assertAuthenticated();
+
     if (!gameId) throw new Error("gameId is required");
     if (rating < 1 || rating > 5) {
       throw new Error("rating must be between 1 and 5");
@@ -304,6 +306,8 @@ export const rateGame = async (gameId, rating) => {
 
 
 export const purchaseGame = async (gameId, amount) => {
+  assertAuthenticated();
+
   const res = await axiosInstance.post(`/games/${gameId}/purchase`, {
     Amound: amount, // nếu backend đang dùng typo này thì giữ
   });
@@ -311,6 +315,8 @@ export const purchaseGame = async (gameId, amount) => {
 };
 
 export const getPurchaseHistory = async () => {
+  assertAuthenticated();
+
   const res = await axiosInstance.get(`/Users/gamepaid`);
   return res.data;
 };
@@ -327,7 +333,7 @@ export const getDownloadUrl = async (gameId) => {
 
 export const getUserGamePurchases = async () => {
   try {
-    // assertAuthenticated();
+    assertAuthenticated();
 
     const res = await axiosInstance.get(`/Users/gamepaid`);
 

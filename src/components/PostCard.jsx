@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import CommentSection from "./CommentSection";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import { toast } from "sonner";
 
 const getVisibleMediaCount = (count) => {
   if (count <= 4) return count;
@@ -258,6 +259,11 @@ export default function PostCard({
   };
 
   const handleSelectEditImages = (e) => {
+    if (!requireAuth("Vui lòng đăng nhập để chỉnh sửa bài viết.")) {
+      e.target.value = "";
+      return;
+    }
+
     const files = Array.from(e.target.files || []);
     setNewImages((prev) => [...prev, ...files]);
     e.target.value = "";
@@ -273,8 +279,11 @@ export default function PostCard({
   };
 
   const handleSaveEdit = async () => {
-    if (!requireAuth()) return;
-    if (!editTitle.trim() || !editContent.trim()) return;
+    if (!requireAuth("Vui lòng đăng nhập để chỉnh sửa bài viết.")) return;
+    if (!editTitle.trim() || !editContent.trim()) {
+      toast.error("Tiêu đề và nội dung bài viết không được để trống.");
+      return;
+    }
 
     const formData = new FormData();
 

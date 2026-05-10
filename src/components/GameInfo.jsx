@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
 import { rateGame, getGameRatings } from "@/services/gameService";
-import useAuth from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 export default function GameInfo({ game }) {
-  const { user } = useAuth();
+  const { user, requireAuth } = useRequireAuth();
 
   const [showRating, setShowRating] = useState(false);
   const [stars, setStars] = useState(0);
@@ -58,16 +59,15 @@ export default function GameInfo({ game }) {
   const tags = game.tags || [];
 
   const openRating = () => {
+    if (!requireAuth("Vui lòng đăng nhập để đánh giá game.")) return;
+
     setStars(userRating || 0);
     setHover(0);
     setShowRating(true);
   };
 
   const handleRate = async () => {
-    if (!user) {
-      alert("Bạn cần đăng nhập để đánh giá");
-      return;
-    }
+    if (!requireAuth("Vui lòng đăng nhập để đánh giá game.")) return;
 
     try {
       setLoading(true);
@@ -84,8 +84,9 @@ export default function GameInfo({ game }) {
       setLocalTotal(res.total || 0);
 
       setShowRating(false);
+      toast.success("Đánh giá game thành công!");
     } catch (err) {
-      alert(err.message || "Rating thất bại!");
+      toast.error(err.message || "Đánh giá game thất bại!");
     } finally {
       setLoading(false);
     }

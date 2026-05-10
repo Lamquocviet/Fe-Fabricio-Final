@@ -1,4 +1,5 @@
 import axiosInstance from "../utils/axiosInstance";
+import { normalizeUser } from "@/utils/userProfile";
 
 export const registerUser = async (data) => {
   try {
@@ -29,10 +30,10 @@ export const getMyProfile = async () => {
     const res = await axiosInstance.get("/Users/me");
 
     if (res.data?.user) {
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("user", JSON.stringify(normalizeUser(res.data.user)));
     }
 
-    return res;
+    return normalizeUser(res.data);
   } catch (error) {
     throw new Error(
       error?.response?.data?.message || "Không lấy được thông tin cá nhân",

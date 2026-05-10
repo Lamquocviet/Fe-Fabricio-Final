@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 
-import useAuth from "@/contexts/AuthContext";
-
 import { useProfile } from "@/hooks/useProfile";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { changePassword } from "@/services/userService";
@@ -13,6 +11,7 @@ import { Edit2, Camera, Save, X, KeyRound } from "lucide-react";
 import ProfileTab from "@/components/ProfileTab";
 
 import { toast } from "sonner";
+import { getUserAvatarUrl } from "@/utils/userProfile";
 
 const INITIAL_PASSWORD_FORM = {
   oldPassword: "",
@@ -40,9 +39,7 @@ const ProfilePage = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const { user, loading, saving, message, updateProfile } = useProfile();
-
-  const { updateAuthUser, fetchMyProfile } = useAuth();
+  const { user, loading, saving, updateProfile } = useProfile();
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
@@ -50,17 +47,12 @@ const ProfilePage = () => {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [passwordForm, setPasswordForm] = useState(INITIAL_PASSWORD_FORM);
   const [passwordSaving, setPasswordSaving] = useState(false);
-  const [passwordFeedback, setPasswordFeedback] = useState({
-    type: "",
-    text: "",
-  });
-
-  const [avatarVersion, setAvatarVersion] = useState(0);
 
   const profileName = getProfileName(user);
 
-  const rawAvatarSrc = user?.avatarUrl || user?.avatar || "";
-  const avatarSrc = rawAvatarSrc ? `${rawAvatarSrc}?v=${avatarVersion}` : "";
+  const currentAvatarSrc = getUserAvatarUrl(user, "");
+  const previewAvatarSrc = formData.avatarPreview || "";
+  const avatarSrc = previewAvatarSrc || currentAvatarSrc;
 
   const shouldShowAvatarImage =
     Boolean(avatarSrc) && failedAvatarSrc !== avatarSrc;
@@ -82,29 +74,27 @@ const ProfilePage = () => {
   const handleSave = async () => {
     if (!requireAuth()) return;
 
-    await updateProfile({
-      bio: formData.bio || "",
-      avatarFile: formData.avatarFile,
-    });
+    try {
+      await updateProfile({
+        bio: formData.bio || "",
+        avatarFile: formData.avatarFile,
+      });
 
-    const freshUser = await fetchMyProfile();
-
-    const newAvatarVersion = Date.now();
-
-    updateAuthUser({
-      ...freshUser,
-      avatarVersion: newAvatarVersion,
-    });
-
-    setAvatarVersion(newAvatarVersion);
-    setFailedAvatarSrc("");
-
-    setIsEditing(false);
+      setFailedAvatarSrc("");
+      setFormData({});
+      setIsEditing(false);
+    } catch (error) {
+      toast.error(
+        error.message || "Không thể cập nhật hồ sơ. Vui lòng thử lại.",
+      );
+    }
   };
 
   // Hủy chỉnh sửa
   const handleCancel = () => {
     setIsEditing(false);
+    setFormData({});
+    setFailedAvatarSrc("");
   };
 
   // Thay đổi avatar
@@ -115,17 +105,21 @@ const ProfilePage = () => {
     }
 
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setFormData((prev) => ({
-          ...prev,
-          avatarFile: file,
-          avatarPreview: event.target.result,
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+
+    setFailedAvatarSrc("");
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      setFormData((prev) => ({
+        ...prev,
+        avatarFile: file,
+        avatarPreview: event.target.result,
+      }));
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const handleInputChange = (e) => {
@@ -139,7 +133,6 @@ const ProfilePage = () => {
     if (!requireAuth()) return;
 
     setPasswordForm(INITIAL_PASSWORD_FORM);
-    setPasswordFeedback({ type: "", text: "" });
     setIsPasswordModalOpen(true);
   };
 
@@ -148,9 +141,6 @@ const ProfilePage = () => {
 
     setIsPasswordModalOpen(false);
     setPasswordForm(INITIAL_PASSWORD_FORM);
-    setPasswordFeedback((prev) =>
-      prev.type === "error" ? { type: "", text: "" } : prev,
-    );
   };
 
   const handlePasswordInputChange = (e) => {
@@ -160,10 +150,6 @@ const ProfilePage = () => {
       ...prev,
       [name]: value,
     }));
-
-    if (passwordFeedback.type === "error") {
-      setPasswordFeedback({ type: "", text: "" });
-    }
   };
 
   const validatePasswordForm = () => {
@@ -198,13 +184,12 @@ const ProfilePage = () => {
     const validationError = validatePasswordForm();
 
     if (validationError) {
-      setPasswordFeedback({ type: "error", text: validationError });
+      toast.error(validationError);
       return;
     }
 
     try {
       setPasswordSaving(true);
-      setPasswordFeedback({ type: "", text: "" });
 
       await changePassword({
         oldPassword: passwordForm.oldPassword,
@@ -214,15 +199,13 @@ const ProfilePage = () => {
 
       setPasswordForm(INITIAL_PASSWORD_FORM);
       setIsPasswordModalOpen(false);
-      setPasswordFeedback({
-        type: "success",
-        text: "Đổi mật khẩu thành công.",
-      });
+
+      toast.success("Đổi mật khẩu thành công.");
     } catch (error) {
-      setPasswordFeedback({
-        type: "error",
-        text: error.message || "Không thể đổi mật khẩu. Vui lòng thử lại.",
-      });
+      const message =
+        error.message || "Không thể đổi mật khẩu. Vui lòng thử lại.";
+
+      toast.error(message);
     } finally {
       setPasswordSaving(false);
     }
@@ -262,22 +245,6 @@ const ProfilePage = () => {
 
         <main className="flex-1 p-6 pt-8">
           <div className="w-full mx-auto">
-            {message?.text && (
-              <div
-                className={`mb-6 p-4 rounded-2xl text-center ${
-                  message.type === "success"
-                    ? "bg-green-500/20 text-green-400"
-                    : "bg-red-500/20 text-red-400"
-                }`}
-              >
-                {message.text}
-              </div>
-            )}
-            {passwordFeedback.type === "success" && (
-              <div className="mb-6 rounded-2xl bg-green-500/20 p-4 text-center text-green-400">
-                {passwordFeedback.text}
-              </div>
-            )}
             {/* ==================== MAIN PROFILE CARD ==================== */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
               {/* Phần trên: Avatar + Thông tin + Nút Đăng game */}
@@ -306,6 +273,11 @@ const ProfilePage = () => {
                         className="hidden"
                       />
                     </label>
+                  )}
+                  {isEditing && formData.avatarFile && (
+                    <p className="mt-3 max-w-28 truncate text-center text-xs text-zinc-400">
+                      Đã chọn ảnh mới
+                    </p>
                   )}
                 </div>
 
@@ -454,12 +426,6 @@ const ProfilePage = () => {
                   autoComplete="new-password"
                 />
               </label>
-
-              {passwordFeedback.type === "error" && (
-                <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-300">
-                  {passwordFeedback.text}
-                </div>
-              )}
 
               <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
                 <button

@@ -13,9 +13,12 @@ import {
 } from "../services/postService";
 
 import useRequireAuth from "@/hooks/useRequireAuth";
+import { DEFAULT_AVATAR, getImageUrl, getUserAvatarUrl } from "@/utils/userProfile";
+
+const getUserId = (user) => user?.id || user?.Id || user?.userId || user?.UserId || "";
 
 export default function usePosts({ page = 1, limit = 10 } = {}) {
-  const { ensureAuth } = useRequireAuth();
+  const { ensureAuth, user: currentUser } = useRequireAuth();
 
   const [posts, setPosts] = useState([]);
   const [trendingPosts, setTrendingPosts] = useState([]);
@@ -30,20 +33,21 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
 
   const mapPostWithAuthor = useCallback((post) => {
     try {
-      const author = post.author;
+      const author = post.author || {};
+      const authorId = post?.authorId || author?.id;
+      const currentUserId = getUserId(currentUser);
+      const isCurrentUserPost =
+        authorId && currentUserId && String(authorId) === String(currentUserId);
+      const displayAuthor = isCurrentUserPost ? { ...author, ...currentUser } : author;
 
       return {
         ...post,
 
-        name: author?.displayName || "Unknown User",
+        name: displayAuthor?.displayName || displayAuthor?.username || "Unknown User",
 
-        avatar: author?.avatarUrl
-          ? author.avatarUrl.startsWith("http")
-            ? author.avatarUrl
-            : `http://localhost/${author.avatarUrl}`
-          : "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png",
+        avatar: getUserAvatarUrl(displayAuthor),
 
-        role: author?.role || "user",
+        role: displayAuthor?.role || "user",
 
         time: post.createdAt
           ? new Date(post.createdAt).toLocaleString("vi-VN")
@@ -54,15 +58,9 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
             ?.map((item) => {
               if (!item?.mediaUrl) return null;
 
-              let url = item.mediaUrl;
-
-              if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                url = `http://localhost/${url}`;
-              }
-
               return {
                 id: item.id,
-                mediaUrl: url,
+                mediaUrl: getImageUrl(item.mediaUrl),
               };
             })
             .filter(Boolean) || [],
@@ -77,8 +75,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
         ...post,
 
         name: "Unknown User",
-        avatar:
-          "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png",
+        avatar: DEFAULT_AVATAR,
 
         time: post?.createdAt
           ? new Date(post.createdAt).toLocaleString("vi-VN")
@@ -89,15 +86,9 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
             ?.map((item) => {
               if (!item?.mediaUrl) return null;
 
-              let url = item.mediaUrl;
-
-              if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                url = `http://localhost/${url}`;
-              }
-
               return {
                 id: item.id,
-                mediaUrl: url,
+                mediaUrl: getImageUrl(item.mediaUrl),
               };
             })
             .filter(Boolean) || [],
@@ -108,7 +99,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
         },
       };
     }
-  }, []);
+  }, [currentUser]);
 
   const fetchTrendingPosts = useCallback(async () => {
     try {

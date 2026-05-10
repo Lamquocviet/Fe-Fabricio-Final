@@ -3,12 +3,13 @@ import PaymentModal from "./PaymentModal";
 import { getPlayUrl, getDownloadUrl } from "@/services/gameService";
 import { usePurchase } from "@/hooks/usePurchase";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import { toast } from "sonner";
 
 export default function ActionButtons({ game }) {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { purchasedIds, fetchPurchased, addPurchasedId, loading: purchaseLoading } =
+  const { purchasedIds, addPurchasedId, loading: purchaseLoading } =
     usePurchase();
 
   const type = game?.type?.trim()?.toLowerCase() || "";
@@ -32,7 +33,7 @@ export default function ActionButtons({ game }) {
       window.open(res.gameUrl, "_blank");
     } catch (err) {
       console.error(err);
-      alert("Không thể mở game!");
+      toast.error("Không thể mở game!");
     } finally {
       setLoading(false);
     }
@@ -51,7 +52,7 @@ export default function ActionButtons({ game }) {
       link.remove();
     } catch (err) {
       console.error(err);
-      alert("Download thất bại!");
+      toast.error("Download thất bại!");
     } finally {
       setLoading(false);
     }
@@ -82,7 +83,10 @@ export default function ActionButtons({ game }) {
       ) : (
         <>
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              if (!requireAuth("Vui lòng đăng nhập để mua game.")) return;
+              setShowModal(true);
+            }}
             className="w-full py-5 rounded-2xl bg-red-600 hover:bg-red-700"
           >
             Buy Now

@@ -17,6 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { getUserAvatarUrl } from "@/utils/userProfile";
 
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
@@ -72,19 +73,6 @@ export default function DashboardGameDetailPage() {
   const [deleting, setDeleting] = useState(false);
 
   const { tags } = useTag();
-
-  const DEFAULT_AVATAR =
-    "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png";
-
-  const getAvatarUrl = (avatarUrl) => {
-    if (!avatarUrl) return DEFAULT_AVATAR;
-
-    if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) {
-      return avatarUrl;
-    }
-
-    return `http://localhost/${avatarUrl}`;
-  };
 
   /* ── fetch game + stats ── */
   useEffect(() => {
@@ -616,9 +604,7 @@ export default function DashboardGameDetailPage() {
                       comments.map((comment, idx) => {
                         const authorComment = comment?.commentator;
 
-                        const avatarUrl = getAvatarUrl(
-                          authorComment?.avatarUrl,
-                        );
+                        const avatarUrl = getUserAvatarUrl(authorComment);
 
                         const displayName =
                           authorComment?.displayName ||

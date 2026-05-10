@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { getFeaturedGames, getTopRatedGames } from "../services/gameService";
 import { getTrendingPosts } from "../services/postService";
+import useAuth from "@/contexts/AuthContext";
+import { getImageUrl, getUserAvatarUrl } from "@/utils/userProfile";
 
-const DEFAULT_AVATAR =
-  "https://static.vecteezy.com/system/resources/thumbnails/065/277/981/small_2x/impressive-celebrated-minimalist-geometric-portrait-flat-color-clean-lines-with-scalable-design-png.png";
+const getUserId = (user) => user?.id || user?.Id || user?.userId || user?.UserId || "";
 
 export default function useHomeFeed() {
+  const { user: currentUser } = useAuth() || {};
+
   const [featuredGames, setFeaturedGames] = useState([]);
   const [topRatedGames, setTopRatedGames] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -13,29 +16,24 @@ export default function useHomeFeed() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const normalizeMediaUrl = useCallback((url) => {
-    if (!url) return "";
-
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      return url;
-    }
-
-    return `http://${url}`;
-  }, []);
-
   const mapPostWithAuthor = useCallback(
     (post) => {
-      const author = post?.author;
+      const author = post?.author || {};
+      const authorId = post?.authorId || author?.id;
+      const currentUserId = getUserId(currentUser);
+      const isCurrentUserPost =
+        authorId && currentUserId && String(authorId) === String(currentUserId);
+      const displayAuthor = isCurrentUserPost ? { ...author, ...currentUser } : author;
 
       return {
         ...post,
 
-        name: author?.displayName || "Unknown User",
-        username: author?.email ? `@${author.email.split("@")[0]}` : "",
-        avatar: author?.avatarUrl || DEFAULT_AVATAR,
-        role: author?.role || "user",
+        name: displayAuthor?.displayName || displayAuthor?.username || "Unknown User",
+        username: displayAuthor?.email ? `@${displayAuthor.email.split("@")[0]}` : "",
+        avatar: getUserAvatarUrl(displayAuthor),
+        role: displayAuthor?.role || "user",
 
-        authorId: post?.authorId || author?.id,
+        authorId,
 
         time: post?.createdAt
           ? new Date(post.createdAt).toLocaleString("vi-VN")
@@ -48,7 +46,7 @@ export default function useHomeFeed() {
 
               return {
                 id: item.id,
-                mediaUrl: normalizeMediaUrl(item.mediaUrl),
+                mediaUrl: getImageUrl(item.mediaUrl),
               };
             })
             .filter(Boolean) || [],
@@ -64,7 +62,7 @@ export default function useHomeFeed() {
         },
       };
     },
-    [normalizeMediaUrl],
+    [currentUser],
   );
 
   const fetchHomeFeed = useCallback(

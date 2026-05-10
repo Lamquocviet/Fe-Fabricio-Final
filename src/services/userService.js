@@ -1,25 +1,9 @@
 import axiosInstance from "../utils/axiosInstance";
 import { assertAuthenticated } from "@/utils/authGuard";
+import { normalizeUser } from "@/utils/userProfile";
 
 const getErrorMessage = (error, fallbackMessage) => {
   return error?.response?.data?.message || error?.message || fallbackMessage;
-};
-
-const normalizeUser = (payload) => {
-  const user = payload?.user || payload?.data || payload;
-
-  if (!user) return null;
-
-  const avatarUrl = user.avatarUrl || user.avatar || "";
-  const bio = user.bio || user.description || "";
-
-  return {
-    ...user,
-    avatar: avatarUrl,
-    avatarUrl,
-    bio,
-    description: user.description || bio,
-  };
 };
 
 const uploadAvatarRequest = async (file) => {
@@ -142,6 +126,8 @@ export const userService = {
   },
   async getMyGames() {
     try {
+      assertAuthenticated();
+
       const res = await axiosInstance.get("/Users/mygame");
       return res.data;
     } catch (error) {
