@@ -4,7 +4,7 @@ import useAuth from "@/contexts/AuthContext";
 import { isAuthenticatedUser } from "@/utils/authGuard";
 
 export const usePurchase = () => {
-  const { user } = useAuth() || {};
+  const { user } = useAuth();
 
   const [purchasedIds, setPurchasedIds] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,17 +22,13 @@ export const usePurchase = () => {
       setLoading(true);
 
       const data = await getPurchaseHistory();
-
-      const extractIdFromThumbnail = (url) => {
-        const match = url?.match(/game-assets\/([a-z0-9-]+)\//i);
-        return match ? match[1] : null;
-      };
-
-      const ids = (data || [])
-        .map((g) => extractIdFromThumbnail(g.thumbnailUrl))
-        .filter(Boolean)
-        .map(String);
-
+     
+   const ids = [...new Set(
+  (data || [])
+    .map((g) => g.id)
+    .filter(Boolean)
+    .map(String)
+)];
       setPurchasedIds(ids);
 
       return ids;

@@ -9,14 +9,16 @@ export default function ActionButtons({ game }) {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { purchasedIds, addPurchasedId, loading: purchaseLoading } =
-    usePurchase();
+ const { purchasedIds, addPurchasedId, fetchPurchased, loading: purchaseLoading } =
+  usePurchase();
 
-  const type = game?.type?.trim()?.toLowerCase() || "";
+ const rawType = game?.gameType || game?.type || "";
+const type = rawType.toLowerCase();
 
-  const isBrowser = type === "browser";
-  const isDownload = type === "download";
-  const isFree = game?.rawPrice === 0;
+const isBrowser = type === "browser";
+const isDownload = type === "download";
+
+const isFree = game?.rawPrice === 0;
 
   const isPurchased = purchasedIds.includes(String(game?.id));
 
@@ -97,9 +99,9 @@ export default function ActionButtons({ game }) {
               game={game}
               onClose={() => setShowModal(false)}
               onSuccess={(id) => {
-                addPurchasedId(id); //  update UI ngay
-                // fetchPurchased();   //  sync backend
-              }}
+  addPurchasedId(id);
+  fetchPurchased();
+}}
             />
           )}
         </>
