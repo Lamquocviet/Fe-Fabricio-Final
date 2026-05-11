@@ -300,7 +300,7 @@ const ProfilePage = () => {
                       placeholder="Mô tả về bạn..."
                     />
                   ) : (
-                    <p className="text-zinc-300 mt-3 leading-relaxed">
+                    <p className="mt-3 whitespace-pre-line break-words leading-relaxed text-zinc-300">
                       {user?.bio ||
                         "Indie game lover | Passionate about atmospheric stories and cozy experiences."}
                     </p>
