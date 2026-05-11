@@ -138,10 +138,10 @@ const Header = ({ onOpenSidebar }) => {
           <img
             src={logo}
             alt="FabricIO Logo"
-            className="h-16 w-16 rounded-2xl border border-gray-300 object-cover p-1 lg:h-20 lg:w-20"
+            className="h-12 w-12 rounded-2xl border border-orange-400/40 object-cover p-1 shadow-[0_0_24px_rgba(255,106,92,0.18)] lg:h-14 lg:w-14"
           />
 
-          <span className="truncate text-[1.8rem] font-bold tracking-tight text-white lg:text-[2rem]">
+          <span className="truncate bg-linear-to-r from-[#ff8a5c] to-[#ff5a3d] bg-clip-text text-[1.6rem] font-extrabold tracking-tight text-transparent lg:text-[1.8rem]">
             FabricIO
           </span>
         </Link>
