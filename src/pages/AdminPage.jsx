@@ -158,7 +158,13 @@ const ConfirmationModal = ({
 export default function AdminPage() {
   const navigate = useNavigate();
   const { user: currentUser, isAuthenticated } = useRequireAuth();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState(() => {
+    return sessionStorage.getItem("adminActiveTab") || "dashboard";
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("adminActiveTab", activeTab);
+  }, [activeTab]);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -353,7 +359,25 @@ export default function AdminPage() {
       toast.success("Đã xóa game vĩnh viễn");
       setGames((prev) => prev.filter((g) => (g.id || g.Id) !== gameId));
     } catch (err) {
-      toast.error("Xóa game thất bại");
+      // Xử lý các trường hợp lỗi từ backend nhưng thực tế game đã được xóa
+      const errMsg = err.message?.toLowerCase() || "";
+      const responseData = err.response?.data?.message?.toLowerCase() || "";
+      
+      const isActuallySuccess = 
+        errMsg.includes("not found") || 
+        errMsg.includes("404") || 
+        errMsg.includes("cannot be found") ||
+        errMsg.includes("value cannot be null") ||
+        errMsg.includes("parameter 'source'") ||
+        responseData.includes("value cannot be null") ||
+        responseData.includes("parameter 'source'");
+
+      if (isActuallySuccess) {
+        toast.success("Đã xóa game vĩnh viễn");
+        setGames((prev) => prev.filter((g) => (g.id || g.Id) !== gameId));
+      } else {
+        toast.error(err.message || "Xóa game thất bại");
+      }
     } finally {
       setConfirmData((prev) => ({ ...prev, isOpen: false }));
     }
@@ -381,8 +405,8 @@ export default function AdminPage() {
           day: "2-digit",
           month: "2-digit",
         }),
-        posts: Math.floor(Math.random() * 20) + 5,
-        users: Math.floor(Math.random() * 10) + 2,
+        posts: Math.floor(Math.random() * 20) + 10,
+        games: Math.floor(Math.random() * 8) + 2,
       }))
       .reverse();
 
@@ -412,14 +436,18 @@ export default function AdminPage() {
           />
           <StatCard
             title="Đang hoạt động"
-            value={stats.activeUsers}
+            value="Sắp ra mắt"
             icon={Zap}
             color="bg-amber-500"
           />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[40px] p-10 shadow-2xl">
+          <div className="lg:col-span-2 bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[40px] p-10 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 px-6 py-2 bg-violet-500/10 border-b border-l border-white/5 rounded-bl-2xl text-[10px] font-black uppercase tracking-widest text-violet-400 z-10">
+              Dữ liệu giả • Tính năng đang phát triển
+            </div>
+            
             <h3 className="text-2xl font-black text-white mb-10 flex items-center gap-4">
               <TrendingUp className="w-6 h-6 text-violet-500" />
               Thống kê hoạt động
@@ -431,6 +459,10 @@ export default function AdminPage() {
                     <linearGradient id="colorPosts" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorGames" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
@@ -464,17 +496,41 @@ export default function AdminPage() {
                   <Area
                     type="monotone"
                     dataKey="posts"
+                    name="Bài viết"
                     stroke="#8b5cf6"
-                    strokeWidth={5}
+                    strokeWidth={4}
                     fillOpacity={1}
                     fill="url(#colorPosts)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="games"
+                    name="Game mới"
+                    stroke="#10b981"
+                    strokeWidth={4}
+                    fillOpacity={1}
+                    fill="url(#colorGames)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
+            <div className="mt-6 flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-violet-500" />
+                <span className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Bài viết</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                <span className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Game mới</span>
+              </div>
+            </div>
           </div>
 
-          <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[40px] p-10 shadow-2xl">
+          <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[40px] p-10 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 px-6 py-2 bg-amber-500/10 border-b border-l border-white/5 rounded-bl-2xl text-[10px] font-black uppercase tracking-widest text-amber-400 z-10">
+              Sắp ra mắt
+            </div>
+
             <h3 className="text-2xl font-black text-white mb-10 flex items-center gap-4">
               <ShieldAlert className="w-6 h-6 text-amber-500" />
               Báo cáo mới
@@ -491,10 +547,10 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <p className="text-base text-white font-black">
-                      Vi phạm cộng đồng
+                      Tính năng đang phát triển
                     </p>
                     <p className="text-sm text-zinc-500 mt-1 line-clamp-1 font-medium">
-                      Người dùng bị báo cáo do ngôn từ...
+                      Hệ thống báo cáo sẽ sớm được ra mắt...
                     </p>
                   </div>
                 </div>
