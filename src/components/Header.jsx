@@ -4,6 +4,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import useAuth from "@/contexts/AuthContext";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import logo from "@/assets/logo.png";
 import { getUserAvatarUrl } from "@/utils/userProfile";
 
 const pages = [
@@ -38,9 +39,12 @@ const Header = ({ onOpenSidebar }) => {
     <header className="sticky top-0 z-50 mb-5 w-full border-b border-white/10 bg-black/80 backdrop-blur-xl">
       <div className="flex h-16 w-full items-center gap-4 px-4 lg:h-21.5 lg:px-8">
         <Link to="/" className="flex shrink-0 items-center gap-3 min-w-0">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-linear-to-br from-[#ff6a5c] to-[#ff5a3d] text-lg font-bold text-white shadow-[0_0_30px_rgba(255,98,77,0.35)] lg:h-12 lg:w-12 lg:text-xl">
-            F
-          </div>
+          <img
+            src={logo}
+            alt="FabricIO Logo"
+            className="h-16 w-16 rounded-2xl object-cover border border-gray-300 p-1 lg:h-20 lg:w-20"
+          />
+
 
           <span className="truncate text-[1.8rem] font-bold tracking-tight text-white lg:text-[2rem]">
             FabricIO
