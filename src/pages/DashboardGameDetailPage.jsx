@@ -74,12 +74,12 @@ export default function DashboardGameDetailPage() {
 
   const { tags } = useTag();
 
+  /* ── Clean ID ── */
+  const cleanId = id?.replace(/^:/, "").split(":")[0];
+
   /* ── fetch game + stats ── */
   useEffect(() => {
-    if (!id) return;
-
-    // Đảm bảo ID sạch (bỏ :1 hoặc các ký tự thừa từ console/trace)
-    const cleanId = id.split(":")[0];
+    if (!cleanId) return;
 
     const fetchAll = async () => {
       try {
@@ -93,8 +93,11 @@ export default function DashboardGameDetailPage() {
           GameType: g.gameType ?? "Browser",
         });
         setSelectedTagIds((g.tags ?? []).map((t) => t.id ?? t));
-      } catch {
-        toast.error("Không thể tải thông tin game");
+      } catch (err) {
+        // Nếu lỗi là do game không tồn tại (có thể vừa xóa xong) thì không hiện toast lỗi
+        if (!err.message?.includes("404") && !err.message?.toLowerCase().includes("not found")) {
+          toast.error("Không thể tải thông tin game");
+        }
       } finally {
         setLoading(false);
       }
@@ -123,7 +126,7 @@ export default function DashboardGameDetailPage() {
 
     fetchAll();
     fetchStats();
-  }, [id]);
+  }, [cleanId]);
 
   /* ── edit handlers ── */
   const startEdit = () => {
@@ -179,12 +182,11 @@ export default function DashboardGameDetailPage() {
       if (newThumbnail) payload.Thumbnail = newThumbnail;
       if (newGameFile) payload.GameFile = newGameFile;
 
-      const cleanId = id.split(":")[0];
       await updateGame(cleanId, payload);
       toast.success("Cập nhật game thành công!");
 
       /* refresh game data */
-      const updated = await gameLibraryService.getGameById(id);
+      const updated = await gameLibraryService.getGameById(cleanId);
       setGame(updated);
       setIsEditing(false);
       setNewThumbnail(null);
@@ -199,18 +201,36 @@ export default function DashboardGameDetailPage() {
 
   /* ── delete handler ── */
   const handleDelete = async () => {
+    if (!game || !cleanId) return;
     if (deleteInput.trim() !== game.title.trim()) {
       toast.error("Tên game không khớp, vui lòng nhập đúng tên");
       return;
     }
     try {
       setDeleting(true);
-      await deleteGame(id);
+      await deleteGame(cleanId);
       toast.success("Xóa game thành công!");
-      navigate("/dashboard");
+      
+      // Chuyển hướng ngay lập tức để tránh re-render khi game đã mất
+      navigate("/dashboard", { replace: true });
     } catch (err) {
+      // Nếu game không tồn tại (404) hoặc gặp lỗi null source của backend (nhưng vẫn xóa xong)
+      // thì vẫn coi là thành công theo yêu cầu của người dùng
+      const errMsg = err.message?.toLowerCase() || "";
+      const isActuallySuccess = 
+        errMsg.includes("not found") || 
+        errMsg.includes("404") || 
+        errMsg.includes("cannot be found") ||
+        errMsg.includes("value cannot be null") ||
+        errMsg.includes("parameter 'source'");
+
+      if (isActuallySuccess) {
+        toast.success("Xóa game thành công!");
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+      
       toast.error(err.message || "Xóa game thất bại");
-    } finally {
       setDeleting(false);
     }
   };
