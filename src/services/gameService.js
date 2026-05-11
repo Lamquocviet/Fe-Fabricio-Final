@@ -66,17 +66,20 @@ export const userService = {
 };
 
 export const gameLibraryService = {
-  async getGameLibrary({ page = 1, limit = 12, search = "" } = {}) {
-    // console.log("CALL getGameLibrary");
-
+  async getGameLibrary({page = 1, pageSize = 100, search = ""} = {}) {
     try {
-      const params = { page, limit };
+      const params = { page, pageSize };
 
       if (search?.trim()) {
         params.search = search;
       }
 
-      const res = await axiosInstance.get("/Games", { params });
+      const res = await axiosInstance.get("/Games", {
+        params,
+      });
+
+      console.log("REQUEST PARAMS:", params);
+      console.log("RESPONSE:", res.data);
 
       return res.data;
     } catch (error) {

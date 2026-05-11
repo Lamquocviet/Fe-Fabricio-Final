@@ -63,6 +63,9 @@ export const useProducts = () => {
       setLoading(true);
 
       const data = await gameLibraryService.getGameLibrary();
+      console.log("API raw response:", data);
+console.log("API items:", data.items);
+console.log("API total:", data.total);
 
       const gamesArray = Array.isArray(data) ? data : data?.items || [];
 

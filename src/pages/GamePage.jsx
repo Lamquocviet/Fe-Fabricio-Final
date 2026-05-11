@@ -41,6 +41,7 @@ export default function GamePage() {
   const end = start + pageSize;
 
   const currentProducts = filteredProducts.slice(start, end);
+  
 
   const handleNext = () => {
     setPage((prev) => Math.min(prev + 1, totalPages));
@@ -106,6 +107,7 @@ export default function GamePage() {
       </div>
     );
   }
+  // console.log("Filtered Products:", filteredProducts);
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -169,7 +171,7 @@ export default function GamePage() {
               )}
             </section>
 
-            {totalPages > 1 && (
+            {totalPages > 1 && ( 
               <div className="rounded-[28px] border border-white/10 bg-[#111113]/80 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl">
                 <TaskPagination
                   handleNext={handleNext}
@@ -179,7 +181,7 @@ export default function GamePage() {
                   totalPages={totalPages}
                 />
               </div>
-            )}
+            )} 
           </div>
         </main>
       </div>
