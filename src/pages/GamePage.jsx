@@ -14,20 +14,21 @@ export default function GamePage() {
   const { loading, error } = useHomeFeed();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const tagFromUrl = searchParams.get("tag");
+
+  const tagFromUrl = searchParams.get("tag") || "";
+  const searchFromUrl = searchParams.get("search") || "";
 
   const { filters, setFilters, filteredProducts, resetFilters } = useProducts();
 
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    if (tagFromUrl) {
-      setFilters((prev) => ({
-        ...prev,
-        tag: tagFromUrl,
-      }));
-    }
-  }, [tagFromUrl, setFilters]);
+    setFilters((prev) => ({
+      ...prev,
+      tag: tagFromUrl,
+      search: searchFromUrl,
+    }));
+  }, [tagFromUrl, searchFromUrl, setFilters]);
 
   useEffect(() => {
     setPage(1);

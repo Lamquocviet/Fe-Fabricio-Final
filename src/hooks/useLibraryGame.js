@@ -37,6 +37,7 @@ const transformGameData = (apiGames) => {
 
 export const useProducts = () => {
   const initialFilters = {
+    search: "",
     price: "All",
     tag: "",
     sort: "Newest",
