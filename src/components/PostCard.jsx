@@ -421,7 +421,10 @@ export default function PostCard({
 
   return (
     <>
-      <article id={`post-${post.id}`} className="overflow-hidden rounded-[22px] border border-white/10 bg-[#111113]/95 shadow-[0_18px_55px_rgba(0,0,0,0.32)] backdrop-blur-xl">
+      <article
+        id={`post-${post.id}`}
+        className="overflow-hidden rounded-[22px] border border-white/10 bg-[#111113]/95 shadow-[0_18px_55px_rgba(0,0,0,0.32)] backdrop-blur-xl"
+      >
         <div className="p-4 sm:p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-start gap-3">
@@ -548,7 +551,7 @@ export default function PostCard({
                 {post.title}
               </h2>
 
-              <p className="mt-4 text-base leading-7 text-zinc-100">
+              <p className="mt-4 whitespace-pre-line break-words text-base leading-7 text-zinc-100">
                 {post.content}
               </p>
             </>

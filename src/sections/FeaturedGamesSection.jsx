@@ -3,6 +3,7 @@ import TrendingGameCard from "@/components/TrendingGameCard";
 import { useNavigate } from "react-router";
 
 export default function FeaturedGamesSection({ games = [] }) {
+  console.log("FeaturedGamesSection games:", games);
   const navigate = useNavigate();
 
   const handleClickView = () => {
@@ -34,7 +35,7 @@ export default function FeaturedGamesSection({ games = [] }) {
             key={item.game.id}
             game={item.game}
             averageRating={item.averageRating}
-            totalRatings={item.totalRatings}
+            totalRatings={item.totalRating}
           />
         ))}
       </div>

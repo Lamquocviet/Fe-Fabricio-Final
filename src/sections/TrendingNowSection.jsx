@@ -2,7 +2,7 @@ import React from "react";
 import TrendingGameCard from "../components/TrendingGameCard";
 import GameCard from "@/components/GameCard";
 
-export default function TrendingNowSection({ games = []}) {
+export default function TrendingNowSection({ games = [] }) {
   return (
     <section className="space-y-5">
       <div>
@@ -14,14 +14,13 @@ export default function TrendingNowSection({ games = []}) {
         </p>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-4 justify-items-center">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {games.map((item) => (
           <TrendingGameCard
             key={item.game.id}
             game={item.game}
             averageRating={item.averageRating}
             totalRatings={item.totalRating}
-           
           />
         ))}
       </div>
