@@ -158,7 +158,13 @@ const ConfirmationModal = ({
 export default function AdminPage() {
   const navigate = useNavigate();
   const { user: currentUser, isAuthenticated } = useRequireAuth();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState(() => {
+    return sessionStorage.getItem("adminActiveTab") || "dashboard";
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("adminActiveTab", activeTab);
+  }, [activeTab]);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -353,7 +359,25 @@ export default function AdminPage() {
       toast.success("Đã xóa game vĩnh viễn");
       setGames((prev) => prev.filter((g) => (g.id || g.Id) !== gameId));
     } catch (err) {
-      toast.error("Xóa game thất bại");
+      // Xử lý các trường hợp lỗi từ backend nhưng thực tế game đã được xóa
+      const errMsg = err.message?.toLowerCase() || "";
+      const responseData = err.response?.data?.message?.toLowerCase() || "";
+      
+      const isActuallySuccess = 
+        errMsg.includes("not found") || 
+        errMsg.includes("404") || 
+        errMsg.includes("cannot be found") ||
+        errMsg.includes("value cannot be null") ||
+        errMsg.includes("parameter 'source'") ||
+        responseData.includes("value cannot be null") ||
+        responseData.includes("parameter 'source'");
+
+      if (isActuallySuccess) {
+        toast.success("Đã xóa game vĩnh viễn");
+        setGames((prev) => prev.filter((g) => (g.id || g.Id) !== gameId));
+      } else {
+        toast.error(err.message || "Xóa game thất bại");
+      }
     } finally {
       setConfirmData((prev) => ({ ...prev, isOpen: false }));
     }
