@@ -35,7 +35,7 @@ const transformGameData = (apiGames) => {
   });
 };
 
-export const useProducts = () => {
+export const useProducts = (page, limit) => {
   const initialFilters = {
     search: "",
     price: "All",
@@ -51,6 +51,7 @@ export const useProducts = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+    
 
   const { purchasedIds } = usePurchase();
 
@@ -63,7 +64,12 @@ export const useProducts = () => {
     try {
       setLoading(true);
 
-      const data = await gameLibraryService.getGameLibrary();
+      const data = await gameLibraryService.getGameLibrary({
+        page,
+        limit,
+      });
+
+
 
       const gamesArray = Array.isArray(data) ? data : data?.items || [];
 
@@ -92,7 +98,7 @@ export const useProducts = () => {
 
       setProducts(transformed);
       setFilteredProducts(transformed);
-      setTotal(transformed.length);
+      setTotal(data.total);
     } catch (error) {
       console.error("Error fetching games:", error);
       setProducts([]);
@@ -105,7 +111,7 @@ export const useProducts = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page, limit]);
 
   useEffect(() => {
     const result = filterProducts(products, filters, purchasedIds);
