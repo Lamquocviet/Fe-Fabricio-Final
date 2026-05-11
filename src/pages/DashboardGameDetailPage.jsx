@@ -43,7 +43,8 @@ function formatDate(dateStr) {
 }
 
 const inputCls =
-  "w-full bg-[#1a1c28] border border-[#2a2d3d] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-violet-500 transition-colors";
+  "w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-violet-500/70 focus:bg-black/35 focus:ring-4 focus:ring-violet-500/10";
+
 const textareaCls = inputCls + " resize-none";
 
 /* ─────────────── main page ─────────────── */
@@ -96,7 +97,10 @@ export default function DashboardGameDetailPage() {
         setSelectedTagIds((g.tags ?? []).map((t) => t.id ?? t));
       } catch (err) {
         // Nếu lỗi là do game không tồn tại (có thể vừa xóa xong) thì không hiện toast lỗi
-        if (!err.message?.includes("404") && !err.message?.toLowerCase().includes("not found")) {
+        if (
+          !err.message?.includes("404") &&
+          !err.message?.toLowerCase().includes("not found")
+        ) {
           toast.error("Không thể tải thông tin game");
         }
       } finally {
@@ -211,16 +215,16 @@ export default function DashboardGameDetailPage() {
       setDeleting(true);
       await deleteGame(cleanId);
       toast.success("Xóa game thành công!");
-      
+
       // Chuyển hướng ngay lập tức để tránh re-render khi game đã mất
       navigate("/dashboard", { replace: true });
     } catch (err) {
       // Nếu game không tồn tại (404) hoặc gặp lỗi null source của backend (nhưng vẫn xóa xong)
       // thì vẫn coi là thành công theo yêu cầu của người dùng
       const errMsg = err.message?.toLowerCase() || "";
-      const isActuallySuccess = 
-        errMsg.includes("not found") || 
-        errMsg.includes("404") || 
+      const isActuallySuccess =
+        errMsg.includes("not found") ||
+        errMsg.includes("404") ||
         errMsg.includes("cannot be found") ||
         errMsg.includes("value cannot be null") ||
         errMsg.includes("parameter 'source'");
@@ -230,7 +234,7 @@ export default function DashboardGameDetailPage() {
         navigate("/dashboard", { replace: true });
         return;
       }
-      
+
       toast.error(err.message || "Xóa game thất bại");
       setDeleting(false);
     }
@@ -263,155 +267,231 @@ export default function DashboardGameDetailPage() {
   return (
     <div className="min-h-screen bg-[#050505] text-white">
       <Header />
+
       <div className="flex">
         <Sidebar />
 
-        <main className="flex-1 px-4 lg:px-6">
-          <div className="min-h-screen bg-[#050505] text-white">
-            <div className="max-w-6xl mx-auto px-8 py-8 pb-20 space-y-6">
-              {/* Breadcrumb */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors text-zinc-400 hover:text-white"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <div>
-                  <div className="flex items-center gap-2 text-sm text-zinc-400 mb-0.5">
-                    <span
-                      className="cursor-pointer hover:text-white transition-colors"
-                      onClick={() => navigate("/dashboard")}
-                    >
-                      Bảng điều khiển
-                    </span>
-                    <span>/</span>
-                    <span className="text-violet-400">{game.title}</span>
-                  </div>
-                  <h1 className="text-2xl font-bold text-white">
-                    Chi tiết game
-                  </h1>
-                </div>
-              </div>
-
-              {/* Stats strip */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {[
-                  {
-                    label: "Giá",
-                    value: game.price > 0 ? `$${game.price}` : "Miễn phí",
-                    color: "text-emerald-400",
-                  },
-                  {
-                    label: "Lượt đánh giá",
-                    value: ratings.total ?? 0,
-                    color: "text-rose-400",
-                  },
-                  {
-                    label: "Điểm TB",
-                    value: `${ratings.average?.toFixed(1) ?? 0}/5`,
-                    color: "text-amber-400",
-                  },
-                  {
-                    label: "Bình luận",
-                    value: comments.length,
-                    color: "text-blue-400",
-                  },
-                ].map((s, i) => (
-                  <div
-                    key={i}
-                    className="bg-zinc-900/60 border border-white/5 rounded-2xl p-4 hover:border-white/10 transition-colors"
+        <main className="min-w-0 flex-1 py-0 pl-4 pr-6 lg:pl-6 lg:pr-8">
+          <div className="w-full max-w-none space-y-6 pb-20">
+            {/* Breadcrumb + title */}
+            <section className="rounded-[28px] border border-white/10 bg-[#0f1014]/80 px-5 py-5 shadow-[0_18px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl md:px-7">
+              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-start gap-4">
+                  <button
+                    onClick={() => navigate("/dashboard")}
+                    className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-zinc-400 transition-all hover:border-orange-400/40 hover:bg-orange-500/10 hover:text-orange-300"
+                    aria-label="Quay lại bảng điều khiển"
                   >
-                    <p className="text-zinc-400 text-xs font-medium mb-1">
-                      {s.label}
+                    <ArrowLeft className="h-5 w-5" />
+                  </button>
+
+                  <div className="min-w-0">
+                    <div className="mb-2 flex flex-wrap items-center gap-2 text-sm text-zinc-400">
+                      <span
+                        onClick={() => navigate("/dashboard")}
+                        className="cursor-pointer transition-colors hover:text-white"
+                      >
+                        Bảng điều khiển
+                      </span>
+                      <span className="text-zinc-600">/</span>
+                      <span className="truncate font-medium text-violet-400">
+                        {game.title}
+                      </span>
+                    </div>
+
+                    <h1 className="text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+                      Chi tiết game
+                    </h1>
+
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
+                      Quản lý thông tin game, thumbnail, file build, tag, đánh
+                      giá và bình luận của người chơi.
                     </p>
-                    <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
                   </div>
-                ))}
+                </div>
+
+                {!isEditing ? (
+                  <div className="flex shrink-0 flex-wrap items-center gap-3">
+                    <button
+                      onClick={startEdit}
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition-all hover:-translate-y-0.5 hover:shadow-violet-500/30"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Chỉnh sửa
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowDeleteModal(true);
+                        setDeleteInput("");
+                      }}
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-500/25 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-300 transition-all hover:-translate-y-0.5 hover:border-red-500/45 hover:bg-red-500/15"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Xóa game
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex shrink-0 flex-wrap items-center gap-3">
+                    <button
+                      onClick={cancelEdit}
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-zinc-300 transition-all hover:bg-white/10 hover:text-white"
+                    >
+                      <X className="h-4 w-4" />
+                      Hủy
+                    </button>
+
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {saving ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      Lưu thay đổi
+                    </button>
+                  </div>
+                )}
               </div>
+            </section>
 
-              {/* Two-column layout: 7:3 Ratio */}
-              <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-                {/* ═══ LEFT – Game Info / Edit (70%) ═══ */}
-                <div className="lg:col-span-7 bg-zinc-900/60 backdrop-blur-xl border border-white/5 rounded-[32px] p-8 space-y-8 shadow-2xl">
-                  {/* Toolbar */}
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                      <Gamepad2 className="w-5 h-5 text-violet-400" />
-                      Thông tin game
-                    </h2>
-                    {!isEditing ? (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={startEdit}
-                          className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition-colors"
+            {/* Stats */}
+            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                {
+                  label: "Giá",
+                  value: game.price > 0 ? `$${game.price}` : "Miễn phí",
+                  color: "text-emerald-400",
+                  icon: FileArchive,
+                  bg: "bg-emerald-500/10",
+                  border: "border-emerald-500/20",
+                },
+                {
+                  label: "Lượt đánh giá",
+                  value: ratings.total ?? 0,
+                  color: "text-rose-400",
+                  icon: Heart,
+                  bg: "bg-rose-500/10",
+                  border: "border-rose-500/20",
+                },
+                {
+                  label: "Điểm TB",
+                  value: `${ratings.average?.toFixed(1) ?? 0}/5`,
+                  color: "text-amber-400",
+                  icon: Star,
+                  bg: "bg-amber-500/10",
+                  border: "border-amber-500/20",
+                },
+                {
+                  label: "Bình luận",
+                  value: comments.length,
+                  color: "text-blue-400",
+                  icon: MessageSquare,
+                  bg: "bg-blue-500/10",
+                  border: "border-blue-500/20",
+                },
+              ].map((s) => {
+                const Icon = s.icon;
+
+                return (
+                  <div
+                    key={s.label}
+                    className="group rounded-[26px] border border-white/10 bg-[#0f1014]/80 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.3)] transition-all hover:-translate-y-0.5 hover:border-orange-400/30"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-zinc-400">
+                          {s.label}
+                        </p>
+                        <p
+                          className={`mt-2 text-3xl font-extrabold ${s.color}`}
                         >
-                          <Pencil className="w-4 h-4" />
-                          Chỉnh sửa
-                        </button>
-                        <button
-                          onClick={() => {
-                            setShowDeleteModal(true);
-                            setDeleteInput("");
-                          }}
-                          className="flex items-center gap-2 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40 text-red-400 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Xóa game
-                        </button>
+                          {s.value}
+                        </p>
                       </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={cancelEdit}
-                          className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 text-zinc-300 rounded-lg text-sm transition-colors"
-                        >
-                          <X className="w-4 h-4" />
-                          Hủy
-                        </button>
-                        <button
-                          onClick={handleSave}
-                          disabled={saving}
-                          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-colors"
-                        >
-                          {saving ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Save className="w-4 h-4" />
-                          )}
-                          Lưu
-                        </button>
+
+                      <div
+                        className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${s.border} ${s.bg}`}
+                      >
+                        <Icon className={`h-5 w-5 ${s.color}`} />
                       </div>
-                    )}
+                    </div>
                   </div>
+                );
+              })}
+            </section>
 
+            {/* Main content */}
+            <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+              {/* Left card */}
+              <div className="overflow-hidden rounded-[32px] border border-white/10 bg-[#0f1014]/80 shadow-[0_22px_90px_rgba(0,0,0,0.38)] backdrop-blur-xl">
+                <div className="border-b border-white/10 px-5 py-5 md:px-7">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-violet-500/20 bg-violet-500/10">
+                      <Gamepad2 className="h-6 w-6 text-violet-400" />
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-bold text-white">
+                        Thông tin game
+                      </h2>
+                      <p className="mt-1 text-sm text-zinc-400">
+                        {isEditing
+                          ? "Đang chỉnh sửa thông tin hiển thị của game."
+                          : "Thông tin chi tiết đang được hiển thị trên hệ thống."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-7 p-5 md:p-7">
                   {/* Thumbnail */}
-                  <div className="space-y-2">
-                    <label className="text-sm text-zinc-400">Ảnh thumbnail</label>
-                    <div className="relative group">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <label className="text-sm font-semibold text-zinc-300">
+                        Ảnh thumbnail
+                      </label>
+
+                      {isEditing && newThumbnail && (
+                        <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                          Đã chọn ảnh mới
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="group relative overflow-hidden rounded-[26px] border border-white/10 bg-black/30">
                       {displayThumbnail ? (
                         <img
                           src={displayThumbnail}
                           alt={game.title}
-                          className="w-full h-52 object-cover rounded-xl border border-white/5"
+                          className="aspect-[16/7] w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                         />
                       ) : (
-                        <div className="w-full h-52 bg-zinc-800 rounded-xl border border-white/5 flex items-center justify-center">
-                          <Gamepad2 className="w-16 h-16 text-zinc-600" />
+                        <div className="flex aspect-[16/7] w-full items-center justify-center bg-zinc-900">
+                          <Gamepad2 className="h-16 w-16 text-zinc-700" />
                         </div>
                       )}
+
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+
                       {isEditing && (
                         <button
                           type="button"
                           onClick={() => thumbnailRef.current?.click()}
-                          className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity gap-2"
+                          className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/65 opacity-0 transition-opacity group-hover:opacity-100"
                         >
-                          <ImagePlus className="w-8 h-8 text-white" />
-                          <span className="text-white text-sm font-medium">
-                            Đổi ảnh
+                          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
+                            <ImagePlus className="h-7 w-7 text-white" />
+                          </div>
+                          <span className="text-sm font-semibold text-white">
+                            Đổi ảnh thumbnail
                           </span>
                         </button>
                       )}
+
                       <input
                         ref={thumbnailRef}
                         type="file"
@@ -422,12 +502,10 @@ export default function DashboardGameDetailPage() {
                     </div>
                   </div>
 
-                  {/* Fields */}
                   {isEditing ? (
-                    <div className="space-y-4">
-                      {/* Title */}
+                    <div className="space-y-5">
                       <div>
-                        <label className="text-sm text-zinc-400 mb-1 block">
+                        <label className="mb-2 block text-sm font-semibold text-zinc-300">
                           Tên game
                         </label>
                         <input
@@ -439,9 +517,10 @@ export default function DashboardGameDetailPage() {
                           placeholder="Tên game"
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+
+                      <div className="grid gap-4 md:grid-cols-2">
                         <div>
-                          <label className="text-sm text-zinc-400 mb-1 block">
+                          <label className="mb-2 block text-sm font-semibold text-zinc-300">
                             Giá ($)
                           </label>
                           <input
@@ -455,8 +534,9 @@ export default function DashboardGameDetailPage() {
                             }
                           />
                         </div>
+
                         <div>
-                          <label className="text-sm text-zinc-400 mb-1 block">
+                          <label className="mb-2 block text-sm font-semibold text-zinc-300">
                             Loại game
                           </label>
                           <select
@@ -469,17 +549,22 @@ export default function DashboardGameDetailPage() {
                               }))
                             }
                           >
-                            <option value="Browser">{getGameTypeLabel("Browser")}</option>
-                            <option value="Download">{getGameTypeLabel("Download")}</option>
+                            <option value="Browser">
+                              {getGameTypeLabel("Browser")}
+                            </option>
+                            <option value="Download">
+                              {getGameTypeLabel("Download")}
+                            </option>
                           </select>
                         </div>
                       </div>
+
                       <div>
-                        <label className="text-sm text-zinc-400 mb-1 block">
+                        <label className="mb-2 block text-sm font-semibold text-zinc-300">
                           Mô tả
                         </label>
                         <textarea
-                          rows={5}
+                          rows={6}
                           className={textareaCls}
                           value={form.Description}
                           onChange={(e) =>
@@ -492,25 +577,31 @@ export default function DashboardGameDetailPage() {
                         />
                       </div>
 
-                      {/* Game File (Build) */}
                       <div>
-                        <label className="text-sm text-zinc-400 mb-1 block">
-                          Cập nhật build game (file zip)
+                        <label className="mb-2 block text-sm font-semibold text-zinc-300">
+                          Cập nhật build game
                         </label>
+
                         <div
                           onClick={() => gameFileRef.current?.click()}
-                          className="w-full bg-zinc-900 border-2 border-dashed border-white/10 hover:border-violet-500/50 rounded-xl p-4 flex items-center justify-center gap-3 cursor-pointer transition-all group"
+                          className="group flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed border-white/10 bg-black/25 p-5 transition-all hover:border-violet-500/50 hover:bg-violet-500/5"
                         >
-                          <div className="w-10 h-10 bg-violet-500/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <UploadCloud className="w-5 h-5 text-violet-400" />
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-500/10 transition-transform group-hover:scale-105">
+                            <UploadCloud className="h-6 w-6 text-violet-400" />
                           </div>
-                          <div className="text-left">
-                            <p className="text-sm font-medium text-white">
-                              {newGameFile ? newGameFile.name : "Chọn file game mới (để trống nếu không đổi)"}
+
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-white">
+                              {newGameFile
+                                ? newGameFile.name
+                                : "Chọn file game mới nếu muốn thay đổi"}
                             </p>
-                            <p className="text-xs text-zinc-500">Hỗ trợ .zip, .rar (tối đa 500MB)</p>
+                            <p className="mt-1 text-xs text-zinc-500">
+                              Hỗ trợ .zip, .rar, .7z
+                            </p>
                           </div>
                         </div>
+
                         <input
                           ref={gameFileRef}
                           type="file"
@@ -519,23 +610,26 @@ export default function DashboardGameDetailPage() {
                           onChange={(e) => setNewGameFile(e.target.files?.[0])}
                         />
                       </div>
-                      {/* Tags */}
+
                       <div>
-                        <label className="text-sm text-zinc-400 mb-2 block">
+                        <label className="mb-3 block text-sm font-semibold text-zinc-300">
                           Tags
                         </label>
+
                         <div className="flex flex-wrap gap-2">
                           {tags.map((tag) => {
                             const active = selectedTagIds.includes(tag.id);
+
                             return (
                               <button
                                 key={tag.id}
                                 type="button"
                                 onClick={() => toggleTag(tag.id)}
-                                className={`px-3 py-1.5 text-xs rounded-full border transition-all ${active
-                                  ? "bg-gradient-to-br from-violet-600 to-violet-500 text-white border-transparent shadow-lg shadow-violet-500/25"
-                                  : "bg-[#1a1c28] border-[#2a2d3d] text-zinc-400 hover:border-violet-400 hover:text-white"
-                                  }`}
+                                className={`rounded-full border px-4 py-2 text-xs font-semibold transition-all ${
+                                  active
+                                    ? "border-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/20"
+                                    : "border-white/10 bg-white/[0.04] text-zinc-400 hover:border-violet-400/50 hover:text-white"
+                                }`}
                               >
                                 {getTagLabel(tag.name)}
                               </button>
@@ -545,37 +639,56 @@ export default function DashboardGameDetailPage() {
                       </div>
                     </div>
                   ) : (
-                    /* View mode */
-                    <div className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
                       <InfoRow label="Tên game" value={game.title} />
+
                       <InfoRow
                         label="Giá"
                         value={
-                          <span className="font-semibold text-emerald-400">
+                          <span className="font-bold text-emerald-400">
                             {game.price > 0 ? `$${game.price}` : "Miễn phí"}
                           </span>
                         }
                       />
-                      <InfoRow label="Loại game" value={getGameTypeLabel(game.gameType)} />
-                      <div>
-                        <p className="text-xs text-zinc-500 mb-1">Mô tả</p>
-                        <p className="text-sm text-zinc-200 leading-relaxed whitespace-pre-line">
-                          {game.description || (
-                            <span className="text-zinc-500 italic">
-                              Chưa có mô tả
-                            </span>
-                          )}
-                        </p>
+
+                      <InfoRow
+                        label="Loại game"
+                        value={getGameTypeLabel(game.gameType)}
+                      />
+
+                      <InfoRow
+                        label="Ngày cập nhật"
+                        value={formatDate(game.updatedAt || game.createdAt)}
+                      />
+
+                      <div className="md:col-span-2">
+                        <InfoRow
+                          label="Mô tả"
+                          value={
+                            game.description ? (
+                              <span className="whitespace-pre-line leading-7">
+                                {game.description}
+                              </span>
+                            ) : (
+                              <span className="italic text-zinc-500">
+                                Chưa có mô tả
+                              </span>
+                            )
+                          }
+                        />
                       </div>
-                      {/* Tags display */}
+
                       {currentTags.length > 0 && (
-                        <div>
-                          <p className="text-xs text-zinc-500 mb-2">Tags</p>
+                        <div className="md:col-span-2">
+                          <p className="mb-3 text-sm font-semibold text-zinc-300">
+                            Tags
+                          </p>
+
                           <div className="flex flex-wrap gap-2">
                             {currentTags.map((tag) => (
                               <span
                                 key={tag.id ?? tag}
-                                className="px-3 py-1 text-xs rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-300"
+                                className="rounded-full border border-violet-500/25 bg-violet-500/10 px-4 py-2 text-xs font-semibold text-violet-300"
                               >
                                 {getTagLabel(tag.name ?? tag)}
                               </span>
@@ -585,98 +698,104 @@ export default function DashboardGameDetailPage() {
                       )}
                     </div>
                   )}
+                </div>
+              </div>
 
-                  {/* ── Game file section (always visible) ── */}
-                  <div className="pt-4 border-t border-white/5">
-                    <div className="flex items-center justify-between mb-3">
+              {/* Right comments */}
+              <aside className="flex max-h-[calc(100vh-150px)] flex-col overflow-hidden rounded-[32px] border border-white/10 bg-[#0f1014]/80 shadow-[0_22px_90px_rgba(0,0,0,0.38)] backdrop-blur-xl xl:sticky xl:top-28">
+                <div className="border-b border-white/10 px-5 py-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-blue-500/20 bg-blue-500/10">
+                        <MessageSquare className="h-5 w-5 text-blue-400" />
+                      </div>
+
+                      <div>
+                        <h2 className="text-xl font-bold text-white">
+                          Bình luận
+                        </h2>
+                        <p className="text-sm text-zinc-400">
+                          {comments.length} bình luận
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* ═══ RIGHT – Comments (30%) ═══ */}
-                <div className="lg:col-span-3 bg-zinc-900/60 backdrop-blur-xl border border-white/5 rounded-[32px] p-8 flex flex-col h-fit max-h-[calc(100vh-180px)] shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl -mr-16 -mt-16 pointer-events-none" />
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-5 shrink-0">
-                    <MessageSquare className="w-5 h-5 text-blue-400" />
-                    Bình luận
-                    <span className="ml-auto text-sm font-normal text-zinc-400">
-                      {comments.length} bình luận
-                    </span>
-                  </h2>
+                <div className="flex-1 space-y-3 overflow-y-auto p-5 pr-4 custom-scrollbar">
+                  {commentsLoading ? (
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="h-20 animate-pulse rounded-3xl bg-white/5"
+                        />
+                      ))}
+                    </div>
+                  ) : comments.length === 0 ? (
+                    <div className="flex min-h-[300px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-black/20 px-6 text-center">
+                      <MessageSquare className="mb-3 h-11 w-11 text-zinc-700" />
+                      <p className="text-sm font-semibold text-zinc-300">
+                        Game này chưa có bình luận nào.
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-zinc-500">
+                        Bình luận của người chơi sẽ được hiển thị tại đây.
+                      </p>
+                    </div>
+                  ) : (
+                    comments.map((comment, idx) => {
+                      const authorComment = comment?.commentator;
+                      const avatarUrl = getUserAvatarUrl(authorComment);
 
-                  <div className="overflow-y-auto flex-1 space-y-3 pr-1 custom-scrollbar">
-                    {commentsLoading ? (
-                      <div className="space-y-3">
-                        {[1, 2, 3].map((i) => (
-                          <div
-                            key={i}
-                            className="h-16 animate-pulse rounded-2xl bg-white/5"
-                          />
-                        ))}
-                      </div>
-                    ) : comments.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-                        <MessageSquare className="w-12 h-12 text-zinc-700" />
-                        <p className="text-zinc-400 text-sm">
-                          Game này chưa có bình luận nào.
-                        </p>
-                      </div>
-                    ) : (
-                      comments.map((comment, idx) => {
-                        const authorComment = comment?.commentator;
+                      const displayName =
+                        authorComment?.displayName ||
+                        authorComment?.username ||
+                        "Ẩn danh";
 
-                        const avatarUrl = getUserAvatarUrl(authorComment);
+                      const commentContent =
+                        comment?.comment?.content ||
+                        comment?.content ||
+                        "Không có nội dung";
 
-                        const displayName =
-                          authorComment?.displayName ||
-                          authorComment?.username ||
-                          "Ẩn danh";
+                      return (
+                        <article
+                          key={comment.id ?? idx}
+                          className="rounded-[24px] border border-white/10 bg-black/25 p-4 transition-all hover:border-orange-400/25 hover:bg-white/[0.04]"
+                        >
+                          <div className="flex items-start gap-3">
+                            <img
+                              src={avatarUrl}
+                              alt={displayName}
+                              className="h-11 w-11 shrink-0 rounded-full object-cover ring-1 ring-white/10"
+                            />
 
-                        const commentContent =
-                          comment?.comment?.content ||
-                          comment?.content ||
-                          "Không có nội dung";
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-start justify-between gap-3">
+                                <span className="truncate text-sm font-bold text-sky-200">
+                                  {displayName}
+                                </span>
 
-                        return (
-                          <div
-                            key={comment.id ?? idx}
-                            className="rounded-[22px] border border-white/8 bg-[#111214] px-4 py-3"
-                          >
-                            <div className="flex items-start gap-3">
-                              <img
-                                src={avatarUrl}
-                                alt={displayName}
-                                className="h-9 w-9 rounded-full object-cover ring-1 ring-white/10 shrink-0"
-                              />
-
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between gap-2 flex-wrap">
-                                  <span className="font-semibold text-sky-200 text-sm">
-                                    {displayName}
-                                  </span>
-
-                                  <span className="text-xs text-zinc-500">
-                                    {comment.createdAt
-                                      ? new Date(
+                                <span className="shrink-0 text-xs text-zinc-500">
+                                  {comment.createdAt
+                                    ? new Date(
                                         comment.createdAt,
                                       ).toLocaleDateString("vi-VN")
-                                      : ""}
-                                  </span>
-                                </div>
-
-                                <p className="mt-1 text-sm text-zinc-200 leading-relaxed">
-                                  {commentContent}
-                                </p>
+                                    : ""}
+                                </span>
                               </div>
+
+                              <p className="mt-2 text-sm leading-6 text-zinc-200">
+                                {commentContent}
+                              </p>
                             </div>
                           </div>
-                        );
-                      })
-                    )}
-                  </div>
+                        </article>
+                      );
+                    })
+                  )}
                 </div>
-              </div>
-            </div>
+              </aside>
+            </section>
           </div>
         </main>
       </div>
@@ -702,9 +821,11 @@ export default function DashboardGameDetailPage() {
 /* ── Helper sub-component ── */
 function InfoRow({ label, value }) {
   return (
-    <div>
-      <p className="text-xs text-zinc-500 mb-0.5">{label}</p>
-      <p className="text-sm text-zinc-200">{value}</p>
+    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+      <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+        {label}
+      </p>
+      <div className="text-sm font-medium text-zinc-200">{value}</div>
     </div>
   );
 }
