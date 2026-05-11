@@ -1,24 +1,38 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import useHomeFeed from "../hooks/useHomeFeed";
 import FilterBar from "../components/FilterBar";
-import { useProducts } from "@/hooks/useLibraryGame";
 import TaskPagination from "@/components/TaskPagination";
 import GameLibrarySection from "@/sections/GameLibrarySection";
-import { RotateCcw, LibraryBig } from "lucide-react";
+
+import useHomeFeed from "../hooks/useHomeFeed";
+import { useProducts } from "@/hooks/useLibraryGame";
+
+import { RotateCcw } from "lucide-react";
 
 export default function GamePage() {
-  const { loading, error } = useHomeFeed();
+  const { error } = useHomeFeed();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const tagFromUrl = searchParams.get("tag");
 
-  const { filters, setFilters, filteredProducts, resetFilters } = useProducts();
-
+  // Pagination state
   const [page, setPage] = useState(1);
+  const pageSize = 12;
+
+
+  const {
+    filters,
+    setFilters,
+    filteredProducts,
+    resetFilters,
+    total,
+    loading,
+  } = useProducts(page, pageSize);
+
 
   useEffect(() => {
     if (tagFromUrl) {
@@ -29,19 +43,14 @@ export default function GamePage() {
     }
   }, [tagFromUrl, setFilters]);
 
+  // Reset filters 
   useEffect(() => {
     setPage(1);
   }, [filters]);
 
-  const pageSize = 12;
 
-  const totalPages = Math.ceil(filteredProducts.length / pageSize);
+  const totalPages = Math.ceil(total / pageSize);
 
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
-
-  const currentProducts = filteredProducts.slice(start, end);
-  
 
   const handleNext = () => {
     setPage((prev) => Math.min(prev + 1, totalPages));
@@ -55,12 +64,14 @@ export default function GamePage() {
     setPage(p);
   };
 
+  // Reset filters
   const handleResetFilters = () => {
     resetFilters();
     setSearchParams({});
     setPage(1);
   };
 
+  // Loading UI
   if (loading) {
     return (
       <div className="min-h-screen bg-[#050505] text-white">
@@ -72,7 +83,9 @@ export default function GamePage() {
           <main className="flex-1">
             <div className="space-y-8 px-4 py-6 lg:p-0">
               <div className="h-[260px] animate-pulse rounded-[32px] border border-white/10 bg-white/5" />
+
               <div className="h-[80px] animate-pulse rounded-[24px] border border-white/10 bg-white/5" />
+
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
                 {Array.from({ length: 8 }).map((_, index) => (
                   <div
@@ -88,6 +101,7 @@ export default function GamePage() {
     );
   }
 
+  // Error UI
   if (error) {
     return (
       <div className="min-h-screen bg-[#050505] text-white">
@@ -107,7 +121,6 @@ export default function GamePage() {
       </div>
     );
   }
-  // console.log("Filtered Products:", filteredProducts);
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -118,10 +131,13 @@ export default function GamePage() {
 
         <main className="flex-1">
           <div className="space-y-8 px-4 py-6 lg:p-0">
+            {/* Filter Section */}
             <section className="relative z-30 rounded-[28px] border border-white/10 bg-[#111113]/80 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6">
               <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <h1 className="text-3xl font-extrabold text-white">Bộ lọc</h1>
+                  <h1 className="text-3xl font-extrabold text-white">
+                    Bộ lọc
+                  </h1>
 
                   <p className="mt-2 text-sm text-zinc-400">
                     Tinh chỉnh danh sách game theo nhu cầu của bạn.
@@ -138,6 +154,7 @@ export default function GamePage() {
                     strokeWidth={2.5}
                     className="text-zinc-500 transition duration-500 group-hover:-rotate-180 group-hover:text-red-300"
                   />
+
                   Reset Filters
                 </button>
               </div>
@@ -147,6 +164,7 @@ export default function GamePage() {
               </div>
             </section>
 
+            {/* Games Section */}
             <section className="relative z-10 rounded-[28px] border border-white/10 bg-[#111113]/80 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6">
               <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 {totalPages > 1 && (
@@ -156,8 +174,8 @@ export default function GamePage() {
                 )}
               </div>
 
-              {currentProducts.length > 0 ? (
-                <GameLibrarySection games={currentProducts} />
+              {filteredProducts.length > 0 ? (
+                <GameLibrarySection games={filteredProducts} />
               ) : (
                 <div className="rounded-3xl border border-dashed border-white/10 bg-black/20 px-6 py-16 text-center">
                   <p className="text-lg font-bold text-white">
@@ -171,7 +189,8 @@ export default function GamePage() {
               )}
             </section>
 
-            {totalPages > 1 && ( 
+            {/* Pagination */}
+            {totalPages > 1 && (
               <div className="rounded-[28px] border border-white/10 bg-[#111113]/80 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl">
                 <TaskPagination
                   handleNext={handleNext}
@@ -181,7 +200,7 @@ export default function GamePage() {
                   totalPages={totalPages}
                 />
               </div>
-            )} 
+            )}
           </div>
         </main>
       </div>

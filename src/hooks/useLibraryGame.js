@@ -35,7 +35,7 @@ const transformGameData = (apiGames) => {
   });
 };
 
-export const useProducts = () => {
+export const useProducts = (page, limit) => {
   const initialFilters = {
     price: "All",
     tag: "",
@@ -50,6 +50,7 @@ export const useProducts = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+    
 
   const { purchasedIds } = usePurchase();
 
@@ -62,10 +63,12 @@ export const useProducts = () => {
     try {
       setLoading(true);
 
-      const data = await gameLibraryService.getGameLibrary();
-      console.log("API raw response:", data);
-console.log("API items:", data.items);
-console.log("API total:", data.total);
+      const data = await gameLibraryService.getGameLibrary({
+        page,
+        limit,
+      });
+
+
 
       const gamesArray = Array.isArray(data) ? data : data?.items || [];
 
@@ -94,7 +97,7 @@ console.log("API total:", data.total);
 
       setProducts(transformed);
       setFilteredProducts(transformed);
-      setTotal(transformed.length);
+      setTotal(data.total);
     } catch (error) {
       console.error("Error fetching games:", error);
       setProducts([]);
@@ -107,7 +110,7 @@ console.log("API total:", data.total);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page, limit]);
 
   useEffect(() => {
     const result = filterProducts(products, filters, purchasedIds);

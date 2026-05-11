@@ -66,33 +66,48 @@ export const userService = {
 };
 
 export const gameLibraryService = {
-  async getGameLibrary({page = 1, pageSize = 100, search = ""} = {}) {
-    try {
-      const params = { page, pageSize };
+  // async getGameLibrary({page = 1, pageSize = 100, search = ""} = {}) {
+  //   try {
+  //     const params = { page, pageSize };
 
-      if (search?.trim()) {
-        params.search = search;
-      }
+  //     if (search?.trim()) {
+  //       params.search = search;
+  //     }
 
-      const res = await axiosInstance.get("/Games", {
-        params,
-      });
+  //     const res = await axiosInstance.get("/Games", {
+  //       params,
+  //     });
 
-      console.log("REQUEST PARAMS:", params);
-      console.log("RESPONSE:", res.data);
+  //     console.log("REQUEST PARAMS:", params);
+  //     console.log("RESPONSE:", res.data);
 
-      return res.data;
-    } catch (error) {
-      console.error("API ERROR:", error);
+  //     return res.data;
+  //   } catch (error) {
+  //     console.error("API ERROR:", error);
 
-      if (error.response) {
-        console.error("STATUS:", error.response.status);
-        console.error("DATA:", error.response.data);
-      }
+  //     if (error.response) {
+  //       console.error("STATUS:", error.response.status);
+  //       console.error("DATA:", error.response.data);
+  //     }
 
-      throw error;
+  //     throw error;
+  //   }
+  // },
+  async getGameLibrary({ page = 1, limit = 12, search = "" } = {}) {
+  try {
+    const params = { page, limit };
+
+    if (search?.trim()) {
+      params.search = search;
     }
-  },
+
+    const res = await axiosInstance.get("/Games", { params });
+
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+},
   async getGameById(id) {
     try {
       const res = await axiosInstance.get(`/Games/${id}`);
