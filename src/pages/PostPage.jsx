@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import CreatePostBox from "@/components/CreatePostBox";
@@ -7,6 +7,8 @@ import useAuth from "@/contexts/AuthContext";
 import usePosts from "../hooks/usePost";
 import { ShieldAlert, Phone } from "lucide-react";
 import { useLocation } from "react-router-dom";
+
+const POST_PAGE_SIZE = 5;
 
 const PostPage = () => {
   const location = useLocation();
@@ -23,30 +25,82 @@ const PostPage = () => {
     createPost,
     updatePost,
     deletePost,
-
     getPostComments,
     createComment,
     createReaction,
     removeReaction,
     refetch,
-  } = usePosts({ page: 1, limit: 100 }); // Increased limit to ensure target post is likely loaded
+  } = usePosts({ page: 1, limit: 100 });
 
   const { user } = useAuth();
 
+  const latestPostsRef = useRef(null);
+  const isFirstPostPageRender = useRef(true);
+
+  const [postPage, setPostPage] = useState(1);
+
+  const totalPostPages = Math.max(1, Math.ceil(posts.length / POST_PAGE_SIZE));
+
+  const paginatedPosts = useMemo(() => {
+    const start = (postPage - 1) * POST_PAGE_SIZE;
+    const end = start + POST_PAGE_SIZE;
+
+    return posts.slice(start, end);
+  }, [posts, postPage]);
+
+  useEffect(() => {
+    setPostPage(1);
+  }, [posts.length]);
+
+  useEffect(() => {
+    if (isFirstPostPageRender.current) {
+      isFirstPostPageRender.current = false;
+      return;
+    }
+
+    if (!latestPostsRef.current) return;
+
+    latestPostsRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [postPage]);
+
   useEffect(() => {
     if (!loading && targetPostId && posts.length > 0) {
-      // Small timeout to ensure DOM is fully rendered
+      const targetPostIndex = posts.findIndex(
+        (post) => String(post.id) === String(targetPostId),
+      );
+
+      if (targetPostIndex !== -1) {
+        const targetPage = Math.floor(targetPostIndex / POST_PAGE_SIZE) + 1;
+        setPostPage(targetPage);
+      }
+
       const timer = setTimeout(() => {
         const element = document.getElementById(`post-${targetPostId}`);
+
         if (element) {
           element.scrollIntoView({ behavior: "smooth", block: "center" });
-          // Highlight effect
-          element.classList.add("ring-2", "ring-violet-500", "ring-offset-4", "ring-offset-black");
+
+          element.classList.add(
+            "ring-2",
+            "ring-violet-500",
+            "ring-offset-4",
+            "ring-offset-black",
+          );
+
           setTimeout(() => {
-            element.classList.remove("ring-2", "ring-violet-500", "ring-offset-4", "ring-offset-black");
+            element.classList.remove(
+              "ring-2",
+              "ring-violet-500",
+              "ring-offset-4",
+              "ring-offset-black",
+            );
           }, 3000);
         }
-      }, 500);
+      }, 600);
+
       return () => clearTimeout(timer);
     }
   }, [loading, targetPostId, posts]);
@@ -72,7 +126,18 @@ const PostPage = () => {
 
   const handleCreateComment = async (postId, payload) => {
     await createComment(postId, payload);
-    // await refetch();
+  };
+
+  const handleChangePostPage = (pageNumber) => {
+    setPostPage(pageNumber);
+  };
+
+  const handlePrevPostPage = () => {
+    handleChangePostPage(Math.max(postPage - 1, 1));
+  };
+
+  const handleNextPostPage = () => {
+    handleChangePostPage(Math.min(postPage + 1, totalPostPages));
   };
 
   return (
@@ -109,7 +174,7 @@ const PostPage = () => {
                     {posts?.length || 0}
                   </p>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                    Posts loaded
+                    Total posts
                   </p>
                 </div>
               </div>
@@ -135,23 +200,38 @@ const PostPage = () => {
 
               {user?.isPostBanned || user?.IsPostBanned ? (
                 <div className="relative overflow-hidden rounded-3xl border border-rose-500/20 bg-rose-500/5 p-10 text-center backdrop-blur-xl group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-rose-600/50 shadow-[0_0_20px_rgba(225,29,72,0.2)]" />
+                  <div className="absolute top-0 left-0 h-1 w-full bg-rose-600/50 shadow-[0_0_20px_rgba(225,29,72,0.2)]" />
+
                   <div className="relative z-10 flex flex-col items-center">
-                    <div className="w-20 h-20 bg-rose-600/10 border border-rose-600/20 rounded-[28px] flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform duration-500">
-                      <ShieldAlert className="w-10 h-10 text-rose-500" />
+                    <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-[28px] border border-rose-600/20 bg-rose-600/10 transition-transform duration-500 group-hover:rotate-12">
+                      <ShieldAlert className="h-10 w-10 text-rose-500" />
                     </div>
-                    <h3 className="text-2xl font-black mb-3 tracking-tight text-white">Tính năng bị hạn chế</h3>
-                    <p className="text-zinc-400 text-sm leading-relaxed mb-8 max-w-md mx-auto">
-                      Tài khoản của bạn đã bị <span className="text-rose-400 font-bold">chặn quyền đăng bài viết</span>. Vui lòng liên hệ Admin qua số điện thoại để mở lại tính năng này.
+
+                    <h3 className="mb-3 text-2xl font-black tracking-tight text-white">
+                      Tính năng bị hạn chế
+                    </h3>
+
+                    <p className="mx-auto mb-8 max-w-md text-sm leading-relaxed text-zinc-400">
+                      Tài khoản của bạn đã bị{" "}
+                      <span className="font-bold text-rose-400">
+                        chặn quyền đăng bài viết
+                      </span>
+                      . Vui lòng liên hệ Admin qua số điện thoại để mở lại tính
+                      năng này.
                     </p>
-                    
-                    <div className="inline-flex items-center gap-4 bg-white/5 border border-white/5 rounded-2xl px-6 py-4 transition-all">
-                      <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
-                        <Phone className="w-5 h-5 text-emerald-500" />
+
+                    <div className="inline-flex items-center gap-4 rounded-2xl border border-white/5 bg-white/5 px-6 py-4 transition-all">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10">
+                        <Phone className="h-5 w-5 text-emerald-500" />
                       </div>
+
                       <div className="text-left">
-                        <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Hỗ trợ</p>
-                        <p className="text-xl font-black text-white tracking-tighter">0123 456 789</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                          Hỗ trợ
+                        </p>
+                        <p className="text-xl font-black tracking-tighter text-white">
+                          0123 456 789
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -172,7 +252,10 @@ const PostPage = () => {
               </p>
             )}
 
-            <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[#111113]/80 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6">
+            <section
+              ref={latestPostsRef}
+              className="scroll-mt-24 overflow-hidden rounded-[28px] border border-white/10 bg-[#111113]/80 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6"
+            >
               <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h2 className="text-2xl font-extrabold text-white">
@@ -183,13 +266,21 @@ const PostPage = () => {
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={refetch}
-                  className="w-fit rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-zinc-200 transition hover:bg-white/10 hover:text-white"
-                >
-                  Refresh
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                  {posts.length > 0 && (
+                    <span className="w-fit rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-zinc-400">
+                      Page {postPage} / {totalPostPages}
+                    </span>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={refetch}
+                    className="w-fit rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-zinc-200 transition hover:bg-white/10 hover:text-white"
+                  >
+                    Refresh
+                  </button>
+                </div>
               </div>
 
               {loading ? (
@@ -202,23 +293,86 @@ const PostPage = () => {
                   </div>
                 </div>
               ) : posts.length > 0 ? (
-                <div className="space-y-4">
-                  {posts.map((post) => (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      currentUser={user}
-                      onUpdatePost={handleUpdatePost}
-                      onDeletePost={handleDeletePost}
-                      onGetComments={getPostComments}
-                      comments={comments[post.id] || []}
-                      onCreateComment={handleCreateComment}
-                      createReaction={createReaction}
-                      removeReaction={removeReaction}
-                      deleting={deleting}
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className="space-y-4">
+                    {paginatedPosts.map((post) => (
+                      <PostCard
+                        key={post.id}
+                        post={post}
+                        currentUser={user}
+                        onUpdatePost={handleUpdatePost}
+                        onDeletePost={handleDeletePost}
+                        onGetComments={getPostComments}
+                        comments={comments[post.id] || []}
+                        onCreateComment={handleCreateComment}
+                        createReaction={createReaction}
+                        removeReaction={removeReaction}
+                        deleting={deleting}
+                      />
+                    ))}
+                  </div>
+
+                  {totalPostPages > 1 && (
+                    <div className="mt-6 flex flex-col gap-4 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-sm text-zinc-500">
+                        Showing{" "}
+                        <span className="font-semibold text-zinc-300">
+                          {(postPage - 1) * POST_PAGE_SIZE + 1}
+                        </span>{" "}
+                        -{" "}
+                        <span className="font-semibold text-zinc-300">
+                          {Math.min(postPage * POST_PAGE_SIZE, posts.length)}
+                        </span>{" "}
+                        of{" "}
+                        <span className="font-semibold text-zinc-300">
+                          {posts.length}
+                        </span>{" "}
+                        posts
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          disabled={postPage === 1}
+                          onClick={handlePrevPostPage}
+                          className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-zinc-300 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          Prev
+                        </button>
+
+                        {Array.from({ length: totalPostPages }).map(
+                          (_, index) => {
+                            const pageNumber = index + 1;
+
+                            return (
+                              <button
+                                key={pageNumber}
+                                type="button"
+                                onClick={() => handleChangePostPage(pageNumber)}
+                                className={`h-10 min-w-10 rounded-xl px-3 text-sm font-bold transition ${
+                                  postPage === pageNumber
+                                    ? "bg-orange-500 text-white shadow-[0_0_24px_rgba(249,115,22,0.25)]"
+                                    : "border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white"
+                                }`}
+                              >
+                                {pageNumber}
+                              </button>
+                            );
+                          },
+                        )}
+
+                        <button
+                          type="button"
+                          disabled={postPage === totalPostPages}
+                          onClick={handleNextPostPage}
+                          className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-zinc-300 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="rounded-3xl border border-dashed border-white/10 bg-black/20 px-6 py-14 text-center">
                   <p className="text-lg font-bold text-white">
