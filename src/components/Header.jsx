@@ -175,12 +175,6 @@ const Header = ({ onOpenSidebar }) => {
                 </button>
               )}
 
-              <button
-                type="submit"
-                className="ml-3 flex h-11 shrink-0 items-center justify-center rounded-full bg-white/10 px-6 text-sm font-semibold whitespace-nowrap text-zinc-200 transition hover:bg-white/15 hover:text-white"
-              >
-                Tìm kiếm
-              </button>
             </div>
 
             {isSearchFocused && (

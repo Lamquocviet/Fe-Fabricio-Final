@@ -243,8 +243,8 @@ const ProfilePage = () => {
           onClose={() => setIsSidebarOpen(false)}
         />
 
-        <main className="flex-1 p-6 pt-8">
-          <div className="w-full mx-auto">
+        <main className="flex-1 px-4 pb-6 pt-0 lg:px-6">
+          <div className="mx-auto w-full">
             {/* ==================== MAIN PROFILE CARD ==================== */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
               {/* Phần trên: Avatar + Thông tin + Nút Đăng game */}
