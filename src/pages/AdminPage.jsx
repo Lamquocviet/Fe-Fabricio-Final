@@ -39,13 +39,14 @@ import { adminService } from "@/services/adminService";
 import { userService } from "@/services/userService";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { getUserAvatarUrl as getNormalizedUserAvatarUrl } from "@/utils/userProfile";
+import { getTagLabel } from "@/utils/displayLabels";
 
 /* ─────────────── Sub-components ─────────────── */
 
 const getUserAvatarUrl = (user) => {
   if (!user?.avatarUrl && !user?.avatar) {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      user?.username || user?.displayName || "User",
+      user?.username || user?.displayName || "Người dùng",
     )}`;
   }
 
@@ -311,7 +312,7 @@ export default function AdminPage() {
     try {
       await adminService.updateGameBan(userId, !currentStatus);
       toast.success(
-        !currentStatus ? "Đã cấm upload game" : "Đã gỡ cấm upload game",
+        !currentStatus ? "Đã cấm đăng game" : "Đã gỡ cấm đăng game",
       );
       loadAllData();
       if (selectedUser?.id === userId)
@@ -421,7 +422,7 @@ export default function AdminPage() {
             trend="+12%"
           />
           <StatCard
-            title="Tổng Game"
+            title="Tổng game"
             value={stats.totalGames}
             icon={Gamepad2}
             color="bg-violet-500"
@@ -549,7 +550,7 @@ export default function AdminPage() {
                     <p className="text-base text-white font-black">
                       Tính năng đang phát triển
                     </p>
-                    <p className="text-sm text-zinc-500 mt-1 line-clamp-1 font-medium">
+              <p className="text-sm text-zinc-500 mt-1 line-clamp-1 font-medium">
                       Hệ thống báo cáo sẽ sớm được ra mắt...
                     </p>
                   </div>
@@ -591,8 +592,8 @@ export default function AdminPage() {
           <div className="flex flex-wrap gap-3">
             {[
               { key: "loginBanned", label: "Bị Khóa", icon: UserX, color: "rose" },
-              { key: "gameBanned", label: "Cấm Game", icon: Gamepad2, color: "amber" },
-              { key: "postBanned", label: "Cấm Post", icon: FileText, color: "blue" },
+              { key: "gameBanned", label: "Cấm đăng game", icon: Gamepad2, color: "amber" },
+              { key: "postBanned", label: "Cấm đăng bài", icon: FileText, color: "blue" },
             ].map((f) => (
               <button
                 key={f.key}
@@ -649,7 +650,7 @@ export default function AdminPage() {
                       <div className="relative">
                         <img
                           src={getUserAvatarUrl(user)}
-                          alt={user.displayName || user.username || "User"}
+                          alt={user.displayName || user.username || "Người dùng"}
                           className="w-14 h-14 rounded-[24px] object-cover border-2 border-white/10 group-hover:border-violet-500 transition-all duration-500"
                         />
 
@@ -674,8 +675,8 @@ export default function AdminPage() {
                       className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg ${user.role === "Admin" || user.role === "1" ? "bg-rose-500/10 text-rose-500 border border-rose-500/20" : "bg-blue-500/10 text-blue-500 border border-blue-500/20"}`}
                     >
                       {user.role === "Admin" || user.role === "1"
-                        ? "Administrator"
-                        : "Standard User"}
+                        ? "Quản trị viên"
+                        : "Người dùng"}
                     </span>
                   </td>
                   <td className="px-10 py-7 whitespace-nowrap">
@@ -687,12 +688,12 @@ export default function AdminPage() {
                       )}
                       {user.isGameBanned && (
                         <span className="inline-flex items-center gap-1.5 text-amber-400 bg-amber-400/10 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter border border-amber-400/20">
-                          <Ban className="w-3.5 h-3.5" /> Chặn Game
+                          <Ban className="w-3.5 h-3.5" /> Chặn game
                         </span>
                       )}
                       {user.isPostBanned && (
                         <span className="inline-flex items-center gap-1.5 text-blue-400 bg-blue-400/10 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter border border-blue-400/20">
-                          <MessageSquareOff className="w-3.5 h-3.5" /> Chặn Post
+                          <MessageSquareOff className="w-3.5 h-3.5" /> Chặn bài
                         </span>
                       )}
                       {!user.isBanned &&
@@ -775,7 +776,7 @@ export default function AdminPage() {
                     </td>
                     <td className="px-6 py-5">
                       <span className="text-emerald-400 font-black text-xl tracking-tighter">
-                        {game.price > 0 ? `$${game.price}` : "FREE"}
+                        {game.price > 0 ? `$${game.price}` : "MIỄN PHÍ"}
                       </span>
                     </td>
                     <td className="px-6 py-5">
@@ -786,12 +787,12 @@ export default function AdminPage() {
                               key={tag.id}
                               className="px-2 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] text-zinc-400 font-bold"
                             >
-                              {tag.name}
+                              {getTagLabel(tag.name)}
                             </span>
                           ))
                         ) : (
                           <span className="text-zinc-600 text-[10px] italic">
-                            No tags
+                            Chưa có tag
                           </span>
                         )}
                       </div>
@@ -946,7 +947,7 @@ export default function AdminPage() {
                 <div className="max-w-2xl">
                   <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-4 py-2 text-xs font-black uppercase tracking-[0.28em] text-violet-300">
                     <ShieldCheck className="h-4 w-4" />
-                    Admin Center
+                    Trung tâm quản trị
                   </span>
 
                   <h1 className="mt-5 text-4xl font-black tracking-tight text-white md:text-5xl">
@@ -1040,7 +1041,7 @@ export default function AdminPage() {
                       alt={
                         selectedUser.displayName ||
                         selectedUser.username ||
-                        "User"
+                        "Người dùng"
                       }
                       className="w-40 h-40 rounded-[40px] object-cover border-[10px] border-zinc-950 shadow-2xl group-hover:scale-105 transition-transform duration-700"
                     />
@@ -1068,7 +1069,7 @@ export default function AdminPage() {
                                   selectedUser.isBanned,
                                 ),
                               selectedUser.isBanned
-                                ? "Mở khóa Login?"
+                                ? "Mở khóa đăng nhập?"
                                 : "Khóa đăng nhập?",
                               selectedUser.isBanned
                                 ? `Người dùng @${selectedUser.username} sẽ có thể đăng nhập lại.`
@@ -1087,7 +1088,7 @@ export default function AdminPage() {
                           ) : (
                             <UserX className="w-4 h-4" />
                           )}
-                          {selectedUser.isBanned ? "Mở Khóa" : "Khóa Acc"}
+                          {selectedUser.isBanned ? "Mở khóa" : "Khóa tài khoản"}
                         </button>
 
                         <button
@@ -1099,9 +1100,9 @@ export default function AdminPage() {
                                   selectedUser.isGameBanned,
                                 ),
                               selectedUser.isGameBanned
-                                ? "Gỡ chặn đăng Game?"
-                                : "Chặn đăng Game?",
-                              `Xác nhận thay đổi quyền upload game của @${selectedUser.username}.`,
+                                ? "Gỡ chặn đăng game?"
+                                : "Chặn đăng game?",
+                              `Xác nhận thay đổi quyền đăng game của @${selectedUser.username}.`,
                               selectedUser.isGameBanned ? "info" : "warning",
                             )
                           }
@@ -1112,7 +1113,7 @@ export default function AdminPage() {
                           }`}
                         >
                           <Ban className="w-4 h-4" />
-                          {selectedUser.isGameBanned ? "Mở Game" : "Cấm Game"}
+                          {selectedUser.isGameBanned ? "Mở game" : "Cấm game"}
                         </button>
 
                         <button
@@ -1137,7 +1138,7 @@ export default function AdminPage() {
                           }`}
                         >
                           <MessageSquareOff className="w-4 h-4" />
-                          {selectedUser.isPostBanned ? "Mở Post" : "Cấm Post"}
+                          {selectedUser.isPostBanned ? "Mở bài" : "Cấm bài"}
                         </button>
                       </div>
                     </div>
@@ -1162,7 +1163,7 @@ export default function AdminPage() {
                       ? "Thông tin"
                       : t === "games"
                         ? "Game"
-                        : "Post"}
+                        : "Bài viết"}
                     {detailTab === t && (
                       <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-violet-500 rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)]" />
                     )}
@@ -1176,7 +1177,6 @@ export default function AdminPage() {
                     <div className="bg-white/3 rounded-[32px] p-8 border border-white/5 hover:border-white/10 transition-colors">
                       <p className="text-[11px] text-zinc-500 uppercase font-black tracking-widest mb-3 flex items-center gap-2">
                         <MessageSquareOff className="w-3.5 h-3.5" /> Email
-                        Address
                       </p>
                       <p className="text-white text-xl font-bold tracking-tight">
                         {selectedUser.email}
@@ -1184,18 +1184,18 @@ export default function AdminPage() {
                     </div>
                     <div className="bg-white/3 rounded-[32px] p-8 border border-white/5 hover:border-white/10 transition-colors">
                       <p className="text-[11px] text-zinc-500 uppercase font-black tracking-widest mb-3 flex items-center gap-2">
-                        <Clock className="w-3.5 h-3.5" /> Security Level
+                        <Clock className="w-3.5 h-3.5" /> Cấp quyền
                       </p>
                       <p className="text-white text-xl font-bold tracking-tight uppercase">
                         {selectedUser.role === "1" ||
                         selectedUser.role === "Admin"
-                          ? "System Administrator"
-                          : "Verified Member"}
+                          ? "Quản trị viên hệ thống"
+                          : "Thành viên đã xác thực"}
                       </p>
                     </div>
                     <div className="bg-white/3 rounded-[32px] p-8 border border-white/5 md:col-span-2 hover:border-white/10 transition-colors">
                       <p className="text-[11px] text-zinc-500 uppercase font-black tracking-widest mb-3">
-                        Biography
+                        Tiểu sử
                       </p>
                       <p className="text-white text-lg leading-relaxed font-medium">
                         {selectedUser.bio ||
@@ -1226,7 +1226,7 @@ export default function AdminPage() {
                               {g.title}
                             </p>
                             <p className="text-sm text-emerald-400 font-black mt-1">
-                              {g.price > 0 ? `$${g.price}` : "FREE CONTENT"}
+                              {g.price > 0 ? `$${g.price}` : "NỘI DUNG MIỄN PHÍ"}
                             </p>
                           </div>
                           <button
@@ -1239,7 +1239,7 @@ export default function AdminPage() {
                       ))
                     ) : (
                       <div className="text-center py-20 text-zinc-600 font-black uppercase tracking-widest opacity-50">
-                        Empty Archive
+                        Chưa có dữ liệu
                       </div>
                     )}
                   </div>
@@ -1281,7 +1281,7 @@ export default function AdminPage() {
                       ))
                     ) : (
                       <div className="text-center py-20 text-zinc-600 font-black uppercase tracking-widest opacity-50">
-                        Khong co thong tin
+                        Không có thông tin
                       </div>
                     )}
                   </div>
@@ -1291,7 +1291,7 @@ export default function AdminPage() {
                 onClick={() => setSelectedUser(null)}
                 className="w-full mt-10 py-5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-[32px] font-black uppercase tracking-widest transition-all border border-white/5 shadow-2xl"
               >
-                Close Profile
+                Đóng hồ sơ
               </button>
             </div>
           </div>

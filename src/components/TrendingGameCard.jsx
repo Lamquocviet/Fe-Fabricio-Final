@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useFavorites } from "@/contexts/FavoriteContext";
 import { usePurchase } from "@/hooks/usePurchase";
+import { getTagLabel } from "@/utils/displayLabels";
 
 const renderStars = (rating = 0) => {
   return Array.from({ length: 5 }, (_, i) => {
@@ -63,7 +64,7 @@ export default function TrendingGameCard({
             shadow-[0_8px_18px_rgba(16,185,129,0.35)]
           "
         >
-          ✔ Purchased
+          ✔ Đã mua
         </span>
       )}
 
@@ -106,7 +107,7 @@ export default function TrendingGameCard({
                   : "border-red-500/25 bg-red-500/10 text-white hover:bg-red-500/20"
               }
             `}
-            aria-label="Toggle favorite"
+            aria-label="Bật/tắt yêu thích"
           >
             {fav ? (
               <Heart className="h-5 w-5 fill-red-400 text-red-400" />
@@ -126,7 +127,7 @@ export default function TrendingGameCard({
                   px-3 py-1.5 text-sm font-medium text-zinc-300
                 "
               >
-                {tag.name}
+                {getTagLabel(tag.name)}
               </span>
             ))}
 
@@ -150,11 +151,11 @@ export default function TrendingGameCard({
                 Number(game.price) === 0 ? "text-emerald-400" : "text-[#ffb14a]"
               }`}
             >
-              {Number(game.price) === 0 ? "Free" : `$${game.price}`}
+              {Number(game.price) === 0 ? "Miễn phí" : `$${game.price}`}
             </span>
           ) : (
             <span className="text-sm font-semibold text-emerald-400">
-              In library
+              Trong thư viện
             </span>
           )}
 

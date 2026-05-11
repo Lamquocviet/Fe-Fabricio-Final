@@ -26,7 +26,7 @@ export default function CommentsTab({ game }) {
         userId: commentatorId,
         content: c.comment?.content || "",
         userName:
-          c.commentator?.displayName || c.commentator?.username || "Anonymous",
+          c.commentator?.displayName || c.commentator?.username || "Ẩn danh",
         avatarRaw: c.commentator?.avatarUrl || c.commentator?.avatar,
         userAvatar: getUserAvatarUrl(c.commentator),
         userRole: c.commentator?.role || "user",
@@ -86,7 +86,7 @@ export default function CommentsTab({ game }) {
           newComment?.commentator?.username ||
           user?.displayName ||
           user?.username ||
-          "You",
+          "Bạn",
         avatarRaw:
           newComment?.commentator?.avatarUrl ||
           newComment?.commentator?.avatar ||
@@ -139,7 +139,7 @@ export default function CommentsTab({ game }) {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Share your thoughts on this game..."
+          placeholder="Chia sẻ cảm nhận của bạn về game này..."
           className="w-full bg-transparent border-0 focus:outline-none text-zinc-300 placeholder-zinc-500 resize-none h-32"
         />
       </div>
@@ -149,7 +149,7 @@ export default function CommentsTab({ game }) {
         disabled={loading}
         className="bg-red-600 hover:bg-red-700 transition px-10 py-4 rounded-2xl font-semibold text-lg"
       >
-        {loading ? "Posting..." : "Post Comment"}
+        {loading ? "Đang đăng..." : "Đăng bình luận"}
       </button>
 
       <div className="mt-12 max-h-[500px] overflow-y-auto pr-2 space-y-6 custom-scrollbar">
@@ -179,14 +179,14 @@ export default function CommentsTab({ game }) {
                 </div>
 
                 <p className="text-zinc-300 mt-2 leading-relaxed">
-                  {c.content || "No content"}
+                  {c.content || "Không có nội dung"}
                 </p>
               </div>
             </div>
           ))
         ) : (
           <div className="text-zinc-400 text-sm text-center py-10">
-            No comments yet. Be the first to share your thoughts!
+            Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nhận!
           </div>
         )}
       </div>

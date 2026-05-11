@@ -19,7 +19,7 @@ export const useTag = () => {
                 setTags(fetchedTags);
             } catch (err) {
                 console.error(err);
-                setError('Failed to load tags');
+                setError('Không thể tải danh sách tag');
             } finally {
                 setLoading(false);
             }
@@ -38,7 +38,7 @@ export const useTag = () => {
             setTags([...tags, createdTag]);
         } catch (err) {
             console.error(err);
-            setError('Failed to create tag');
+            setError('Không thể tạo tag');
         } finally {
             setLoading(false);
         }

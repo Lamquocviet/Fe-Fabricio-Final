@@ -32,7 +32,7 @@ export const useGameDetail = () => {
         // console.log("Rating API:", ratingRes);
 
         if (!gameRes) {
-          setError("Game not found");
+          setError("Không tìm thấy game");
           return;
         }
 
@@ -41,7 +41,7 @@ export const useGameDetail = () => {
           id: gameRes.id,
           title: gameRes.title,
           description: gameRes.description,
-          type: gameRes.gameType || "Unknown",
+          type: gameRes.gameType || "Không rõ",
 
           image: gameRes.thumbnailUrl,
 
@@ -50,7 +50,7 @@ export const useGameDetail = () => {
           // UI display
           price:
             gameRes.price === 0
-              ? "Free"
+              ? "Miễn phí"
               : `$${Number(gameRes.price).toFixed(2)}`,
 
           rating: ratingRes?.average ?? 0,
@@ -62,7 +62,7 @@ export const useGameDetail = () => {
         setGame(transformed);
       } catch (err) {
         console.error(err);
-        setError("Failed to load game");
+        setError("Không thể tải game");
       } finally {
         setLoading(false);
       }

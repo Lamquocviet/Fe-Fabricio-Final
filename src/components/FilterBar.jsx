@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getFilterLabel, getTagLabel } from "@/utils/displayLabels";
 
 const Dropdown = ({ label, value, options, onChange }) => {
   const [open, setOpen] = useState(false);
@@ -9,7 +10,7 @@ const Dropdown = ({ label, value, options, onChange }) => {
         onClick={() => setOpen(!open)}
         className="w-full bg-zinc-800 px-4 py-2 rounded-lg flex justify-between"
       >
-        {value || label}
+        {value ? getFilterLabel(value) || getTagLabel(value) : label}
         <span>▼</span>
       </button>
 
@@ -24,7 +25,7 @@ const Dropdown = ({ label, value, options, onChange }) => {
               }}
               className="px-4 py-2 hover:bg-zinc-700 cursor-pointer"
             >
-              {item}
+              {getFilterLabel(item) || getTagLabel(item)}
             </div>
           ))}
         </div>
@@ -39,7 +40,7 @@ export default function FilterBar({ filters, setFilters }) {
 
       {/* Price */}
       <Dropdown
-        label="Price"
+        label="Giá"
         value={filters.price}
         options={["All", "Free", "Paid"]}
         onChange={(val) =>
@@ -63,7 +64,7 @@ export default function FilterBar({ filters, setFilters }) {
 
       {/* Ownership*/}
       <Dropdown
-        label="Ownership"
+        label="Quyền sở hữu"
         value={filters.ownership}
         options={["All", "Purchased", "NotPurchased"]}
         onChange={(val) =>
@@ -73,7 +74,7 @@ export default function FilterBar({ filters, setFilters }) {
 
       {/* Sort */}
       <Dropdown
-        label="Sort"
+        label="Sắp xếp"
         value={filters.sort}
         options={["Newest", "Price", "Rating"]}
         onChange={(val) =>

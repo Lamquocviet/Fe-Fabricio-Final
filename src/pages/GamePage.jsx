@@ -114,7 +114,7 @@ export default function GamePage() {
           <main className="flex-1">
             <div className="px-4 py-6 lg:p-0">
               <div className="rounded-[28px] border border-red-500/20 bg-red-500/10 p-6 text-red-200">
-                Failed to load game library: {error}
+                Không thể tải thư viện game: {error}
               </div>
             </div>
           </main>
@@ -156,7 +156,7 @@ export default function GamePage() {
                     className="text-zinc-500 transition duration-500 group-hover:-rotate-180 group-hover:text-red-300"
                   />
 
-                  Reset Filters
+                  Đặt lại bộ lọc
                 </button>
               </div>
 
@@ -170,7 +170,7 @@ export default function GamePage() {
               <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 {totalPages > 1 && (
                   <span className="w-fit rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-zinc-400">
-                    Page {page} of {totalPages}
+                    Trang {page} / {totalPages}
                   </span>
                 )}
               </div>

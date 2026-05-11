@@ -45,13 +45,13 @@ export const useUploadGame = () => {
 
     try {
       await uploadGame(data);
-      toast.success("Upload thành công");
+      toast.success("Tải game lên thành công");
       reset();
       // Navigate to game library after successful upload
       navigate("/games");
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.message || err?.message || "Lỗi upload");
+      toast.error(err?.response?.data?.message || err?.message || "Tải game lên thất bại");
     }
   };
 

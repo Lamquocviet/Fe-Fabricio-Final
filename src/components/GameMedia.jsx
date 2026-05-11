@@ -10,7 +10,7 @@ export default function GameMedia({ game }) {
 
       {/* Featured badge */}
       <div className="absolute top-6 right-6 bg-amber-500 text-black font-bold px-5 py-2 rounded-full text-sm tracking-wider">
-        FEATURED
+        NỔI BẬT
       </div>
 
       {/* Overlay gradient */}

@@ -1,21 +1,22 @@
 import React from "react";
 import { getUserAvatarUrl } from "@/utils/userProfile";
 import useAuth from "@/contexts/AuthContext";
+import { getRoleLabel } from "@/utils/displayLabels";
 
 function formatTimeAgo(input) {
-  if (!input) return "Now";
+  if (!input) return "Vừa xong";
 
   const diffMs = Date.now() - new Date(input).getTime();
   const diffMin = Math.floor(diffMs / 60000);
 
-  if (diffMin < 1) return "Now";
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 1) return "Vừa xong";
+  if (diffMin < 60) return `${diffMin} phút trước`;
 
   const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}h ago`;
+  if (diffHour < 24) return `${diffHour} giờ trước`;
 
   const diffDay = Math.floor(diffHour / 24);
-  return `${diffDay}d ago`;
+  return `${diffDay} ngày trước`;
 }
 
 export default function CommentItem({ comment, authorId }) {
@@ -42,7 +43,7 @@ export default function CommentItem({ comment, authorId }) {
           alt={
             displayCommentator.displayName ||
             displayCommentator.username ||
-            "User Avatar"
+            "Ảnh đại diện"
           }
           className="h-9 w-9 rounded-full object-cover ring-1 ring-white/10"
         />
@@ -52,11 +53,11 @@ export default function CommentItem({ comment, authorId }) {
             <span
               className={`font-semibold ${isAuthor ? "text-red-400" : "text-sky-200"}`}
             >
-              {displayCommentator.displayName || displayCommentator.username || "Unknown"}
+              {displayCommentator.displayName || displayCommentator.username || "Ẩn danh"}
             </span>
             <span className="text-sm text-zinc-500">
               {formatTimeAgo(comment.createdAt)} -{" "}
-              {isAuthor ? "Author" : "User"}
+              {getRoleLabel(isAuthor ? "Author" : "User")}
             </span>
           </div>
 

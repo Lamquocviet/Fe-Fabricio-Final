@@ -3,7 +3,7 @@ export const mockFeaturedDrop = {
   title:
     "Ashfall Keep",
   description:
-    "GameStore blends dense storefront discovery with a social feed designed for player reactions, creator updates, and community storytelling.",
+    "GameStore kết hợp trải nghiệm khám phá cửa hàng game với bảng tin xã hội dành cho phản hồi người chơi, cập nhật từ nhà sáng tạo và câu chuyện cộng đồng.",
   image:
     "https://clan.akamai.steamstatic.com/images/42956655/0b863b1bcc86d0912ad53437b2481cb3595991e5.png",
   gameTitle: "Ashfall Keep",
@@ -22,8 +22,8 @@ export const mockFeaturedGames = [
     price: "Free",
     rating: 4.7,
     description:
-      "High-speed synthwave racing through shifting city lanes, reactive obstacles, and browser-ready challenge tracks.",
-    cta: "Play",
+      "Đua xe synthwave tốc độ cao qua các làn phố biến đổi, chướng ngại phản hồi nhanh và đường đua chơi trực tiếp trên trình duyệt.",
+    cta: "Chơi",
   },
   {
     id: "game-2",
@@ -35,8 +35,8 @@ export const mockFeaturedGames = [
     price: "$19.99",
     rating: 4.8,
     description:
-      "Squad-based tactical battles set across floating islands and airship routes.",
-    cta: "Buy",
+      "Những trận chiến chiến thuật theo đội hình trên đảo bay và tuyến khinh khí cầu.",
+    cta: "Mua",
   },
 ];
 
@@ -94,7 +94,7 @@ export const gameLibrary = [
     price: "$14.99",
     rating: 4.9,
     description:
-      "Explore ancient ruins, forge alliances, and defend the kingdom from a rising darkness.",
+      "Khám phá tàn tích cổ, xây dựng liên minh và bảo vệ vương quốc trước bóng tối đang trỗi dậy.",
   },
   {
     id: "trend-2",
@@ -106,7 +106,7 @@ export const gameLibrary = [
     price: "Free",
     rating: 4.5,
     description:
-      "Investigate a drifting spaceship where every signal hides a terrifying secret.",
+      "Điều tra một phi thuyền trôi dạt, nơi mỗi tín hiệu đều che giấu một bí mật đáng sợ.",
   },
   {
     id: "trend-3",
@@ -118,7 +118,7 @@ export const gameLibrary = [
     price: "$9.99",
     rating: 4.7,
     description:
-      "Race through futuristic city streets filled with neon lights and turbo chaos.",
+      "Đua qua những con phố tương lai rực ánh neon và hỗn loạn tốc độ cao.",
   },
   {
     id: "trend-4",
@@ -130,7 +130,7 @@ export const gameLibrary = [
     price: "$19.99",
     rating: 4.8,
     description:
-      "Lead airborne armies across floating islands in tactical fantasy battles.",
+      "Dẫn dắt đội quân trên không qua các đảo bay trong những trận chiến fantasy chiến thuật.",
   },
   {
     id: "trend-5",
@@ -142,7 +142,7 @@ export const gameLibrary = [
     price: "$24.99",
     rating: 4.6,
     description:
-      "Survive blizzards and uncover forgotten legends in a frozen open world.",
+      "Sinh tồn giữa bão tuyết và khám phá truyền thuyết bị lãng quên trong thế giới băng giá rộng lớn.",
   },
   {
     id: "trend-6",
@@ -154,7 +154,7 @@ export const gameLibrary = [
     price: "$12.99",
     rating: 4.4,
     description:
-      "Pilot customizable battle mechs in explosive online arena combat.",
+      "Điều khiển mech chiến đấu tùy biến trong những trận đấu trường online bùng nổ.",
   },
   {
     id: "trend-7",
@@ -166,7 +166,7 @@ export const gameLibrary = [
     price: "$7.99",
     rating: 4.3,
     description:
-      "Solve cursed temple puzzles while escaping creatures in the dark.",
+      "Giải đố trong ngôi đền bị nguyền rủa khi trốn khỏi các sinh vật trong bóng tối.",
   },
   {
     id: "trend-8",
@@ -178,7 +178,7 @@ export const gameLibrary = [
     price: "$15.99",
     rating: 4.8,
     description:
-      "Build your sea colony and survive storms on the endless ocean.",
+      "Xây dựng thuộc địa trên biển và sống sót qua bão tố giữa đại dương vô tận.",
   },
   {
     id: "trend-9",
@@ -190,7 +190,7 @@ export const gameLibrary = [
     price: "Free",
     rating: 4.7,
     description:
-      "Compete in fast-paced tactical battles across futuristic digital arenas.",
+      "So tài trong các trận chiến chiến thuật nhịp độ nhanh trên đấu trường kỹ thuật số tương lai.",
   },
   {
     id: "trend-10",
@@ -202,7 +202,7 @@ export const gameLibrary = [
     price: "$9.99",
     rating: 4.5,
     description:
-      "Burn rubber across dangerous highways packed with rivals and traps.",
+      "Bứt tốc trên những xa lộ nguy hiểm đầy đối thủ và cạm bẫy.",
   },
   {
     id: "trend-11",
@@ -214,7 +214,7 @@ export const gameLibrary = [
     price: "$11.99",
     rating: 4.6,
     description:
-      "Grow magical crops and build a peaceful life in a charming valley.",
+      "Trồng cây phép thuật và xây dựng cuộc sống yên bình trong thung lũng dễ thương.",
   },
   {
     id: "trend-12",
@@ -226,7 +226,7 @@ export const gameLibrary = [
     price: "$18.99",
     rating: 4.4,
     description:
-      "Hack mega-corporations and fight through neon-lit districts at night.",
+      "Hack các tập đoàn khổng lồ và chiến đấu qua những khu phố neon về đêm.",
   },
   {
     id: "trend-13",
@@ -237,7 +237,7 @@ export const gameLibrary = [
     tags: ["Cozy", "Simulation", "Casual"],
     price: "$6.99",
     rating: 4.9,
-    description: "Relax with farming, decorating, and friendly village events.",
+    description: "Thư giãn với trồng trọt, trang trí và các sự kiện làng quê thân thiện.",
   },
   {
     id: "trend-14",
@@ -249,7 +249,7 @@ export const gameLibrary = [
     price: "$19.99",
     rating: 4.8,
     description:
-      "Descend into dangerous dungeons where every step awakens old echoes.",
+      "Tiến vào hầm ngục nguy hiểm, nơi mỗi bước chân đánh thức những âm vang cổ xưa.",
   },
   {
     id: "trend-15",
@@ -260,7 +260,7 @@ export const gameLibrary = [
     tags: ["Action", "Multiplayer", "Arcade"],
     price: "Free",
     rating: 4.2,
-    description: "Battle in the skies with jet bikes and fast aerial teamwork.",
+    description: "Chiến đấu trên bầu trời bằng xe phản lực và phối hợp không chiến tốc độ cao.",
   },
   {
     id: "trend-16",
@@ -272,7 +272,7 @@ export const gameLibrary = [
     price: "$8.99",
     rating: 4.3,
     description:
-      "Tune abandoned radios to reveal spirits trapped in static waves.",
+      "Dò sóng những chiếc radio bỏ hoang để hé lộ linh hồn mắc kẹt trong nhiễu âm.",
   },
   {
     id: "trend-17",
@@ -284,7 +284,7 @@ export const gameLibrary = [
     price: "$21.99",
     rating: 4.7,
     description:
-      "Expand your empire through diplomacy, conquest, and master planning.",
+      "Mở rộng đế chế bằng ngoại giao, chinh phạt và hoạch định chiến lược.",
   },
   {
     id: "trend-18",
@@ -296,7 +296,7 @@ export const gameLibrary = [
     price: "$4.99",
     rating: 4.5,
     description:
-      "Jump, dash, and speedrun colorful retro-inspired pixel worlds.",
+      "Nhảy, lướt và speedrun qua những thế giới pixel đầy màu sắc lấy cảm hứng retro.",
   },
   {
     id: "trend-19",
@@ -308,6 +308,6 @@ export const gameLibrary = [
     price: "$13.99",
     rating: 4.6,
     description:
-      "Race through asteroid belts and distant planets at light speed.",
+      "Đua qua vành đai tiểu hành tinh và các hành tinh xa xôi với tốc độ ánh sáng.",
   },
 ];

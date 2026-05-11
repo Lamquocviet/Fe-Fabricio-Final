@@ -32,7 +32,7 @@ export default function MyGameTab({ userId }) {
         setPurchasedGames(normalize(purchasedRes));
       } catch (err) {
         console.error("MyGameTab error:", err);
-        setError("Failed to fetch games");
+        setError("Không thể tải danh sách game");
       } finally {
         setLoading(false);
       }
@@ -101,7 +101,7 @@ export default function MyGameTab({ userId }) {
               : "bg-white/10 text-zinc-300 hover:bg-white/20"
           }`}
         >
-          My Uploads
+          Game đã đăng
         </button>
 
         <button
@@ -112,12 +112,12 @@ export default function MyGameTab({ userId }) {
               : "bg-white/10 text-zinc-300 hover:bg-white/20"
           }`}
         >
-          Purchased
+          Đã mua
         </button>
       </div>
 
       {/* STATE */}
-      {loading && <p className="text-white">Loading...</p>}
+      {loading && <p className="text-white">Đang tải...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
       {/* LIST */}

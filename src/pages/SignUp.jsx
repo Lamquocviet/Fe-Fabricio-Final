@@ -32,20 +32,20 @@ const SignUp = () => {
       formData;
 
     if (!username || !displayName || !email || !password || !confirmPassword) {
-      return "All fields are required";
+      return "Vui lòng nhập đầy đủ thông tin";
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return "Invalid email format";
+      return "Email không đúng định dạng";
     }
 
     if (password.length < 6) {
-      return "Password must be at least 6 characters";
+      return "Mật khẩu phải có ít nhất 6 ký tự";
     }
 
     if (password !== confirmPassword) {
-      return "Passwords do not match";
+      return "Mật khẩu xác nhận không khớp";
     }
   };
 
@@ -119,31 +119,31 @@ const SignUp = () => {
           <ArrowLeft className="h-3.5 w-3.5 transition group-hover:-translate-x-0.5" />
         </span>
         <span>
-          Back to <span className="text-[#ff7a59]">FabricIO</span>
+          Về <span className="text-[#ff7a59]">FabricIO</span>
         </span>
       </Link>
 
       <div className="w-full max-w-6xl overflow-hidden rounded-[22px] border border-white/10 bg-[#141418]/70 backdrop-blur-md shadow-[0_20px_80px_rgba(0,0,0,0.45)] grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="hidden lg:flex flex-col justify-center border-r border-white/10 px-8 py-9 xl:px-10 bg-[radial-gradient(circle_at_top_left,rgba(255,95,65,0.18),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))]">
           <span className="inline-block w-fit rounded-full border border-orange-400/20 bg-orange-400/10 px-3 py-1.5 text-xs font-semibold text-orange-300">
-            Join Fabricio Community
+            Tham gia cộng đồng FabricIO
           </span>
 
           <h1 className="mt-4 text-3xl xl:text-4xl font-extrabold leading-tight tracking-tight text-zinc-100">
-            Create your player account and step into the community.
+            Tạo tài khoản người chơi và bước vào cộng đồng.
           </h1>
 
           <p className="mt-4 max-w-xl text-sm leading-6 text-zinc-400">
-            Discover indie games, follow creators, react to community posts, and
-            publish your own gaming content in one sleek dark platform.
+            Khám phá game indie, theo dõi nhà sáng tạo, tương tác với bài viết
+            cộng đồng và đăng nội dung game của riêng bạn.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2">
             {[
-              "Discover new games",
-              "Follow creators",
-              "Join community threads",
-              "Publish your own posts",
+              "Khám phá game mới",
+              "Theo dõi nhà sáng tạo",
+              "Tham gia thảo luận cộng đồng",
+              "Đăng bài viết của bạn",
             ].map((item) => (
               <span
                 key={item}
@@ -157,10 +157,10 @@ const SignUp = () => {
 
         <div className="px-4 py-5 sm:px-6 lg:px-8 flex items-center justify-center bg-linear-to-b from-white/2 to-white/1">
           <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#0a0a0c]/80 p-5 md:p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
-            <h2 className="text-2xl font-extrabold text-white">Sign Up</h2>
+            <h2 className="text-2xl font-extrabold text-white">Đăng ký</h2>
 
             <p className="mt-1.5 text-sm leading-5 text-zinc-400">
-              Start building your profile and explore the latest games.
+              Bắt đầu xây dựng hồ sơ và khám phá những game mới nhất.
             </p>
 
             {error && (
@@ -179,11 +179,11 @@ const SignUp = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5 text-left">
                   <label className="block text-xs font-medium text-zinc-300">
-                    Username
+                    Tên đăng nhập
                   </label>
                   <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="Tên đăng nhập"
                     value={formData.username}
                     onChange={handleChange("username")}
                     disabled={loading}
@@ -193,11 +193,11 @@ const SignUp = () => {
 
                 <div className="flex flex-col gap-1.5 text-left">
                   <label className="block text-xs font-medium text-zinc-300">
-                    Display Name
+                    Tên hiển thị
                   </label>
                   <input
                     type="text"
-                    placeholder="Display name"
+                    placeholder="Tên hiển thị"
                     value={formData.displayName}
                     onChange={handleChange("displayName")}
                     disabled={loading}
@@ -212,7 +212,7 @@ const SignUp = () => {
                 </label>
                 <input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="Nhập email"
                   value={formData.email}
                   onChange={handleChange("email")}
                   disabled={loading}
@@ -223,11 +223,11 @@ const SignUp = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5 text-left">
                   <label className="block text-xs font-medium text-zinc-300">
-                    Password
+                    Mật khẩu
                   </label>
                   <input
                     type="password"
-                    placeholder="Password"
+                    placeholder="Mật khẩu"
                     value={formData.password}
                     onChange={handleChange("password")}
                     disabled={loading}
@@ -237,11 +237,11 @@ const SignUp = () => {
 
                 <div className="flex flex-col gap-1.5 text-left">
                   <label className="block text-xs font-medium text-zinc-300">
-                    Confirm Password
+                    Xác nhận mật khẩu
                   </label>
                   <input
                     type="password"
-                    placeholder="Confirm"
+                    placeholder="Xác nhận"
                     value={formData.confirmPassword}
                     onChange={handleChange("confirmPassword")}
                     disabled={loading}
@@ -255,27 +255,27 @@ const SignUp = () => {
                 disabled={loading}
                 className="w-full rounded-2xl bg-linear-to-r from-[#ff6a4a] to-[#ff5a3b] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(255,90,59,0.22)] transition hover:from-[#ff7a59] hover:to-[#ff4d4d] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? "Creating account..." : "Create Account"}
+                {loading ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
               </button>
             </form>
 
             <div className="my-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-zinc-500">
               <div className="h-px flex-1 bg-white/10"></div>
-              <span>or continue</span>
+              <span>hoặc tiếp tục</span>
               <div className="h-px flex-1 bg-white/10"></div>
             </div>
 
             <button className="w-full rounded-2xl border border-white/10 bg-white/3 px-4 py-2.5 text-sm font-semibold text-zinc-100 transition hover:bg-white/5">
-              Continue with Google
+              Tiếp tục với Google
             </button>
 
             <p className="mt-4 text-center text-sm text-zinc-400">
-              Already have an account?{" "}
+              Đã có tài khoản?{" "}
               <Link
                 to="/signin"
                 className="font-bold text-[#ff7a59] cursor-pointer"
               >
-                Sign in
+                Đăng nhập
               </Link>
             </p>
           </div>

@@ -41,9 +41,9 @@ export default function ProfileTab({ user }) {
   const userId = getUserId(user);
 
   const tabs = [
-    { id: "Games", label: "My Favorite Games" },
-    { id: "Posts", label: "My Posts" },
-    { id: "My games", label: "My games" },
+    { id: "Games", label: "Game yêu thích" },
+    { id: "Posts", label: "Bài viết của tôi" },
+    { id: "My games", label: "Game của tôi" },
   ];
 
   const mapPostWithAuthor = useCallback(
@@ -88,7 +88,7 @@ export default function ProfileTab({ user }) {
         user?.DisplayName ||
         user?.username ||
         user?.Username ||
-        "Unknown User";
+        "Người dùng ẩn danh";
 
       return {
         ...post,
@@ -337,7 +337,7 @@ export default function ProfileTab({ user }) {
   };
 
   if (!user) {
-    return <p className="text-white">Loading profile...</p>;
+    return <p className="text-white">Đang tải hồ sơ...</p>;
   }
 
   return (

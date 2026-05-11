@@ -43,7 +43,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
       return {
         ...post,
 
-        name: displayAuthor?.displayName || displayAuthor?.username || "Unknown User",
+        name: displayAuthor?.displayName || displayAuthor?.username || "Người dùng ẩn danh",
 
         avatar: getUserAvatarUrl(displayAuthor),
 
@@ -74,7 +74,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
       return {
         ...post,
 
-        name: "Unknown User",
+        name: "Người dùng ẩn danh",
         avatar: DEFAULT_AVATAR,
 
         time: post?.createdAt
@@ -105,7 +105,7 @@ export default function usePosts({ page = 1, limit = 10 } = {}) {
     try {
       setError("");
 
-      const res = await getTrendingPostsApi();
+      const res = await getTrendingPostsApi({ page: 1, limit: 3 });
 
       const rawTrendingPosts = Array.isArray(res)
         ? res

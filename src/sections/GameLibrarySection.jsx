@@ -8,7 +8,7 @@ export default function GameLibrarySection({ games = [] }) {
     <section className="space-y-5">
       <div>
         <h2 className="text-3xl font-bold tracking-tight text-white">
-          Game Library
+          Thư viện game
         </h2>
         
       </div>

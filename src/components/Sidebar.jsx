@@ -6,17 +6,18 @@ import { useEffect, useState } from "react";
 import usePosts from "@/hooks/usePost";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { getUserAvatarUrl } from "@/utils/userProfile";
+import { getTagLabel } from "@/utils/displayLabels";
 
 const mainNavItems = [
-  { label: "Home", path: "/" },
-  { label: "Games", path: "/games" },
-  { label: "Posts", path: "/posts" },
-  { label: "Submit Game", path: "/uploadgame", requiresAuth: true },
+  { label: "Trang chủ", path: "/" },
+  { label: "Game", path: "/games" },
+  { label: "Bài viết", path: "/posts" },
+  { label: "Đăng game", path: "/uploadgame", requiresAuth: true },
 ];
 
 const discoverItems = [
-  { label: "Dashboard", path: "/dashboard", requiresAuth: true },
-  { label: "Upload Game", path: "/uploadgame", requiresAuth: true },
+  { label: "Bảng điều khiển", path: "/dashboard", requiresAuth: true },
+  { label: "Tải game lên", path: "/uploadgame", requiresAuth: true },
 ];
 
 const navClass = ({ isActive }) =>
@@ -52,10 +53,10 @@ const SidebarContent = ({ onClose }) => {
 
   const authNavItems = user
     ? [
-        { label: "Profile", path: "/profile" },
+        { label: "Hồ sơ", path: "/profile" },
         ...((user.role?.toLowerCase() === "admin" || user.Role?.toLowerCase() === "admin" || user.role === 1 || user.Role === 1 || user.role === "1" || user.Role === "1") ? [{ label: "Admin", path: "/admin" }] : []),
       ]
-    : [{ label: "Login", path: "/signin" }];
+    : [{ label: "Đăng nhập", path: "/signin" }];
 
   const handleNavClick = (event, item) => {
     if (item.requiresAuth && !requireAuth()) {
@@ -99,10 +100,10 @@ const SidebarContent = ({ onClose }) => {
             />
             <div className="min-w-0">
               <p className="truncate text-[15px] font-semibold text-white">
-                {user?.displayName || user?.username || "User"}
+                {user?.displayName || user?.username || "Người dùng"}
               </p>
               <p className="truncate text-sm text-zinc-400">
-                @{user?.username || "account"}
+                @{user?.username || "tai-khoan"}
               </p>
             </div>
           </Link>
@@ -111,7 +112,7 @@ const SidebarContent = ({ onClose }) => {
 
       <section className="lg:hidden">
         <p className="mb-5 text-[13px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-          Navigation
+          Điều hướng
         </p>
 
         <nav className="space-y-2.5">
@@ -129,14 +130,14 @@ const SidebarContent = ({ onClose }) => {
 
           {!user ? (
             <NavLink to="/signin" onClick={onClose} className={navClass}>
-              Login
+              Đăng nhập
             </NavLink>
           ) : (
             <button
               onClick={handleSignOut}
               className="flex w-full items-center rounded-full px-4 py-3 text-left text-[15px] text-zinc-400 transition hover:bg-white/4 hover:text-white"
             >
-              Sign Out
+              Đăng xuất
             </button>
           )}
         </nav>
@@ -144,7 +145,7 @@ const SidebarContent = ({ onClose }) => {
 
       <section className="mt-10 lg:mt-0">
         <p className="mb-5 text-[13px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-          Discover
+          Khám phá
         </p>
 
         <nav className="space-y-2.5">
@@ -174,7 +175,7 @@ const SidebarContent = ({ onClose }) => {
 
       <section className="mt-10">
         <p className="mb-5 text-[13px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-          Popular Tags
+          Tag phổ biến
         </p>
 
         <div className="flex flex-wrap gap-3">
@@ -185,7 +186,7 @@ const SidebarContent = ({ onClose }) => {
               onClick={onClose}
               className="rounded-full border border-white/10 bg-white/3 px-4 py-2 text-[14px] text-zinc-300 transition hover:border-white/20 hover:bg-white/6 hover:text-white"
             >
-              {tag.name}
+              {getTagLabel(tag.name)}
             </Link>
           ))}
         </div>
@@ -193,17 +194,17 @@ const SidebarContent = ({ onClose }) => {
 
       <section className="mt-12">
         <p className="mb-5 text-[13px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-          Community Pulse
+          Nhịp cộng đồng
         </p>
 
         <div className="space-y-4">
           <div className="rounded-3xl border border-white/10 bg-white/3 px-7 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-            <p className="text-[15px] text-zinc-400">Live players</p>
+            <p className="text-[15px] text-zinc-400">Người chơi online</p>
             <p className="mt-5 text-[20px] font-bold text-white">125K</p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/3 px-7 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-            <p className="text-[15px] text-zinc-400"> Total posts </p>
+            <p className="text-[15px] text-zinc-400">Tổng bài viết</p>
             <p className="mt-5 text-[20px] font-bold text-white">{posts.length}</p>
           </div>
         </div>

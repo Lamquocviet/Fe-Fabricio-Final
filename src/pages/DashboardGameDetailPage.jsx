@@ -30,6 +30,7 @@ import {
   getGameRatings,
 } from "@/services/gameService";
 import { useTag } from "@/hooks/useTag";
+import { getGameTypeLabel, getTagLabel } from "@/utils/displayLabels";
 
 /* ─────────────── helpers ─────────────── */
 function formatDate(dateStr) {
@@ -282,13 +283,13 @@ export default function DashboardGameDetailPage() {
                       className="cursor-pointer hover:text-white transition-colors"
                       onClick={() => navigate("/dashboard")}
                     >
-                      Dashboard
+                      Bảng điều khiển
                     </span>
                     <span>/</span>
                     <span className="text-violet-400">{game.title}</span>
                   </div>
                   <h1 className="text-2xl font-bold text-white">
-                    Chi tiết Game
+                    Chi tiết game
                   </h1>
                 </div>
               </div>
@@ -337,7 +338,7 @@ export default function DashboardGameDetailPage() {
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-white flex items-center gap-2">
                       <Gamepad2 className="w-5 h-5 text-violet-400" />
-                      Thông tin Game
+                      Thông tin game
                     </h2>
                     {!isEditing ? (
                       <div className="flex items-center gap-2">
@@ -386,7 +387,7 @@ export default function DashboardGameDetailPage() {
 
                   {/* Thumbnail */}
                   <div className="space-y-2">
-                    <label className="text-sm text-zinc-400">Thumbnail</label>
+                    <label className="text-sm text-zinc-400">Ảnh thumbnail</label>
                     <div className="relative group">
                       {displayThumbnail ? (
                         <img
@@ -456,7 +457,7 @@ export default function DashboardGameDetailPage() {
                         </div>
                         <div>
                           <label className="text-sm text-zinc-400 mb-1 block">
-                            Game Type
+                            Loại game
                           </label>
                           <select
                             className={inputCls}
@@ -468,8 +469,8 @@ export default function DashboardGameDetailPage() {
                               }))
                             }
                           >
-                            <option value="Browser">Browser</option>
-                            <option value="Download">Download</option>
+                            <option value="Browser">{getGameTypeLabel("Browser")}</option>
+                            <option value="Download">{getGameTypeLabel("Download")}</option>
                           </select>
                         </div>
                       </div>
@@ -494,7 +495,7 @@ export default function DashboardGameDetailPage() {
                       {/* Game File (Build) */}
                       <div>
                         <label className="text-sm text-zinc-400 mb-1 block">
-                          Cập nhật Game Build (Zip file)
+                          Cập nhật build game (file zip)
                         </label>
                         <div
                           onClick={() => gameFileRef.current?.click()}
@@ -507,7 +508,7 @@ export default function DashboardGameDetailPage() {
                             <p className="text-sm font-medium text-white">
                               {newGameFile ? newGameFile.name : "Chọn file game mới (để trống nếu không đổi)"}
                             </p>
-                            <p className="text-xs text-zinc-500">Hỗ trợ .zip, .rar (Tối đa 500MB)</p>
+                            <p className="text-xs text-zinc-500">Hỗ trợ .zip, .rar (tối đa 500MB)</p>
                           </div>
                         </div>
                         <input
@@ -536,7 +537,7 @@ export default function DashboardGameDetailPage() {
                                   : "bg-[#1a1c28] border-[#2a2d3d] text-zinc-400 hover:border-violet-400 hover:text-white"
                                   }`}
                               >
-                                {tag.name}
+                                {getTagLabel(tag.name)}
                               </button>
                             );
                           })}
@@ -555,7 +556,7 @@ export default function DashboardGameDetailPage() {
                           </span>
                         }
                       />
-                      <InfoRow label="Loại game" value={game.gameType} />
+                      <InfoRow label="Loại game" value={getGameTypeLabel(game.gameType)} />
                       <div>
                         <p className="text-xs text-zinc-500 mb-1">Mô tả</p>
                         <p className="text-sm text-zinc-200 leading-relaxed whitespace-pre-line">
@@ -576,7 +577,7 @@ export default function DashboardGameDetailPage() {
                                 key={tag.id ?? tag}
                                 className="px-3 py-1 text-xs rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-300"
                               >
-                                {tag.name ?? tag}
+                                {getTagLabel(tag.name ?? tag)}
                               </span>
                             ))}
                           </div>

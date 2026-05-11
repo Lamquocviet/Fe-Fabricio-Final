@@ -82,7 +82,7 @@ export default function CommentSection({ postId, isOpen, authorId, onCreateComme
             disabled={!content.trim() || submitting}
             className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {submitting ? "Posting..." : "Post Comment"}
+          {submitting ? "Đang đăng..." : "Đăng bình luận"}
           </button>
         </div>
       </div>
@@ -104,7 +104,7 @@ export default function CommentSection({ postId, isOpen, authorId, onCreateComme
         >
           {comments.length === 0 ? (
             <div className="rounded-2xl border border-white/8 bg-white/2 p-4 text-sm text-zinc-400">
-              Chưa có comment nào.
+              Chưa có bình luận nào.
             </div>
           ) : (
             comments.map((comment) => (
@@ -121,7 +121,7 @@ export default function CommentSection({ postId, isOpen, authorId, onCreateComme
 
           {!hasNextPage && comments.length > 0 && (
             <div className="py-2 text-center text-sm text-zinc-500">
-              Đã hiển thị hết comments
+              Đã hiển thị hết bình luận
             </div>
           )}
         </div>

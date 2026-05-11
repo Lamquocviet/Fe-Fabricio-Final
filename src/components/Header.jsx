@@ -11,12 +11,13 @@ import useRequireAuth from "@/hooks/useRequireAuth";
 import logo from "@/assets/logo.png";
 import { getUserAvatarUrl } from "@/utils/userProfile";
 import { getTags } from "@/services/tagService";
+import { getTagLabel } from "@/utils/displayLabels";
 
 const pages = [
-  { label: "Home", path: "/" },
-  { label: "Games", path: "/games" },
-  { label: "Posts", path: "/posts" },
-  { label: "Submit Game", path: "/uploadgame", requiresAuth: true },
+  { label: "Trang chủ", path: "/" },
+  { label: "Game", path: "/games" },
+  { label: "Bài viết", path: "/posts" },
+  { label: "Đăng game", path: "/uploadgame", requiresAuth: true },
 ];
 
 const Header = ({ onOpenSidebar }) => {
@@ -159,8 +160,8 @@ const Header = ({ onOpenSidebar }) => {
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
-                placeholder="Search games or tags..."
-                className="ml-4 w-full bg-transparent text-[1.05rem] text-white placeholder:text-zinc-500 outline-none"
+                placeholder="Tìm game hoặc tag..."
+                className="ml-4 min-w-0 flex-1 bg-transparent text-[1.05rem] text-white placeholder:text-zinc-500 outline-none"
               />
 
               {searchValue && (
@@ -168,7 +169,7 @@ const Header = ({ onOpenSidebar }) => {
                   type="button"
                   onClick={handleClearSearch}
                   className="ml-3 rounded-full p-1 text-zinc-500 transition hover:bg-white/10 hover:text-white"
-                  aria-label="Clear search"
+                  aria-label="Xóa tìm kiếm"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -176,9 +177,9 @@ const Header = ({ onOpenSidebar }) => {
 
               <button
                 type="submit"
-                className="ml-3 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-white/15 hover:text-white"
+                className="ml-3 flex h-11 shrink-0 items-center justify-center rounded-full bg-white/10 px-6 text-sm font-semibold whitespace-nowrap text-zinc-200 transition hover:bg-white/15 hover:text-white"
               >
-                Search
+                Tìm kiếm
               </button>
             </div>
 
@@ -196,12 +197,12 @@ const Header = ({ onOpenSidebar }) => {
 
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-white">
-                        Search game
+                        Tìm game
                       </p>
                       <p className="truncate text-sm text-zinc-400">
                         {searchValue.trim()
                           ? searchValue.trim()
-                          : "View all games"}
+                          : "Xem tất cả game"}
                       </p>
                     </div>
                   </button>
@@ -209,7 +210,7 @@ const Header = ({ onOpenSidebar }) => {
                   {searchValue.trim() && (
                     <>
                       <p className="px-4 pb-2 pt-3 text-xs font-bold uppercase tracking-[0.18em] text-zinc-500">
-                        Games
+                        Game
                       </p>
 
                       {matchedGames.length > 0 ? (
@@ -275,7 +276,7 @@ const Header = ({ onOpenSidebar }) => {
                         onClick={() => handleSearchByTag(tag.name)}
                         className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
                       >
-                        {tag.name}
+                        {getTagLabel(tag.name)}
                       </button>
                     ))}
                   </div>
@@ -316,7 +317,7 @@ const Header = ({ onOpenSidebar }) => {
               to="/signin"
               className="ml-2 px-3 text-[1.05rem] font-medium text-zinc-300 transition hover:text-white"
             >
-              Sign In
+              Đăng nhập
             </Link>
           ) : (
             <>
@@ -325,7 +326,7 @@ const Header = ({ onOpenSidebar }) => {
                 onClick={handleSignOut}
                 className="ml-2 px-3 text-[1.05rem] font-medium text-zinc-300 transition hover:text-white"
               >
-                Sign Out
+                Đăng xuất
               </button>
 
               <Link
@@ -339,7 +340,7 @@ const Header = ({ onOpenSidebar }) => {
                 />
 
                 <span className="text-[1.05rem] font-semibold">
-                  {user?.username || "User"}
+                  {user?.username || "Người dùng"}
                 </span>
               </Link>
             </>

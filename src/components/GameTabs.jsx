@@ -7,8 +7,8 @@ export default function GameTabs({ game }) {
   const [activeTab, setActiveTab] = useState('description');
 
   const tabs = [
-    { id: 'description', label: 'Description' },
-    { id: 'comments', label: 'Comments' },
+    { id: 'description', label: 'Mô tả' },
+    { id: 'comments', label: 'Bình luận' },
     // { id: 'ratings', label: 'Ratings' },
   ];
 

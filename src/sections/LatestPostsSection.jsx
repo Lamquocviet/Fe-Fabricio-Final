@@ -26,11 +26,11 @@ export default function LatestPostsSection({
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-white">
-            Latest Posts
+            Bài viết mới nhất
           </h2>
 
           <p className="mt-2 text-base text-sky-200/70">
-            Threads-style community updates from players and devs.
+            Cập nhật cộng đồng từ người chơi và nhà phát triển.
           </p>
         </div>
 
@@ -38,7 +38,7 @@ export default function LatestPostsSection({
           onClick={handleClickOpenFeed}
           className="shrink-0 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm text-zinc-200 hover:bg-white/10"
         >
-          Open feed
+          Mở bảng tin
         </button>
       </div>
 
@@ -61,7 +61,7 @@ export default function LatestPostsSection({
           ))
         ) : (
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-center text-sm text-zinc-400">
-            No posts yet.
+            Chưa có bài viết nào.
           </div>
         )}
       </div>

@@ -302,7 +302,7 @@ const ProfilePage = () => {
                   ) : (
                     <p className="mt-3 whitespace-pre-line break-words leading-relaxed text-zinc-300">
                       {user?.bio ||
-                        "Indie game lover | Passionate about atmospheric stories and cozy experiences."}
+                        "Người yêu game indie | Yêu thích những câu chuyện giàu không khí và trải nghiệm thư giãn."}
                     </p>
                   )}
                 </div>

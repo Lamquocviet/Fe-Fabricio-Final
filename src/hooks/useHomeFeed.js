@@ -28,7 +28,7 @@ export default function useHomeFeed() {
       return {
         ...post,
 
-        name: displayAuthor?.displayName || displayAuthor?.username || "Unknown User",
+        name: displayAuthor?.displayName || displayAuthor?.username || "Người dùng ẩn danh",
         username: displayAuthor?.email ? `@${displayAuthor.email.split("@")[0]}` : "",
         avatar: getUserAvatarUrl(displayAuthor),
         role: displayAuthor?.role || "user",
@@ -88,7 +88,7 @@ export default function useHomeFeed() {
         setTopRatedGames(topRatedGamesData?.data || topRatedGamesData || []);
         setPosts(mappedPosts);
       } catch (err) {
-        setError(err?.response?.data?.message || err.message || "Load failed");
+        setError(err?.response?.data?.message || err.message || "Tải dữ liệu thất bại");
       } finally {
         if (!silent) {
           setLoading(false);

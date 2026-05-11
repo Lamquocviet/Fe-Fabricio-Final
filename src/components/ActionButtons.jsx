@@ -25,7 +25,7 @@ const isFree = game?.rawPrice === 0;
   const { requireAuth } = useRequireAuth();
 
   if (purchaseLoading) {
-    return <div className="text-white">Loading...</div>;
+    return <div className="text-white">Đang tải...</div>;
   }
 
   const handlePlay = async () => {
@@ -35,7 +35,7 @@ const isFree = game?.rawPrice === 0;
       window.open(res.gameUrl, "_blank");
     } catch (err) {
       console.error(err);
-      toast.error("Không thể mở game!");
+      toast.error("Bạn cần đăng nhập để chơi game này!");
     } finally {
       setLoading(false);
     }
@@ -54,7 +54,7 @@ const isFree = game?.rawPrice === 0;
       link.remove();
     } catch (err) {
       console.error(err);
-      toast.error("Download thất bại!");
+      toast.error("Tải xuống thất bại!");
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ const isFree = game?.rawPrice === 0;
             disabled={loading}
             className="w-full py-5 rounded-2xl bg-green-600 hover:bg-green-700"
           >
-            {loading ? "Loading..." : "🎮 Play"}
+            {loading ? "Đang tải..." : "🎮 Chơi ngay"}
           </button>
         ) : isDownload ? (
           <button
@@ -79,7 +79,7 @@ const isFree = game?.rawPrice === 0;
             disabled={loading}
             className="w-full py-5 rounded-2xl bg-blue-600 hover:bg-blue-700"
           >
-            {loading ? "Downloading..." : "⬇ Download"}
+            {loading ? "Đang tải xuống..." : "⬇ Tải xuống"}
           </button>
         ) : null
       ) : (
@@ -91,7 +91,7 @@ const isFree = game?.rawPrice === 0;
             }}
             className="w-full py-5 rounded-2xl bg-red-600 hover:bg-red-700"
           >
-            Buy Now
+            Mua ngay
           </button>
 
           {showModal && (

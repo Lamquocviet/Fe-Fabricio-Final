@@ -87,7 +87,7 @@ export default function Home() {
           <main className="flex-1">
             <div className="px-4 py-6 lg:p-0">
               <div className="rounded-3xl border border-red-500/20 bg-red-500/10 p-5 text-red-200">
-                Failed to load home feed: {error}
+                Không thể tải dữ liệu trang chủ: {error}
               </div>
             </div>
           </main>

@@ -54,11 +54,11 @@ const Login = () => {
     const { username, password } = formData;
 
     if (!username || !password) {
-      return "Username and password are required";
+      return "Vui lòng nhập tên đăng nhập và mật khẩu";
     }
 
     if (password.length < 6) {
-      return "Password must be at least 6 characters";
+      return "Mật khẩu phải có ít nhất 6 ký tự";
     }
 
     return "";
@@ -161,26 +161,26 @@ const Login = () => {
           <ArrowLeft className="h-4 w-4 transition group-hover:-translate-x-0.5" />
         </span>
         <span>
-          Back to <span className="text-[#ff7a59]">FabricIO</span>
+          Về <span className="text-[#ff7a59]">FabricIO</span>
         </span>
       </Link>
       <div className="w-full max-w-7xl overflow-hidden rounded-[22px] md:rounded-[28px] border border-white/10 bg-[#141418]/70 backdrop-blur-md shadow-[0_20px_80px_rgba(0,0,0,0.45)] grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="order-2 lg:order-1 px-4 py-5 sm:px-6 md:px-8 lg:px-9 flex items-center justify-center bg-linear-to-b from-white/2 to-white/1">
           <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0a0a0c]/80 p-5 sm:p-6 md:p-8 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
             <h2 className="text-2xl md:text-3xl font-extrabold text-white">
-              Welcome Back
+              Chào mừng trở lại
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-zinc-400">
-              Log in to continue your journey, track your favorite games, and
-              join the latest player discussions.
+              Đăng nhập để tiếp tục hành trình, theo dõi game yêu thích và
+              tham gia các cuộc thảo luận mới nhất.
             </p>
 
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
               <FormField
-                label="Username"
+                label="Tên đăng nhập"
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Nhập tên đăng nhập"
                 value={formData.username}
                 onChange={handleChange("username")}
                 disabled={loading}
@@ -188,13 +188,13 @@ const Login = () => {
 
               <div className="flex flex-col gap-2 text-left">
                 <label className="block text-sm font-medium text-zinc-300">
-                  Password
+                  Mật khẩu
                 </label>
 
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder="Nhập mật khẩu"
                     value={formData.password}
                     onChange={handleChange("password")}
                     disabled={loading}
@@ -205,7 +205,7 @@ const Login = () => {
                     onClick={() => setShowPassword((prev) => !prev)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 transition hover:text-zinc-200"
                   >
-                    {showPassword ? "Hide" : "Show"}
+                    {showPassword ? "Ẩn" : "Hiện"}
                   </button>
                 </div>
               </div>
@@ -218,11 +218,11 @@ const Login = () => {
                     onChange={handleChange("rememberMe")}
                     className="h-4 w-4 rounded border-white/10 bg-transparent accent-orange-500"
                   />
-                  Remember me
+                  Ghi nhớ đăng nhập
                 </label>
 
                 <span className="cursor-pointer font-medium text-[#ff7a59] hover:text-[#ff8b6d]">
-                  Forgot password?
+                  Quên mật khẩu?
                 </span>
               </div>
 
@@ -231,13 +231,13 @@ const Login = () => {
                 disabled={loading}
                 className="w-full rounded-2xl bg-linear-to-r from-[#ff6a4a] to-[#ff5a3b] px-4 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(255,90,59,0.22)] transition hover:from-[#ff7a59] hover:to-[#ff4d4d] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? "Signing in..." : "Sign In"}
+                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
               </button>
             </form>
 
             <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-zinc-500">
               <div className="h-px flex-1 bg-white/10"></div>
-              <span>or continue</span>
+              <span>hoặc tiếp tục</span>
               <div className="h-px flex-1 bg-white/10"></div>
             </div>
 
@@ -245,16 +245,16 @@ const Login = () => {
               type="button"
               className="w-full rounded-2xl border border-white/10 bg-white/3 px-4 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5"
             >
-              Continue with Google
+              Tiếp tục với Google
             </button>
 
             <p className="mt-5 text-center text-sm text-zinc-400">
-              Don&apos;t have an account?{" "}
+              Chưa có tài khoản?{" "}
               <Link
                 to="/signup"
                 className="cursor-pointer font-bold text-[#ff7a59]"
               >
-                Sign up
+                Đăng ký
               </Link>
             </p>
           </div>
@@ -265,24 +265,24 @@ const Login = () => {
             onClick={() => navigate("/")}
             className="inline-block rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-sm font-semibold text-orange-300 w-fit cursor-pointer transition hover:bg-orange-400/20"
           >
-            Back to FabricIO
+            Về FabricIO
           </span>
 
           <h1 className="mt-5 text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight text-zinc-100">
-            Jump back into your world of games and community.
+            Quay lại thế giới game và cộng đồng của bạn.
           </h1>
 
           <p className="mt-5 max-w-xl text-sm sm:text-base leading-7 text-zinc-400">
-            Access your profile, continue discussions, discover fresh releases,
-            and stay connected with creators and players across the platform.
+            Truy cập hồ sơ, tiếp tục thảo luận, khám phá bản phát hành mới và
+            kết nối với nhà sáng tạo cùng người chơi trên nền tảng.
           </p>
 
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
-              "Track your favorite titles",
-              "Save games to your list",
-              "Join player conversations",
-              "Follow creators and updates",
+              "Theo dõi game yêu thích",
+              "Lưu game vào danh sách",
+              "Tham gia trò chuyện cùng người chơi",
+              "Theo dõi nhà sáng tạo và cập nhật",
             ].map((item) => (
               <div
                 key={item}
@@ -295,8 +295,8 @@ const Login = () => {
 
           <div className="mt-8 rounded-3xl border border-orange-400/10 bg-orange-400/5 p-5">
             <p className="text-sm leading-7 text-zinc-300">
-              “Discover new worlds, share your thoughts, and keep your gaming
-              identity in one sleek platform.”
+              “Khám phá thế giới mới, chia sẻ suy nghĩ và lưu giữ dấu ấn chơi
+              game của bạn trên một nền tảng gọn gàng.”
             </p>
           </div>
         </div>

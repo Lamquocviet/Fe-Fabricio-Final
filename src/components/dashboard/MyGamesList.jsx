@@ -33,7 +33,7 @@ const MyGamesList = ({ games = [], onSelectGame }) => {
                 <div className="flex-1">
                   <h4 className="text-white font-semibold text-lg">{game.title}</h4>
                   <div className="flex items-center flex-wrap gap-4 mt-2 text-sm text-zinc-400">
-                    <span className="font-medium text-emerald-400">{game.price > 0 ? `$${game.price}` : 'Free'}</span>
+                    <span className="font-medium text-emerald-400">{game.price > 0 ? `$${game.price}` : 'Miễn phí'}</span>
                     <span className="flex items-center gap-1"><Star className="w-4 h-4 text-amber-400" /> {game.stats?.avgRating || 0}</span>
                     <span className="flex items-center gap-1"><Heart className="w-4 h-4 text-rose-400" /> {game.stats?.ratings || 0}</span>
                     <span className="flex items-center gap-1"><MessageSquare className="w-4 h-4 text-blue-400" /> {game.stats?.comments || 0}</span>

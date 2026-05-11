@@ -195,7 +195,7 @@ export const uploadGame = async (payload) => {
     return res.data;
   } catch (error) {
     console.error("Upload error:", error);
-    throw new Error(getErrorMessage(error, "Failed to upload game"));
+    throw new Error(getErrorMessage(error, "Tải game lên thất bại"));
   }
 };
 

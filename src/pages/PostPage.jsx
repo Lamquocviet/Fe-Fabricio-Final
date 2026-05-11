@@ -156,16 +156,16 @@ const PostPage = () => {
               <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                   <span className="inline-flex items-center rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-orange-300">
-                    Community Feed
+                    Bảng tin cộng đồng
                   </span>
 
                   <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-                    Threads-style posts for players and devs
+                    Không gian bài viết cho người chơi và nhà phát triển
                   </h1>
 
                   <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-400">
-                    Share updates, celebrate launches, discuss gameplay, and
-                    stay connected with creators and players across FabricIO.
+                    Chia sẻ cập nhật, chúc mừng ngày ra mắt, thảo luận gameplay
+                    và kết nối với nhà sáng tạo cùng người chơi trên FabricIO.
                   </p>
                 </div>
 
@@ -174,7 +174,7 @@ const PostPage = () => {
                     {posts?.length || 0}
                   </p>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                    Total posts
+                    Tổng bài viết
                   </p>
                 </div>
               </div>
@@ -184,7 +184,7 @@ const PostPage = () => {
               <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h2 className="text-2xl font-extrabold text-white">
-                    Create a post
+                    Tạo bài viết
                   </h2>
                   <p className="mt-1 text-sm text-zinc-400">
                     Chia sẻ cập nhật, câu hỏi hoặc cảm nhận mới với cộng đồng.
@@ -193,8 +193,8 @@ const PostPage = () => {
 
                 <span className="w-fit rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-zinc-400">
                   {user
-                    ? `Posting as ${user?.displayName || user?.username}`
-                    : "Guest mode"}
+                    ? `Đăng với tên ${user?.displayName || user?.username}`
+                    : "Chế độ khách"}
                 </span>
               </div>
 
@@ -259,7 +259,7 @@ const PostPage = () => {
               <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h2 className="text-2xl font-extrabold text-white">
-                    Latest Posts
+                    Bài viết mới nhất
                   </h2>
                   <p className="mt-1 text-sm text-zinc-400">
                     Những bài viết mới nhất từ người chơi và nhà phát triển.
@@ -269,7 +269,7 @@ const PostPage = () => {
                 <div className="flex flex-wrap items-center gap-3">
                   {posts.length > 0 && (
                     <span className="w-fit rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-zinc-400">
-                      Page {postPage} / {totalPostPages}
+                      Trang {postPage} / {totalPostPages}
                     </span>
                   )}
 
@@ -278,7 +278,7 @@ const PostPage = () => {
                     onClick={refetch}
                     className="w-fit rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-zinc-200 transition hover:bg-white/10 hover:text-white"
                   >
-                    Refresh
+                    Làm mới
                   </button>
                 </div>
               </div>
@@ -315,7 +315,7 @@ const PostPage = () => {
                   {totalPostPages > 1 && (
                     <div className="mt-6 flex flex-col gap-4 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-sm text-zinc-500">
-                        Showing{" "}
+                        Hiển thị{" "}
                         <span className="font-semibold text-zinc-300">
                           {(postPage - 1) * POST_PAGE_SIZE + 1}
                         </span>{" "}
@@ -323,11 +323,11 @@ const PostPage = () => {
                         <span className="font-semibold text-zinc-300">
                           {Math.min(postPage * POST_PAGE_SIZE, posts.length)}
                         </span>{" "}
-                        of{" "}
+                        trên{" "}
                         <span className="font-semibold text-zinc-300">
                           {posts.length}
                         </span>{" "}
-                        posts
+                        bài viết
                       </p>
 
                       <div className="flex flex-wrap items-center gap-2">
@@ -337,7 +337,7 @@ const PostPage = () => {
                           onClick={handlePrevPostPage}
                           className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-zinc-300 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                         >
-                          Prev
+                          Trước
                         </button>
 
                         {Array.from({ length: totalPostPages }).map(
@@ -367,7 +367,7 @@ const PostPage = () => {
                           onClick={handleNextPostPage}
                           className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-zinc-300 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                         >
-                          Next
+                          Sau
                         </button>
                       </div>
                     </div>

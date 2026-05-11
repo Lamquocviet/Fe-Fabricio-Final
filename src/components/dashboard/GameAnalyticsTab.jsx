@@ -20,7 +20,7 @@ const GameAnalyticsTab = ({ game, onBack }) => {
           </button>
           <div>
             <div className="flex items-center gap-2 text-sm text-zinc-400 mb-1">
-              <span className="cursor-pointer hover:text-white transition-colors" onClick={onBack}>Dashboard</span>
+              <span className="cursor-pointer hover:text-white transition-colors" onClick={onBack}>Bảng điều khiển</span>
               <span>/</span>
               <span className="text-violet-400">{game.title}</span>
             </div>

@@ -18,7 +18,7 @@ const MyGameFavoriteTab = () => {
         setGames(res);
       } catch (err) {
         console.error("MyGameFavoriteTab error:", err);
-        setError("Failed to fetch games");
+        setError("Không thể tải danh sách game");
       } finally {
         setLoading(false);
       }
@@ -71,7 +71,7 @@ const MyGameFavoriteTab = () => {
   return (
     <div className="container mx-auto">
       {loading ? (
-        <p className="text-white">Loading...</p>
+        <p className="text-white">Đang tải...</p>
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : games.length === 0 ? (

@@ -14,10 +14,10 @@ export default function FeaturedGamesSection({ games = [] }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-white">
-            Featured Games
+            Game nổi bật
           </h2>
           <p className="mt-2 text-base text-sky-200/70">
-            Curated highlights with strong cover art, ratings, and tags.
+            Những game được chọn lọc với ảnh bìa, đánh giá và tag nổi bật.
           </p>
         </div>
 
@@ -25,7 +25,7 @@ export default function FeaturedGamesSection({ games = [] }) {
           onClick={handleClickView}
           className="shrink-0 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm text-zinc-200 hover:bg-white/10"
         >
-          Browse all
+          Xem tất cả
         </button>
       </div>
 

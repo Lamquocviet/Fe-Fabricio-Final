@@ -145,11 +145,11 @@ const DashboardPage = () => {
                   <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                       <span className="inline-flex items-center rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-orange-300">
-                        Creator Center
+                        Trung tâm nhà sáng tạo
                       </span>
 
                       <h1 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-                        Dashboard
+                        Bảng điều khiển
                       </h1>
 
                       <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-400">
@@ -164,7 +164,7 @@ const DashboardPage = () => {
                         onClick={() => navigate("/uploadgame")}
                         className="rounded-2xl bg-linear-to-r from-[#ff6a4a] to-[#ff5a3b] px-5 py-3 text-sm font-bold text-white shadow-[0_12px_30px_rgba(255,90,59,0.24)] transition hover:brightness-110"
                       >
-                        Upload Game
+                        Tải game lên
                       </button>
 
                       <button
@@ -172,7 +172,7 @@ const DashboardPage = () => {
                         onClick={() => navigate("/profile")}
                         className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:bg-white/10 hover:text-white"
                       >
-                        View Profile
+                        Xem hồ sơ
                       </button>
                     </div>
                   </div>
@@ -192,8 +192,7 @@ const DashboardPage = () => {
                     </div>
 
                     <span className="w-fit rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-zinc-400">
-                      {games.length} published game
-                      {games.length !== 1 ? "s" : ""}
+                      {games.length} game đã xuất bản
                     </span>
                   </div>
 

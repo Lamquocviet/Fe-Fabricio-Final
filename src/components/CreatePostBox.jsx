@@ -64,17 +64,31 @@ export default function CreatePostBox({
       return;
     }
 
-    setFormError("");
+    try {
+      setFormError("");
 
-    await onPostCreated({
-      title: title.trim(),
-      content: content.trim(),
-      images,
-    });
+      await onPostCreated({
+        title: title.trim(),
+        content: content.trim(),
+        images,
+      });
 
-    setTitle("");
-    setContent("");
-    setImages([]);
+      setTitle("");
+      setContent("");
+      setImages([]);
+
+      toast.success("Đăng bài thành công!");
+    } catch (error) {
+      console.error("Create post failed:", error);
+
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Đăng bài thất bại. Vui lòng thử lại.";
+
+      setFormError(message);
+      toast.error(message);
+    }
   };
 
   return (
@@ -88,11 +102,11 @@ export default function CreatePostBox({
 
         <div>
           <p className="font-semibold">
-            {user?.displayName || user?.DisplayName || "John Doe"}
+            {user?.displayName || user?.DisplayName || "Người dùng"}
           </p>
 
           <p className="text-sm text-blue-400">
-            {user?.username || user?.Username || "@johndoe"}
+            {user?.username || user?.Username || "@nguoidung"}
           </p>
         </div>
       </div>
@@ -101,14 +115,14 @@ export default function CreatePostBox({
         type="text"
         value={title}
         onChange={handleChangeTitle}
-        placeholder="Enter post title..."
+        placeholder="Nhập tiêu đề bài viết..."
         className="mt-4 w-full rounded-xl border border-white/10 bg-[#151515] p-4 text-sm outline-none placeholder:text-white/40 focus:border-white/20"
       />
 
       <textarea
         value={content}
         onChange={handleChangeContent}
-        placeholder="Post something about the latest build, patch notes, or your current favorite game..."
+        placeholder="Chia sẻ về bản build mới, ghi chú cập nhật hoặc game bạn đang yêu thích..."
         className="mt-4 w-full rounded-xl border border-white/10 bg-[#151515] p-4 text-sm outline-none placeholder:text-white/40 focus:border-white/20"
         rows={5}
       />
@@ -117,7 +131,7 @@ export default function CreatePostBox({
 
       <div className="mt-4 flex gap-3">
         <label className="cursor-pointer rounded-full border border-white/10 px-4 py-2 text-sm text-blue-300 hover:bg-white/5">
-          Upload image
+          Tải ảnh lên
           <input
             type="file"
             accept="image/*"
@@ -133,7 +147,7 @@ export default function CreatePostBox({
           disabled={loading}
           className="rounded-xl bg-linear-to-r from-red-500 to-pink-500 px-6 py-2 font-semibold shadow-md hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? "Posting..." : "Post"}
+          {loading ? "Đang đăng..." : "Đăng bài"}
         </button>
       </div>
 

@@ -7,10 +7,10 @@ export default function TrendingNowSection({ games = [] }) {
     <section className="space-y-5">
       <div>
         <h2 className="text-3xl font-bold tracking-tight text-white">
-          Trending Now
+          Đang thịnh hành
         </h2>
         <p className="mt-2 text-base text-sky-200/70">
-          A horizontal discovery rail inspired by storefront browsing.
+          Khám phá nhanh những game đang được cộng đồng chú ý.
         </p>
       </div>
 

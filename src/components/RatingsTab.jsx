@@ -28,7 +28,7 @@ export default function RatingsTab({ game }) {
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 md:p-10">
       
       <p className="text-zinc-400 mb-8">
-        Average rating from users
+        Điểm đánh giá trung bình từ người dùng
       </p>
 
       {/* ⭐ Stars */}
@@ -58,7 +58,7 @@ export default function RatingsTab({ game }) {
       </p>
 
       <p className="text-sm text-zinc-500 mt-1">
-        {total} ratings
+        {total} lượt đánh giá
       </p>
     </div>
   );

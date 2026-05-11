@@ -4,6 +4,7 @@ import React, { use } from "react";
 import { useNavigate } from "react-router";
 import { usePurchase } from "@/hooks/usePurchase";
 import { getPlayUrl } from "@/services/gameService";
+import { getPriceLabel, getTagLabel } from "@/utils/displayLabels";
 
 export default function GameCard({ game }) {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function GameCard({ game }) {
         {/* Badge đã mua */}
         {isPurchased && (
           <span className="absolute left-3 top-3 rounded-full bg-green-600 px-3 py-1 text-xs font-semibold text-white shadow">
-            ✔ Purchased
+            ✔ Đã mua
           </span>
         )}
 
@@ -66,7 +67,7 @@ export default function GameCard({ game }) {
               key={tag}
               className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-center text-xs text-zinc-300"
             >
-              {tag}
+              {getTagLabel(tag)}
             </span>
           ))}
         </div>
@@ -81,11 +82,11 @@ export default function GameCard({ game }) {
                   : "text-[#ffb14a]"
               }`}
             >
-              {game.price}
+              {getPriceLabel(game.price)}
             </span>
           ) : (
             <span className="text-lg font-semibold text-green-500">
-              Owned
+              Đã sở hữu
             </span>
           )}
 
@@ -103,7 +104,7 @@ export default function GameCard({ game }) {
             }}
             className="w-full rounded-xl bg-linear-to-r from-[#ff6a4a] to-[#ff4d61] px-4 py-2 text-sm font-semibold text-white"
           >
-            View
+            Xem chi tiết
           </button>
         </div>
       </div>

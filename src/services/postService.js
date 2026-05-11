@@ -23,10 +23,10 @@ export const getPosts = async ({ page = 1, limit = 10 } = {}) => {
   }
 };
 
-export const getTrendingPosts = async ({ page = 1, limit = 10 } = {}) => {
+export const getTrendingPosts = async ({ page = 1, Pagesize = 3 } = {}) => {
   try {
     const res = await axiosInstance.get("/Post/trending", {
-      params: { page, limit },
+      params: { page, Pagesize },
     });
     return res.data;    
   } catch (error) {

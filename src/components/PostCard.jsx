@@ -5,6 +5,7 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import CommentSection from "./CommentSection";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { toast } from "sonner";
+import { getRoleLabel } from "@/utils/displayLabels";
 
 const getVisibleMediaCount = (count) => {
   if (count <= 4) return count;
@@ -280,29 +281,43 @@ export default function PostCard({
 
   const handleSaveEdit = async () => {
     if (!requireAuth("Vui lòng đăng nhập để chỉnh sửa bài viết.")) return;
+
     if (!editTitle.trim() || !editContent.trim()) {
       toast.error("Tiêu đề và nội dung bài viết không được để trống.");
       return;
     }
 
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    formData.append("Title", editTitle.trim());
-    formData.append("Content", editContent.trim());
+      formData.append("Title", editTitle.trim());
+      formData.append("Content", editContent.trim());
 
-    deletedImageIds.forEach((id) => {
-      formData.append("DeletedImageIds", id);
-    });
+      deletedImageIds.forEach((id) => {
+        formData.append("DeletedImageIds", id);
+      });
 
-    newImages.forEach((file) => {
-      formData.append("NewImages", file);
-    });
+      newImages.forEach((file) => {
+        formData.append("NewImages", file);
+      });
 
-    await onUpdatePost(post.id, formData);
+      await onUpdatePost(post.id, formData);
 
-    setIsEditing(false);
-    setNewImages([]);
-    setDeletedImageIds([]);
+      setIsEditing(false);
+      setNewImages([]);
+      setDeletedImageIds([]);
+
+      toast.success("Cập nhật bài viết thành công!");
+    } catch (error) {
+      console.error("Update post failed:", error);
+
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Cập nhật bài viết thất bại. Vui lòng thử lại.";
+
+      toast.error(message);
+    }
   };
 
   const handleRemoveExistingImage = (imageId) => {
@@ -365,7 +380,7 @@ export default function PostCard({
             closeMediaViewer();
           }}
           className="fixed right-5 top-5 z-[100000] flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
-          aria-label="Close image viewer"
+          aria-label="Đóng trình xem ảnh"
         >
           <X className="h-7 w-7" />
         </button>
@@ -379,7 +394,7 @@ export default function PostCard({
                 showPreviousMedia();
               }}
               className="fixed left-5 top-1/2 z-[100000] flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
-              aria-label="Previous image"
+              aria-label="Ảnh trước"
             >
               <ChevronLeft className="h-8 w-8" />
             </button>
@@ -391,7 +406,7 @@ export default function PostCard({
                 showNextMedia();
               }}
               className="fixed right-5 top-1/2 z-[100000] flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
-              aria-label="Next image"
+              aria-label="Ảnh sau"
             >
               <ChevronRight className="h-8 w-8" />
             </button>
@@ -447,7 +462,7 @@ export default function PostCard({
             </div>
 
             <span className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs capitalize text-sky-200/80">
-              {post.role}
+              {getRoleLabel(post.role)}
             </span>
           </div>
 
@@ -457,20 +472,20 @@ export default function PostCard({
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 className="mt-4 w-full rounded-xl border border-white/10 bg-[#151515] p-4 text-sm text-white outline-none focus:border-white/20"
-                placeholder="Edit title..."
+                placeholder="Chỉnh sửa tiêu đề..."
               />
 
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 className="mt-4 w-full rounded-xl border border-white/10 bg-[#151515] p-4 text-sm text-white outline-none focus:border-white/20"
-                placeholder="Edit content..."
+                placeholder="Chỉnh sửa nội dung..."
                 rows={5}
               />
 
               <div className="mt-4">
                 <label className="cursor-pointer rounded-full border border-white/10 px-4 py-2 text-sm text-blue-300 hover:bg-white/5">
-                  Change image
+                  Đổi ảnh
                   <input
                     type="file"
                     accept="image/*"
@@ -533,7 +548,7 @@ export default function PostCard({
                   onClick={handleSaveEdit}
                   className="rounded-full bg-green-500 px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
                 >
-                  Save
+                  Lưu
                 </button>
 
                 <button
@@ -541,7 +556,7 @@ export default function PostCard({
                   onClick={handleCancelEdit}
                   className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 hover:bg-white/10"
                 >
-                  Cancel
+                  Hủy
                 </button>
               </div>
             </>
@@ -643,7 +658,7 @@ export default function PostCard({
               className="transition hover:text-white"
               onClick={handleToggleComments}
             >
-              Comments {showComments ? "▲" : "▼"} {commentCount}
+              Bình luận {showComments ? "▲" : "▼"} {commentCount}
             </button>
 
             {isEditable && !isEditing && (
@@ -657,7 +672,7 @@ export default function PostCard({
                 }}
                 className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-200 transition hover:bg-white/10"
               >
-                Edit
+                Chỉnh sửa
               </button>
             )}
           </div>

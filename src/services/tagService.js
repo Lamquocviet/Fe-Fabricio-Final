@@ -10,7 +10,7 @@ export const getTags = async () => {
         const res = await axiosInstance.get("/GameTags");
         return res.data;
     } catch (error) {
-        throw new Error(getErrorMessage(error, "Failed to fetch tags"));
+        throw new Error(getErrorMessage(error, "Không thể tải danh sách tag"));
     }
 }
 
@@ -21,6 +21,6 @@ export const createTag = async (name) => {
         const res = await axiosInstance.post("/GameTags", { name });
         return res.data;
     } catch (error) {
-        throw new Error(getErrorMessage(error, "Failed to create tag"));
+        throw new Error(getErrorMessage(error, "Không thể tạo tag"));
     }
 }

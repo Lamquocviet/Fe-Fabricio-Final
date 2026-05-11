@@ -3,6 +3,7 @@ import { Star } from "lucide-react";
 import { rateGame, getGameRatings } from "@/services/gameService";
 import { toast } from "sonner";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import { getPriceLabel, getTagLabel } from "@/utils/displayLabels";
 
 export default function GameInfo({ game }) {
   const { user, requireAuth } = useRequireAuth();
@@ -100,16 +101,16 @@ export default function GameInfo({ game }) {
       <div className="flex items-center gap-8 mt-8">
         <div>
           <div className="text-4xl font-bold text-emerald-400">
-            {game.price}
+            {getPriceLabel(game.price)}
           </div>
-          <p className="text-sm text-zinc-500">One-time purchase</p>
+          <p className="text-sm text-zinc-500">Thanh toán một lần</p>
         </div>
 
         <button
           onClick={openRating}
           className="bg-yellow-500 px-6 py-3 rounded-xl font-semibold"
         >
-          {userRating !== null ? "⭐ Update rating" : "⭐ Rate game"}
+          {userRating !== null ? "⭐ Cập nhật đánh giá" : "⭐ Đánh giá game"}
         </button>
       </div>
 
@@ -130,7 +131,7 @@ export default function GameInfo({ game }) {
 
         <span className="text-3xl font-semibold">{localRating.toFixed(1)}</span>
 
-        <span className="text-sm text-zinc-500">({localTotal} reviews)</span>
+        <span className="text-sm text-zinc-500">({localTotal} đánh giá)</span>
       </div>
 
       {/* TAGS */}
@@ -138,7 +139,7 @@ export default function GameInfo({ game }) {
         {tags.length > 0 ? (
           tags.map((tag, i) => (
             <span key={i} className="bg-zinc-900 px-4 py-2 rounded-full">
-              {tag}
+              {getTagLabel(tag)}
             </span>
           ))
         ) : (
@@ -150,7 +151,7 @@ export default function GameInfo({ game }) {
       {showRating && (
         <div className="fixed inset-0 bg-black/70 flex justify-center items-center">
           <div className="bg-[#1c1d20] p-6 rounded-xl w-[400px]">
-            <h2 className="text-xl text-white text-center mb-4">Rate Game</h2>
+            <h2 className="text-xl text-white text-center mb-4">Đánh giá game</h2>
 
             <div className="flex justify-center gap-2 text-4xl">
               {[1, 2, 3, 4, 5].map((n) => {
@@ -177,7 +178,7 @@ export default function GameInfo({ game }) {
                 onClick={() => setShowRating(false)}
                 className="flex-1 bg-zinc-600 py-2 rounded"
               >
-                Cancel
+                Hủy
               </button>
 
               <button
@@ -185,7 +186,7 @@ export default function GameInfo({ game }) {
                 disabled={loading || stars === 0}
                 className="flex-1 bg-yellow-500 py-2 rounded"
               >
-                {loading ? "Submitting..." : "Submit"}
+                {loading ? "Đang gửi..." : "Gửi"}
               </button>
             </div>
           </div>

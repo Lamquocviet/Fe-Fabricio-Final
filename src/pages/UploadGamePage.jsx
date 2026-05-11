@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { ShieldAlert, Phone } from "lucide-react";
+import { getGameTypeLabel, getTagLabel } from "@/utils/displayLabels";
 
 const TAGS = [
   "Racing",
@@ -96,7 +97,7 @@ export default function UploadGamePage() {
               <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                   <span className="inline-flex items-center rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-orange-300">
-                    Upload Center
+                    Trung tâm đăng game
                   </span>
 
                   <h1 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -104,17 +105,17 @@ export default function UploadGamePage() {
                   </h1>
 
                   <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-400">
-                    Tải build cho Browser hoặc Download, thêm thumbnail, mô tả,
-                    tag và giá bán để đưa game của bạn lên FabricIO.
+                    Tải build chơi trên trình duyệt hoặc bản tải xuống, thêm
+                    ảnh thumbnail, mô tả, tag và giá bán để đưa game của bạn lên FabricIO.
                   </p>
                 </div>
 
                 <div className="rounded-3xl border border-white/10 bg-white/5 px-5 py-4">
                   <p className="text-sm font-semibold text-zinc-300">
-                    Publishing status
+                    Trạng thái đăng tải
                   </p>
                   <p className="mt-1 text-2xl font-black text-white">
-                    {isSubmitting ? "Uploading..." : "Ready"}
+                    {isSubmitting ? "Đang tải lên..." : "Sẵn sàng"}
                   </p>
                 </div>
               </div>
@@ -146,10 +147,10 @@ export default function UploadGamePage() {
                     />
                   </Input>
 
-                  <Input label="Game Type" error={errors.GameType?.message}>
+                  <Input label="Loại game" error={errors.GameType?.message}>
                     <select {...register("GameType")} className={inputCls}>
-                      <option value="Browser">Browser</option>
-                      <option value="Download">Download</option>
+                      <option value="Browser">{getGameTypeLabel("Browser")}</option>
+                      <option value="Download">{getGameTypeLabel("Download")}</option>
                     </select>
                   </Input>
 
@@ -170,7 +171,7 @@ export default function UploadGamePage() {
                 <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#111113]/80 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6">
                   <SectionHeader
                     title="File game"
-                    description="Upload build game hoặc file package của bạn."
+                    description="Tải build game hoặc file package của bạn."
                   />
 
                   <div className="mt-6">
@@ -230,7 +231,7 @@ export default function UploadGamePage() {
                             : "border-white/10 bg-white/5 text-zinc-400 hover:border-orange-400/30 hover:bg-orange-400/10 hover:text-white"
                         }`}
                       >
-                        {tag.name}
+                        {getTagLabel(tag.name)}
                       </button>
                     );
                   })}
@@ -244,7 +245,7 @@ export default function UploadGamePage() {
                       Sẵn sàng đăng game?
                     </p>
                     <p className="mt-1 text-xs text-zinc-500">
-                      Kiểm tra lại thông tin trước khi submit.
+                      Kiểm tra lại thông tin trước khi gửi.
                     </p>
                   </div>
 
@@ -253,7 +254,7 @@ export default function UploadGamePage() {
                     disabled={isSubmitting}
                     className="rounded-2xl bg-linear-to-r from-[#ff6a4a] to-[#ff5a3b] px-6 py-3 text-sm font-bold text-white shadow-[0_12px_30px_rgba(255,90,59,0.24)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {isSubmitting ? "Uploading..." : "Đăng game"}
+                    {isSubmitting ? "Đang tải lên..." : "Đăng game"}
                   </button>
                 </div>
               </section>
@@ -348,7 +349,7 @@ function UploadBox({
               {label || "Click hoặc kéo file"}
             </p>
             <p className="mt-1 text-xs text-zinc-500">
-              File sẽ được lưu sau khi bạn submit form.
+              File sẽ được lưu sau khi bạn gửi form.
             </p>
           </div>
         </div>
